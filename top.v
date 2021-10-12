@@ -34,7 +34,7 @@ module top(
 	inout				[35:0]		GPIO_1,
 `endif
 
-	output			[35:0]		GPIO_1,
+	input			[35:0]		GPIO_1,
 
 
 `ifdef enable_HPS
@@ -105,28 +105,38 @@ module top(
 	
 	//////////// SW ////////////
 	/* 3.3-V LVTTL */
-	input				[3:0]			SW
+	input				[3:0]			SW,
 
+	
+    output [31:0] period,
+    output [31:0] duty_cycle
 );
 
 reg[31:0] counter;
-reg[1:0] prev_key = 0;
+reg[3:0] prev_key = 0;
 
-wire CLOCK_33;
+wire CLOCK;
+wire CLOCK2;
+wire test;
+
+assign test = GPIO_1[35];
 
 always @(posedge CLOCK_50) begin
-		prev_key <= KEY;
+		prev_key <= SW;
 	   //if ((prev_key[1] == 0 )&& (KEY[1] == 1))
-		if ( {prev_key[1], KEY[1]} == 2'b01 || {prev_key[0], KEY[0]} == 2'b01 )
+		if ( {prev_key[1], SW[1]} == 2'b01 || {prev_key[0], SW[0]} == 2'b01 )
 			LED[0] <= ~LED[0];
 	end 
 
 	pll0 pll0_inst (
 		.refclk(CLOCK_50),   //  refclk.clk
 		.rst(),      //   reset.reset
-		.outclk_0(CLOCK_33)  // outclk0.clk
+		.outclk_0(CLOCK),  // outclk0.clk
+		.outclk_1(CLOCK2)  // outclk1.clk
 	);
 
-	assign GPIO_1[35] = CLOCK_33;
+	
+	
+	duration_meter meter(.clock(CLOCK), .reset(0), .d(test), .q(period), .duty_cycle(duty_cycle)); 
 	
 endmodule
