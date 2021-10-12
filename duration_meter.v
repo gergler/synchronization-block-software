@@ -1,9 +1,13 @@
-module duration_meter(input clock, input reset, input d, output reg[31:0] q, output reg[31:0] duty_cycle);
+module duration_meter(clock, reset, d, q, duty_cycle);  
+  input clock;
+  input d; 
+  input reset; 
+  output reg[31:0] q;
+  output reg[31:0] duty_cycle;
   
   reg[31:0] duration;
-  
+
   reg prev_d;
-  
   always @(posedge clock) begin
 		prev_d <= d;
 		if ({prev_d, d} == 2'b01) begin
