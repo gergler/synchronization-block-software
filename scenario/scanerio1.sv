@@ -30,6 +30,8 @@ module tb_scenario1();
         #FG_OPENED;
     end
     
+    check DUT(fast_gate, phase_signal, check_condition);
+    
     initial begin
         start_condition = 0;
         #(25*1000_000);
@@ -37,9 +39,12 @@ module tb_scenario1();
         #100;
         start_condition = 0;
         #100_000;
-        detonator_triggered = 1;
-        #100;
-        detonator_triggered = 0;
+        if (check_condition) begin
+            #FG_PERIOD;
+            detonator_triggered = 1;
+            #100;
+            detonator_triggered = 0;
+        end
     end
     
     always @(posedge detonator_triggered) begin
