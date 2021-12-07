@@ -1,7 +1,7 @@
-module check(fast_lock, phase, out_value);
-  output out_value;
-  input fast_lock, phase;
+module check(fast_gate, phase_signal, check_condition);
+  output check_condition;
+  input fast_gate, phase_signal;
   
-  assign out_value = ~(fast_lock & phase);
+  assign check_condition = ~(fast_gate & phase_signal);
   
 endmodule
