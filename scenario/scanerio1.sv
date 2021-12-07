@@ -8,13 +8,14 @@ module tb_scenario1();
     logic detonator_triggered = 0;
     logic wire_sensor = 0;
     logic output_trigger = 0;
-    logic check_condition = 0;
     
     localparam FG_PERIOD = 10 * 1000000;
     localparam FG_OPENED = 100 * 1000; 
     localparam PH_FREQUENCY = 818924; // Hz
     localparam PH_PERIOD = 1000_000_000/PH_FREQUENCY; //1200;
     localparam PH_OPENED = (PH_PERIOD / 2);
+    
+    localparam BOUNCE = 10;
     
     
     initial forever begin
@@ -31,8 +32,6 @@ module tb_scenario1();
         #FG_OPENED;
     end
     
-    check DUT(fast_gate, phase_signal, check_condition);
-    
     initial begin
         start_condition = 0;
         #(25*1000_000);
@@ -40,21 +39,25 @@ module tb_scenario1();
         #100;
         start_condition = 0;
         #100_000;
-        if (check_condition) begin
-            #FG_PERIOD;
-            detonator_triggered = 1;
-            #100;
-            detonator_triggered = 0;
-        end
+        
+        @(posedge fast_gate);
+        #10000;
+        detonator_triggered = 1;
+        #100;
+        detonator_triggered = 0;
     end
     
     always @(posedge detonator_triggered) begin
-        if (detonator_triggered) begin
-            #(5*1000_000);
-            wire_sensor = 1;
-            #1000_000;
-            wire_sensor = 0;
+        #(5*1000_000);
+        wire_sensor = 1;
+        for (int i = 0; i < 10; i++) begin
+            #( 100*(1+($urandom() % 10)) );
+            wire_sensor = ~wire_sensor;
         end
+        #100;
+        wire_sensor = 1;
+        //#1000_000;
+        //wire_sensor = 0;
     end
     
 
