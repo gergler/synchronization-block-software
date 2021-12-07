@@ -1,4 +1,4 @@
-module fd_duration_meter(clock, reset, d, fast_gate, q, duty_cycle);  
+module fg_duration_meter(clock, reset, d, fast_gate, q, duty_cycle);  
   input clock;
   input d; 
   input reset; 
