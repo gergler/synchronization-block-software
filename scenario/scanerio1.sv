@@ -8,6 +8,7 @@ module tb_scenario1();
     logic detonator_triggered = 0;
     logic wire_sensor = 0;
     logic output_trigger = 0;
+    logic check_condition = 0;
     
     localparam FG_PERIOD = 10 * 1000000;
     localparam FG_OPENED = 100 * 1000; 
