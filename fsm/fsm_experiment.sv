@@ -1,7 +1,7 @@
-module fsm_test(input CLOCK_50, start_signal, fg_signal, wire_signal,
+module fsm_test(input CLOCK_50, start_signal, fg_signal, fg_delay, wire_signal,
 					 output detonation_signal, detector_signal);
 
-localparam FG_DELAY = 10_000_000;
+localparam FG_DELAY = fg_delay;
 localparam DETECTOR_DELAY = 5; 
 localparam TRIGGER_DELAY = 350_000; 
 
