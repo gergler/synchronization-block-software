@@ -1,7 +1,7 @@
-module fsm_test(input CLOCK_50, start_signal, fg_signal, fg_delay,
-					 output detector_signal);
+module fsm_test(input clock, start_signal, fg_signal, 
+				output detector_signal);
 
-localparam FG_DELAY = fg_delay;
+localparam FG_DELAY = 100_000;  
 localparam DETECTOR_DELAY = 5; 
 localparam TRIGGER_DELAY = 350_000; 
 
@@ -9,7 +9,7 @@ reg[31:0] counter = 0;
 
 enum logic [2:0] {IDLE, FG_WAIT, FG, TRIGGER, DETECTOR_WAIT} state;
 
-always @(posedge CLOCK_50) begin
+always @(posedge clock) begin
 	case (state)
 		IDLE: begin
 			if (start_signal) 
@@ -17,34 +17,41 @@ always @(posedge CLOCK_50) begin
 		end
 		
 		FG_WAIT: begin
-			@(posedge fg_signal)
-				state <= FG_DELAY;
+			if (fg_signal)
+				state <= FG;
 		end
 		
 		FG: begin
-			counter <= 0;
-			while (counter <= FG_DELAY)
+			if (counter < FG_DELAY)
 				counter <= counter + 1;
-			state <= TRIGGER;
+			else begin
+                state <= TRIGGER;
+                counter <= 0;
+            end
 		end
 		
 		TRIGGER: begin
-			counter <= 0;
-			while (counter <= TRIGGER_DELAY)
+			if (counter < TRIGGER_DELAY)
 				counter <= counter + 1;
-			state <= DETECTOR_WAIT;
+			else begin
+                state <= DETECTOR_WAIT;
+                counter <= 0;
+            end
 		end
 		
 		DETECTOR_WAIT: begin
-			counter <= 0;
-			while (counter <= DETECTOR_DELAY)
+			if (counter < DETECTOR_DELAY)
 				counter <= counter + 1;
-			detector_signal <= 1;
-			state <= IDLE;
-		end
+			else begin 
+                detector_signal <= 1;
+                state <= IDLE;
+                counter <= 0;
+            end
+        end
 		
 		default:
 			state <= IDLE;
+    endcase
 end
 
 endmodule
