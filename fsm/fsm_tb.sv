@@ -3,6 +3,7 @@
 module fsm_tb();
 
     logic clock = 0;
+	 logic reset = 0;
     logic start_condition =0;
     logic fast_gate = 0;
     logic fast_gate_open = 0;
@@ -24,13 +25,18 @@ module fsm_tb();
 //    end  
 
     always clock = #CLOCK ~clock;
+	 
+	 initial begin 
+		#2ms;
+		reset = 1;
+		#100ms;
+		reset = 0;
+	 end 
      
-    //initial repeat(10)
-    initial 
-    begin
+    //initial forever
+    initial begin
         #( $urandom() % FG_PERIOD );
-        forever
-        begin
+        repeat(10) begin
             fast_gate = 0;
             #(FG_PERIOD - FG_OPENED);
             fast_gate = 1;
@@ -76,6 +82,7 @@ module fsm_tb();
     
     fsm_experiment fsm_exp(
         .clock(clock), 
+		  .reset(reset),
         .start_signal(start_condition), 
         .fg_signal(fast_gate), 
         .wire_signal(wire_sensor), 
