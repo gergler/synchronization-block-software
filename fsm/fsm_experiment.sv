@@ -1,20 +1,29 @@
-module fsm_experiment(input clock, start_signal, fg_signal, wire_signal, detector_ready,
-					  output reg detonation_signal, output_trigger);
+`timescale 10ns/1ps
 
-localparam FG_DELAY = 100_000;  
-localparam DETECTOR_READY_TIMEOUT = 5; 
+module fsm_experiment(input clock, start_signal, fg_signal, wire_signal, detector_ready,
+					  output detonation_signal, output_trigger);
+
+localparam FG_DELAY = 100_000*4;//10;  
+localparam DETECTOR_READY_TIMEOUT = 5*100; 
 localparam TRIGGER_DELAY = 350_000; 
 
 reg[31:0] counter = 0;
 
 enum logic [2:0] {IDLE, FG_WAIT, FG, DETONATE, WIRE_TRIGGER, DETECTOR_WAIT, DETECTOR_FINISHED} state;
 
+reg detonation_signal_reg = '0;
+reg output_trigger_reg    = '0;
+
+assign output_trigger = output_trigger_reg;
+assign detonation_signal = detonation_signal_reg;
+
+
 always @(posedge clock) begin
 	case (state)
 		IDLE: begin
 			if (start_signal) 
 				state <= FG_WAIT;
-            {detonation_signal, output_trigger} <= '0;
+                {detonation_signal_reg, output_trigger_reg} <= '0;
 		end
 		
 		FG_WAIT: begin
@@ -32,15 +41,15 @@ always @(posedge clock) begin
 		end
 		
 		DETONATE: begin
-			detonation_signal <= 1;
+			detonation_signal_reg <= 1;
             #50;
-            detonation_signal <= 0;
-			state <= WIRE_TRIGGER;
-		end
+            detonation_signal_reg <= 0;
+            state <= WIRE_TRIGGER;
+        end
 		
 		WIRE_TRIGGER: begin
 			if (wire_signal) begin
-                output_trigger <= 1;
+                output_trigger_reg <= 1;
 				state <= DETECTOR_WAIT;
             end
 		end
@@ -50,7 +59,7 @@ always @(posedge clock) begin
 				counter <= counter + 1;
 			else begin
                 state <= DETECTOR_FINISHED;
-                output_trigger <= 0;
+                output_trigger_reg <= 0;
                 counter <= 0;
             end
 		end
