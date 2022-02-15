@@ -10,20 +10,13 @@ module fsm_tb();
     logic detector_ready = 1;
     logic detonator_triggered = 0;
     logic wire_sensor = 0;
-    logic output_trigger = 0;
+    logic detector_trigger = 0;
     
     localparam CLOCK = 2.5;
     localparam FG_PERIOD = 10 * 1000_000; // 10ms
     localparam FG_OPENED = 100_000;    // 100us
     localparam BOUNCE = 10;
     
-//    initial forever begin  
-//      clock = 0;
-//      #CLOCK;
-//      clock = 1;
-//      #CLOCK;
-//    end  
-
     always clock = #CLOCK ~clock;
 	 
 	 initial begin 
@@ -57,27 +50,12 @@ module fsm_tb();
         start_condition = 1;
         #100us;
         start_condition = 0;
-        //#100us;
     end
     
-    always @(posedge detonator_triggered) begin
-        #5us;
-        wire_sensor = 1;
-        for (int i = 0; i < 10; i++) begin
-            #( 10*(1+($urandom() % 10)) );
-            wire_sensor = ~wire_sensor;
-        end
-        #100;
-        wire_sensor = 1;
-        #1ms;
-        wire_sensor = 0;
-    end
-    
-    always @(posedge output_trigger) begin
+    always @(posedge detector_trigger) begin
         detector_ready = 0;
         #6400us;
         detector_ready = 1;
-        //#100;
     end
     
     fsm_test fsm_tst(
@@ -85,7 +63,7 @@ module fsm_tb();
 		  .reset(reset),
         .start_signal(start_condition), 
         .fg_signal(fast_gate), 
-        .detector_trigger(output_trigger)
+        .detector_trigger(detector_trigger)
     );
 
     
