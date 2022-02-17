@@ -5,6 +5,8 @@ localparam FG_DELAY = 100_000;
 localparam DETECTOR_DELAY = 5; 
 localparam TRIGGER_DELAY = 350_000; 
 
+
+reg[31:0] times_repeat = 10;
 reg[31:0] counter = 0;
 
 enum logic [2:0] {IDLE, FG_WAIT, FG, TRIGGER_WAIT, OUTPUT_TRIGGER} state;
@@ -48,7 +50,12 @@ always @(posedge clock or posedge reset) begin
 				counter <= counter + 1;
 			else begin 
 				 detector_trigger <= 1;
-				 state <= IDLE;
+				 if (times_repeat != 0) begin 
+						state <= FG;
+						times_repeat <= times_repeat - 1;
+						end
+				 else 
+						state <= IDLE;
 				 counter <= 0;
 			end
 	  end
