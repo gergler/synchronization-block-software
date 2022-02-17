@@ -3,14 +3,14 @@
 module fsm_konfig_tb();
 
     logic clock = 0;
-	 logic reset = 0;
+	logic reset = 0;
     logic start_condition =0;
     logic fast_gate = 0;
     logic fast_gate_open = 0;
     logic detector_ready = 1;
     logic detonator_triggered = 0;
     logic wire_sensor = 0;
-    logic detector_trigger = 0;
+    logic output_trigger = 0;
     
     localparam CLOCK = 2.5;
     localparam FG_PERIOD = 10 * 1000_000; // 10ms
@@ -20,9 +20,8 @@ module fsm_konfig_tb();
     always clock = #CLOCK ~clock;
 	 
 	 initial begin 
-		#2ms;
 		reset = 1;
-		#100ms;
+		#100;
 		reset = 0;
 	 end 
      
@@ -46,24 +45,26 @@ module fsm_konfig_tb();
     
     initial begin
         start_condition = 0;
-        #25ms;
+        #10ms;
         start_condition = 1;
-        #100us;
+        #30ms;
         start_condition = 0;
     end
     
-    always @(posedge detector_trigger) begin
-        detector_ready = 0;
-        #6400us;
-        detector_ready = 1;
+    always @(posedge output_trigger) begin
+        if (reset == '0) begin
+            detector_ready = 0;
+            #6400us;
+            detector_ready = 1;
+        end;
     end
     
     fsm_test fsm_tst(
         .clock(clock), 
-		  .reset(reset),
+		.reset(reset),
         .start_signal(start_condition), 
         .fg_signal(fast_gate), 
-        .detector_trigger(detector_trigger)
+        .output_trigger(output_trigger)
     );
 
     
