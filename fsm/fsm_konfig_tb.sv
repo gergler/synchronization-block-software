@@ -1,6 +1,6 @@
 `timescale 1ns/10ps
 
-module fsm_tb();
+module fsm_konfig_tb();
 
     logic clock = 0;
 	 logic reset = 0;
