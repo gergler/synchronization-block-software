@@ -1,12 +1,15 @@
 module fsm_test(input clock, reset, start_signal, fg_signal, 
-				output output_trigger);
+				output output_trigger, output [2:0] scenario_state, output int counter_);
 
 localparam FG_DELAY = 400_000;  
 localparam TRIGGER_LEN = 100; 
 
-reg[31:0] counter = 0;
+reg[31:0] counter = '0;
 
 enum logic [2:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, TRIGGER_PROLONG} state;
+
+assign scenario_state = state;
+assign counter_ = counter;
 
 always @(posedge clock) begin
 	if (reset) begin
