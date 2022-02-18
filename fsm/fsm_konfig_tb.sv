@@ -8,9 +8,10 @@ module fsm_konfig_tb();
     logic fast_gate = 0;
     logic fast_gate_open = 0;
     logic detector_ready = 1;
-    logic detonator_triggered = 0;
-    logic wire_sensor = 0;
     logic output_trigger = 0;
+	
+	logic [2:0] scenario_state;
+    int counter = 0;
     
     localparam CLOCK = 2.5;
     localparam FG_PERIOD = 10 * 1000_000; // 10ms
@@ -64,7 +65,10 @@ module fsm_konfig_tb();
 		.reset(reset),
         .start_signal(start_condition), 
         .fg_signal(fast_gate), 
-        .output_trigger(output_trigger)
+		
+        .output_trigger(output_trigger),
+		.scenario_state(scenario_state),
+        .counter_(counter)
     );
 
     
