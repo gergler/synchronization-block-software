@@ -1,9 +1,10 @@
 `timescale 10ns/1ps
 
-module fsm_experiment(input clock, reset, start_signal, fg_signal, wire_signal, detector_ready,
+module fsm_experiment(input clock, reset, start_signal, fg_signal, wire_signal, detector_ready, 
+                      input [31:0] phase_shift,
 					  output detonation_signal, output_trigger, output [2:0] scenario_state, output int counter_);
 
-localparam FG_DELAY = 100_000*4;//10;  
+localparam FG_DELAY = 100_000*4;    //10;  
 localparam DETECTOR_READY_TIMEOUT = 5*100; 
 localparam TRIGGER_DELAY = 350_000; 
 
