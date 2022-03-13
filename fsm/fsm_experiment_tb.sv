@@ -3,10 +3,11 @@
 module fsm_experiment_tb();
 
     logic clock = 0;
-	logic reset = 0;
+    logic reset = 0;
     logic start_condition =0;
     logic fast_gate_opto = 0;
     logic fast_gate_open = 0;
+	logic phase_signal = 0;
     logic detector_ready = 1;
     logic detonator_triggered = 0;
     logic wire_sensor = 0;
@@ -14,21 +15,15 @@ module fsm_experiment_tb();
     logic [2:0] scenario_state;
     int counter = 0;
     
-    logic phase_shift = 0;
     
     localparam CLOCK = 2.5;
     localparam FG_PERIOD = 10 * 1000_000; // 10ms
     localparam FG_OPENED = 100_000;    // 100us
     localparam BOUNCE = 10;
-    
-//    initial forever begin  
-//      clock = 0;
-//      #CLOCK;
-//      clock = 1;
-//      #CLOCK;
-//    end  
 
     always clock = #CLOCK ~clock;
+	
+	always phase_signal = #PHASE_HALF_PERIOD ~phase_signal;
 	 
 	 initial begin 
 		reset = 1;
@@ -96,14 +91,14 @@ module fsm_experiment_tb();
 		.reset(reset),
         .start_signal(start_condition), 
         .fg_signal(fast_gate_opto), 
+		.phase_signal(phase_signal), 
         .wire_signal(wire_sensor), 
         .detector_ready(detector_ready),
-        .phase_shift(phase_shift),
         
         .detonation_signal(detonator_triggered),
         .output_trigger(output_trigger),
         .scenario_state(scenario_state),
-        .counter_(counter)
+        .counter_out(counter)
     );
     
 endmodule
