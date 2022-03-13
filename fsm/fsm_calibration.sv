@@ -1,6 +1,7 @@
 module fsm_calibration(
     input  logic clock, reset, start_signal, fg_signal, phase_signal, 
-	output logic output_trigger
+	output logic output_trigger,
+	output [2:0] scenario_state, output int counter_out
 );
 
 localparam FG_DELAY = 400_000;  
@@ -9,23 +10,30 @@ localparam PHASE_SHIFT = (700/5 - 1);
 
 reg[31:0] counter = 0;
 
+reg[1:0] reset_history = 0; 
+reg[1:0] start_history = 0; 
 reg[1:0] phase_history = 0; 
 reg[1:0] fg_history = 0; 
 
 enum logic [2:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, WAIT_PHASE_FRONT, WAIT_PHASE_DELAY, TRIGGER_PROLONG} state;
 
+assign scenario_state = state;
+assign counter_out = counter;
+
 always @(posedge clock) begin
+	reset_history[1:0] = {reset_history[0], reset_signal};
+	start_history[1:0] = {start_history[0], start_signal}; 
     phase_history[1:0] = {phase_history[0], phase_signal};
     fg_history[1:0] = {fg_history[0], fg_signal};
     
-	if (reset) begin
+	if (reset_history == 2'b01) begin
 		state <= IDLE;
 		counter <= 0;
         output_trigger <= 0;
 	end
 	case (state)
 		IDLE: begin
-			if (start_signal) 
+			if (start_history == 2'b01) 
 				state <= FG_WAIT_OPTO;
 		end
 		
