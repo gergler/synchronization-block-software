@@ -1,127 +1,84 @@
-module fsm_experiment(
-		input clock, reset, start_signal, fg_signal, phase_signal, wire_signal, detector_ready, 
-		output detonation_signal, output_trigger, 
-		output [2:0] scenario_state, output int counter_out
-);
+`timescale 1ns/10ps
 
-localparam FG_OPEN_DELAY = 100_000*4;    //10;  
-localparam DETECTOR_READY_TIMEOUT = 5*100; 
-localparam TRIGGER_DELAY = 350_000; 
-localparam PHASE_SHIFT = (700/5 - 1);
-localparam DETONATE_DELAY = 50;
+module fsm_calibration_tb();
 
-reg[31:0] counter = '0;
-
-reg[1:0] reset_history = 0; 
-reg[1:0] start_history = 0; 
-reg[1:0] phase_history = 0; 
-reg[1:0] fg_history = 0; 
-reg[1:0] wire_history = 0;
-
-reg detonation_signal_reg = '0;
-reg output_trigger_reg    = '0;
-
-enum logic [3:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, WAIT_PHASE_FRONT, WAIT_PHASE_DELAY, DETONATE, WIRE_TRIGGER, DETECTOR_BUSY, DETECTOR_WAIT, DETECTOR_FINISHED} state;
-
-assign scenario_state = state;
-assign counter_out = counter;
-
-assign output_trigger = output_trigger_reg;
-assign detonation_signal = detonation_signal_reg;
-
-always @(posedge clock) begin
-	reset_history[1:0] = {reset_history[0], reset_signal};
-	start_history[1:0] = {start_history[0], start_signal}; 
-    phase_history[1:0] = {phase_history[0], phase_signal};
-    fg_history[1:0] = {fg_history[0], fg_signal};
-	wire_history[1:0] = {wire_history[0], wire_signal};
-	
-	if (reset_history == 2'b01) begin
-		state <= IDLE;
-		{detonation_signal_reg, output_trigger_reg, counter} <= '0;
-	end
+    logic clock = 0;
+	logic reset = 0;
+    logic start_condition =0;
+    logic fast_gate_opto = 0;
+    logic fast_gate_open = 0;
+    logic detector_ready = 1;
+    logic detonator_triggered = 0;
+    logic wire_sensor = 0;
+    logic output_trigger = 0;
+    logic phase_signal = 0; 
+	logic [2:0] scenario_state;
+    int counter = 0;
     
-	case (state)
-		IDLE: begin
-			if (start_history == 2'b01) 
-				state <= FG_WAIT_OPTO;
-		end
-		
-		FG_WAIT_OPTO: begin
-			if (fg_history == 2'b01) begin
-				state <= FG_WAIT_OPEN;
-                counter <= '0;
-            end
-		end
-		
-		FG_WAIT_OPEN: begin
-			if (counter < FG_OPEN_DELAY)
-				counter <= counter + 1;
-            else begin
-				state <= WAIT_PHASE_FRONT;
-				counter <= 0;
-			end
-		end
-		
-		WAIT_PHASE_FRONT: begin
-            if (phase_history == 2'b01) begin
-                state <= WAIT_PHASE_DELAY;
-				counter <= 0;
-			end
+    //logic phase_shift = 0;
+    
+    localparam CLOCK = 2.5;
+    localparam FG_PERIOD = 10 * 1000_000; // 10ms
+    localparam FG_OPENED = 100_000;    // 100us
+    localparam BOUNCE = 10;
+    localparam PHASE_HALF_PERIOD = 600; 
+    
+    always clock = #CLOCK ~clock;
+    
+    always phase_signal = #PHASE_HALF_PERIOD ~phase_signal;
+	 
+	 initial begin 
+		reset = 1;
+		#100;
+		reset = 0;
+	 end 
+     
+    //initial forever
+    initial begin
+        #( $urandom() % FG_PERIOD );
+        repeat(10) begin
+            fast_gate_opto = 0;
+            #(FG_PERIOD - FG_OPENED);
+            fast_gate_opto = 1;
+            #FG_OPENED;
         end
+    end
+    
+    always @(posedge fast_gate_opto) begin
+        #2ms;
+        fast_gate_open = '1;
+        #FG_OPENED;
+        fast_gate_open = '0;
+    end
+    
+    initial begin
+        start_condition = 0;
+        #10ms;
+        start_condition = 1;
+        #30ms;
+        start_condition = 0;
+    end
+    
+    always @(posedge output_trigger) begin
+        if (reset == '0) begin
+            detector_ready = 0;
+            #6400us;
+            detector_ready = 1;
+        end;
+    end
+    
+    fsm_calibration fsm_clbr(
+        .clock(clock), 
+		.reset(reset),
+        .start_signal(start_condition), 
+        .fg_signal(fast_gate_opto), 
+        .phase_signal(phase_signal), 
+        //.phase_shift(phase_shift),
         
-        WAIT_PHASE_DELAY: begin
-            if (counter < PHASE_SHIFT)
-				counter <= counter + 1;
-			else begin
-				state <= DETONATE;
-                counter <= 0;
-			end
-		end
-		
-		DETONATE: begin
-			if (counter < DETONATE_DELAY) begin
-				detonation_signal_reg <= '1;
-				counter <= counter + 1;
-			end
-			else begin
-				detonation_signal_reg <= '0;
-				state <= WIRE_TRIGGER;
-                counter <= 0;
-			end
-	   end
-	
-		WIRE_TRIGGER: begin
-			if (wire_history == 2'b01) begin
-				output_trigger_reg <= '1;
-                state <= DETECTOR_BUSY;
-			end
-		end
-        
-        DETECTOR_BUSY: begin
-            if (~detector_ready) begin
-                state <= DETECTOR_WAIT;
-			end
-        end
-		
-		DETECTOR_WAIT: begin
-			if ((counter < DETECTOR_READY_TIMEOUT) && (~detector_ready))
-				counter <= counter + 1;
-			else begin
-				state <= DETECTOR_FINISHED;
-				output_trigger_reg <= '0;
-				counter <= '0;
-			end
-		end
-		
-		DETECTOR_FINISHED: begin
-            if (start_signal == '0)
-                state <= IDLE;
-		end
-		
-		default:
-			state <= IDLE;
-    endcase
-end
+        .output_trigger(output_trigger),
+		.scenario_state(scenario_state),
+        .counter_out(counter)
+    );
 
+    
 endmodule
