@@ -9,18 +9,14 @@ module fsm_calibration_tb();
     logic fast_gate_open = 0;
     logic detector_ready = 1;
     logic detonator_triggered = 0;
-    logic wire_sensor = 0;
     logic output_trigger = 0;
     logic phase_signal = 0; 
 	logic [2:0] scenario_state;
     int counter = 0;
     
-    //logic phase_shift = 0;
-    
     localparam CLOCK = 2.5;
-    localparam FG_PERIOD = 10 * 1000_000; // 10ms
+    localparam FG_PERIOD = 20 * 1000_000; // 10ms
     localparam FG_OPENED = 100_000;    // 100us
-    localparam BOUNCE = 10;
     localparam PHASE_HALF_PERIOD = 600; 
     
     always clock = #CLOCK ~clock;
@@ -45,7 +41,7 @@ module fsm_calibration_tb();
     end
     
     always @(posedge fast_gate_opto) begin
-        #2ms;
+        #9ms;
         fast_gate_open = '1;
         #FG_OPENED;
         fast_gate_open = '0;
@@ -55,7 +51,11 @@ module fsm_calibration_tb();
         start_condition = 0;
         #10ms;
         start_condition = 1;
-        #30ms;
+        #20ms;
+        start_condition = 0;
+        #10ms;
+        start_condition = 1;
+        #20ms;
         start_condition = 0;
     end
     
@@ -69,7 +69,7 @@ module fsm_calibration_tb();
     
     fsm_calibration fsm_clbr(
         .clock(clock), 
-		.reset(reset),
+		.reset_signal(reset),
         .start_signal(start_condition), 
         .fg_signal(fast_gate_opto), 
         .phase_signal(phase_signal), 
