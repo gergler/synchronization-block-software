@@ -1,14 +1,14 @@
 module fsm_experiment(
-		input clock, reset, start_signal, fg_signal, phase_signal, wire_signal, detector_ready, 
+		input clock, reset_signal, start_signal, fg_signal, phase_signal, wire_signal, detector_ready, 
 		output detonation_signal, output_trigger, 
-		output [2:0] scenario_state, output int counter_out
+		output [7:0] scenario_state, output int counter_out
 );
 
 localparam FG_OPEN_DELAY = 100_000*4;    //10;  
-localparam DETECTOR_READY_TIMEOUT = 5*100; 
-localparam TRIGGER_DELAY = 350_000; 
+localparam DETECTOR_READY_TIMEOUT = 7_000_000/5; //5*100; 
 localparam PHASE_SHIFT = (700/5 - 1);
-localparam DETONATE_DELAY = 50;
+localparam DETONATE_LEN = 1000/5;
+localparam TRIGGER_LEN = 1000/5;
 
 reg[31:0] counter = '0;
 
@@ -21,9 +21,9 @@ reg[1:0] wire_history = 0;
 reg detonation_signal_reg = '0;
 reg output_trigger_reg    = '0;
 
-enum logic [3:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, WAIT_PHASE_FRONT, WAIT_PHASE_DELAY, DETONATE, WIRE_TRIGGER, DETECTOR_BUSY, DETECTOR_WAIT, DETECTOR_FINISHED} state;
+enum logic [3:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, DETONATE, WIRE_TRIGGER, WAIT_PHASE_FRONT, WAIT_PHASE_DELAY, TRIGGER_PROLONG, DETECTOR_BUSY, DETECTOR_WAIT, DETECTOR_FINISHED} state;
 
-assign scenario_state = state;
+assign scenario_state [7:0] = { '0, state [3:0] };
 assign counter_out = counter;
 
 assign output_trigger = output_trigger_reg;
@@ -58,29 +58,13 @@ always @(posedge clock) begin
 			if (counter < FG_OPEN_DELAY)
 				counter <= counter + 1;
             else begin
-				state <= WAIT_PHASE_FRONT;
-				counter <= 0;
-			end
-		end
-		
-		WAIT_PHASE_FRONT: begin
-            if (phase_history == 2'b01) begin
-                state <= WAIT_PHASE_DELAY;
-				counter <= 0;
-			end
-        end
-        
-        WAIT_PHASE_DELAY: begin
-            if (counter < PHASE_SHIFT)
-				counter <= counter + 1;
-			else begin
 				state <= DETONATE;
-                counter <= 0;
+				counter <= 0;
 			end
 		end
 		
 		DETONATE: begin
-			if (counter < DETONATE_DELAY) begin
+			if (counter < DETONATE_LEN) begin
 				detonation_signal_reg <= '1;
 				counter <= counter + 1;
 			end
@@ -93,8 +77,34 @@ always @(posedge clock) begin
 	
 		WIRE_TRIGGER: begin
 			if (wire_history == 2'b01) begin
-				output_trigger_reg <= '1;
-                state <= DETECTOR_BUSY;
+                state <= WAIT_PHASE_FRONT;
+			end
+		end
+        
+        WAIT_PHASE_FRONT: begin
+            if (phase_history == 2'b01) begin
+                state <= WAIT_PHASE_DELAY;
+				counter <= 0;
+			end
+        end
+        
+        WAIT_PHASE_DELAY: begin
+            if (counter < PHASE_SHIFT)
+				counter <= counter + 1;
+			else begin
+                output_trigger_reg <= '1;
+				state <= TRIGGER_PROLONG;
+                counter <= 0;
+			end
+		end
+        
+        TRIGGER_PROLONG: begin
+			if (counter < TRIGGER_LEN) begin
+				counter <= counter + 1;
+			end 
+            else begin
+                output_trigger_reg <= 0;
+				state <= DETECTOR_BUSY;
 			end
 		end
         
