@@ -1,17 +1,17 @@
 module fsm_calibration(
-    input  logic clock, reset, start_signal, fg_signal, phase_signal, 
+    input  logic clock, reset_signal, start_signal, fg_signal, phase_signal, 
 	output logic output_trigger,
-	output [2:0] scenario_state, output int counter_out
+    output [2:0] scenario_state, output int counter_out
 );
 
-localparam FG_DELAY = 400_000;  
+localparam FG_DELAY = 9_000_000/5;  
 localparam TRIGGER_LEN = 100; 
-localparam PHASE_SHIFT = (700/5 - 1);
+localparam PHASE_SHIFT = 700/5;
 
 reg[31:0] counter = 0;
 
-reg[1:0] reset_history = 0; 
 reg[1:0] start_history = 0; 
+reg[1:0] reset_history = 0; 
 reg[1:0] phase_history = 0; 
 reg[1:0] fg_history = 0; 
 
@@ -21,8 +21,8 @@ assign scenario_state = state;
 assign counter_out = counter;
 
 always @(posedge clock) begin
-	reset_history[1:0] = {reset_history[0], reset_signal};
-	start_history[1:0] = {start_history[0], start_signal}; 
+    start_history[1:0] = {start_history[0], start_signal}; 
+    reset_history[1:0] = {reset_history[0], reset_signal};
     phase_history[1:0] = {phase_history[0], phase_signal};
     fg_history[1:0] = {fg_history[0], fg_signal};
     
