@@ -1,8 +1,10 @@
 `timescale 1ns/10ps
+`include "fsm_tb_package.sv"
 
 module fsm_experiment_tb();
+	import fsm_tb_package::*;
 
-    logic clock = 0;
+	logic clock = 0;
     logic reset = 0;
     logic start_condition =0;
     logic fast_gate_opto = 0;
@@ -20,70 +22,40 @@ module fsm_experiment_tb();
     localparam FG_OPENED = 100_000;    // 100us
     localparam BOUNCE = 10;
     localparam PHASE_HALF_PERIOD = 600; 
+	localparam DETECTOR_PROLONG = 6400us;
 
     always clock = #CLOCK ~clock;
 	
 	always phase_signal = #PHASE_HALF_PERIOD ~phase_signal;
-	 
-	 initial begin 
-		reset = 1;
-		#100;
-		reset = 0;
-	 end 
-     
-    //initial forever
+	
+	initial begin
+		reset_generate(reset, 100);
+	end
+
     initial begin
-        fast_gate_opto = 0;
-        //#( $urandom() % FG_PERIOD );
         $urandom(1);
-        #( $urandom_range(FG_PERIOD/2, FG_PERIOD/8) );
-        repeat(10) begin
-            fast_gate_opto = 1;
-            #FG_OPENED;
-            fast_gate_opto = 0;
-            #(FG_PERIOD - FG_OPENED);
-        end
+        #($urandom_range(FG_PERIOD/2, FG_PERIOD/8));
+        repeat(10) fg_opto_generate(fast_gate_opto, FG_PERIOD, FG_OPENED);
     end
     
     always @(posedge fast_gate_opto) begin
-        #2ms;
-        fast_gate_open = '1;
-        #FG_OPENED;
-        fast_gate_open = '0;
+		fg_open_generate(fast_gate_open, FG_OPENED);
     end
     
     initial begin
-        start_condition = 0;
-        #5ms;
-        start_condition = 1;
-        #100us;
-        start_condition = 0;
-        //#100us;
+        start_generate(start_condition, 5ms, 100us);
     end
     
     always @(posedge detonator_triggered) begin
-        if (reset == '0) begin
-            #5us;
-            wire_sensor = 1;
-            for (int i = 0; i < 10; i++) begin
-                #( 10*(1+($urandom() % 10)) );
-                wire_sensor = ~wire_sensor;
-            end
-            #100;
-            wire_sensor = 1;
-            #1ms;
-            wire_sensor = 0;
-        end
+        if (reset == '0) 
+			wire_sensor_generate(wire_sensor);
     end
     
     always @(posedge output_trigger) begin
         if (reset == '0) begin
-            #200ns;
-            detector_ready = 0;
-            #6400us;
-            detector_ready = 1;
-            //#100;
-        end
+			#200ns;
+			detector_ready_generate(detector_ready, DETECTOR_PROLONG);
+		end
     end
     
     fsm_experiment fsm_exp(
