@@ -1,11 +1,17 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "./json_config.h"
+
 #include <QMessageBox>
 #include <QDebug>
+#include <QFileDialog>
+#include <QFile>
+#include <QDir>
+#include <QJsonDocument>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 }
@@ -15,10 +21,47 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::on_action_open_file_triggered()
+{
+    ui->statusbar->setStyleSheet("color: darkBlue");
+    ui->statusbar->showMessage("Open JSON file");
+
+    // Выбираем файл
+    QString openFileName = QFileDialog::getOpenFileName(this,
+                                                        tr("Open Json File"),
+                                                        QString(),
+                                                        tr("JSON (*.json)"));
+    QFileInfo fileInfo(openFileName);   // С помощью QFileInfo
+    QDir::setCurrent(fileInfo.path());  // установим текущую рабочую директорию, где будет файл
+    // Создаём объект файла и открываем его на чтение
+    QFile jsonFile(openFileName);
+    if (!jsonFile.open(QIODevice::ReadOnly))
+    {
+        ui->statusbar->showMessage("ERROR");
+        return;
+    }
+
+    // Считываем весь файл
+    QByteArray saveData = jsonFile.readAll();
+    // Создаём QJsonDocument
+    QJsonDocument jsonDocument(QJsonDocument::fromJson(saveData));
+    // Из которого выделяем объект в текущий рабочий QJsonObject
+    _currentJsonObject = jsonDocument.object();
+
+    ui->statusbar->showMessage("JSON file is opened");
+
+    Firmware firmware = Firmware(_currentJsonObject);
+    Scenario scenario = Scenario(_currentJsonObject);
+    Parameters parameters = Parameters(_currentJsonObject);
+    parameters.get();
+    ui->spinBox->setValue(parameters.parameter_default_val);
+}
+
 void MainWindow::on_action_configure_triggered()
 {
     ui->statusbar->setStyleSheet("color: darkBlue");
     ui->statusbar->showMessage("Configuring fpga with the selected file");
+
 }
 
 void MainWindow::on_action_start_triggered()
@@ -36,25 +79,34 @@ void MainWindow::on_action_stop_triggered()
 
 void MainWindow::on_action_save_file_triggered()
 {
-    ui->statusbar->setStyleSheet("color: blue");
-    ui->statusbar->showMessage("Saving the configuration file");
+    // С помощью диалогового окна получаем имя файла с абсолютным путём
+    QString saveFileName = QFileDialog::getSaveFileName(this,
+                                                        tr("Save Json File"),
+                                                        QString(),
+                                                        tr("JSON (*.json)"));
+    QFileInfo fileInfo(saveFileName);   // С помощью QFileInfo
+    QDir::setCurrent(fileInfo.path());  // установим текущую рабочую директорию, где будет файл, иначе может не заработать
+    // Создаём объект файла и открываем его на запись
+    QFile jsonFile(saveFileName);
+    if (!jsonFile.open(QIODevice::WriteOnly))
+    {
+        return;
+    }
+
+    // Записываем текущий объект Json в файл
+    jsonFile.write(QJsonDocument(_currentJsonObject).toJson(QJsonDocument::Indented));
+    jsonFile.close();   // Закрываем файл
 }
 
-void MainWindow::on_action_help_triggered()
-{
-    ui->statusbar->setStyleSheet("color: darkGreen");
-    ui->statusbar->showMessage("Help");
-}
-
-void MainWindow::on_action_quit_triggered()
+void MainWindow::closeEvent(QCloseEvent *)
 {
     QMessageBox::StandardButton reply = QMessageBox::question(this, "QUIT", "Are you sure you want to exit? All unsaved data will be lost.",
                                                               QMessageBox::Yes | QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         QApplication::quit();
-    } /*else {
-        qDebug() << "Button had been pressed";
-    }*/
+    } else {
+        MainWindow::on_action_save_file_triggered();
+    }
 }
 
 
@@ -77,18 +129,3 @@ void MainWindow::on_expert_mode_checkbox_stateChanged(int arg1)
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,49 +1,46 @@
 {
-  "FIRMWARE": {
-      "0": ["2022v1.00", "0xAA20220100"],
-      "1": ["2022v1.01", "0xAA20220101"],
-      "2": ["2022v1.02", "0xAA20220102"],
-      "3": ["2022v1.99", "0xAA20220199"]},
+  "FIRMWARE": [
+      {"id": 0, "version": "2022v1.00", "address": "0xAA20220100"},
+      {"id": 1, "version": "2022v1.01", "address": "0xAA20220101"},
+      {"id": 2, "version": "2022v1.02", "address": "0xAA20220102"},
+      {"id": 3, "version": "2022v1.99", "address": "0xAA20220199"}],
       
-  "SCENARIO": {
-      "EXPERIMENT_with_PHASE": {"0": [
-          {"states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Detonate", "Wait_WIRE_sensor",               "Wait_Phase_front", "Wait_Phase_delay", "Trigger_Prolong", 
-                      "Detector_Busy", "Wait_Detector", "Detector_finished"]},
-          {"parameters": ["FG_DELAY", "PHASE_SHIFT", "TRIGGER_LEN", "DETECTOR_TIMEOUT"]}]},
-          
-      "CALIBRATION_with_PHASE": {"1": [
-          {"states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Wait_Phase_front", 
-                      "Wait_Phase_delay", "Trigger_Prolong"]},
-          {"parameters": ["FG_DELAY", "PHASE_SHIFT", "TRIGGER_LEN"]}]},
-          
-      "EXPERIMENT_without_PHASE": {"2": [
-          {"states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Detonate", "Wait_WIRE_sensor", 
-                      "Trigger_Prolong", "Detector_Busy", "Wait_Detector", "Detector_finished"]},
-          {"parameters": ["FG_DELAY", "TRIGGER_LEN", "DETECTOR_TIMEOUT"]}]},
-          
-      "CALIBRATION_without_PHASE": {"3": [
-          {"states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Trigger_Prolong"]},
-          {"parameters": ["FG_DELAY", "TRIGGER_LEN"]}]}},
+  "SCENARIO": [
+      {"id": 0, "name": "EXPERIMENT_with_PHASE", "min_fw_version": "2022v1.00",
+       "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Detonate", "Wait_WIRE_sensor", "Wait_Phase_front", "Wait_Phase_delay", "Trigger_Prolong", "Detector_Busy", "Wait_Detector", "Detector_finished"],
+       "parameters": ["FG_DELAY", "PHASE_SHIFT", "TRIGGER_LEN", "DETECTOR_TIMEOUT"]},
+       
+      {"id": 1, "name": "CALIBRATION_with_PHASE", "min_fw_version": "2022v1.00",
+       "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Wait_Phase_front", "Wait_Phase_delay", "Trigger_Prolong"],
+       "parameters": ["FG_DELAY", "PHASE_SHIFT", "TRIGGER_LEN"]},
+
+      {"id": 2, "name": "EXPERIMENT_without_PHASE", "min_fw_version": "2022v1.00",
+       "states":  ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Detonate", "Wait_WIRE_sensor", "Trigger_Prolong", "Detector_Busy", "Wait_Detector", "Detector_finished"],
+       "parameters": ["FG_DELAY", "TRIGGER_LEN", "DETECTOR_TIMEOUT"]},
+
+      {"id": 3, "name": "CALIBRATION_with_PHASE", "min_fw_version": "2022v1.00",
+       "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Trigger_Prolong"],
+       "parameters": ["FG_DELAY", "TRIGGER_LEN"]}],
   
   "PARAMETRS": {
       "FastGate_Delay":   [{"description": "Fast gate opto to opened delay"},
                            {"address": "0x1000"},
-                           {"default": "9ms"}],
+                           {"default": 9}],
                         
       "Phase_Shift":      [{"description": "Phase shift length"},
                            {"address": "0x1010"},
-                           {"default": "700ns"}],
+                           {"default": 700}],
                         
       "Trigger_Len":      [{"description": "Trigger impulse length"},
                            {"address": "0x1020"},
-                           {"default": "1000ns"}],
+                           {"default": 1000}],
                        
       "Trigger_Count":    [{"description": "Amount of triggers emitted"},
                            {"address": "0x1030"},
-                           {"default": "999"}],                 
+                           {"default": 999}],                 
                        
       "Detector_Timeout": [{"description": "Detector wait timeout"},
                            {"address": "0x1040"},
-                           {"default": "7000ns"}]
+                           {"default": 7000}]
   }
 }

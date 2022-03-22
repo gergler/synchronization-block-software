@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>526</width>
+    <width>452</width>
     <height>658</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>526</width>
+    <width>452</width>
     <height>658</height>
    </size>
   </property>
@@ -27,6 +27,9 @@
     <width>16777215</width>
     <height>16777215</height>
    </size>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -37,7 +40,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>512</width>
+      <width>431</width>
       <height>571</height>
      </rect>
     </property>
@@ -104,25 +107,6 @@ counter</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1" colspan="2">
-      <widget class="QLabel" name="current_state">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::RightToLeft</enum>
-       </property>
-       <property name="text">
-        <string>IDLE</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="10" column="1" colspan="2">
       <widget class="QSpinBox" name="spinBox_10">
        <property name="alignment">
@@ -149,7 +133,7 @@ counter</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string/>
@@ -162,7 +146,7 @@ counter</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string> Hz</string>
@@ -206,7 +190,7 @@ counter</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string/>
@@ -274,7 +258,7 @@ counter</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string/>
@@ -294,7 +278,7 @@ counter</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string/>
@@ -314,7 +298,7 @@ counter</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string/>
@@ -354,7 +338,7 @@ counter</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string/>
@@ -377,7 +361,7 @@ counter</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string/>
@@ -390,7 +374,7 @@ counter</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string> Khz</string>
@@ -411,7 +395,7 @@ opened delay</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
        <property name="suffix">
         <string/>
@@ -443,6 +427,9 @@ timeout</string>
        </property>
       </widget>
      </item>
+     <item row="6" column="1" colspan="2">
+      <widget class="QLineEdit" name="current_state_line_edit_2"/>
+     </item>
     </layout>
    </widget>
   </widget>
@@ -451,7 +438,7 @@ timeout</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>526</width>
+     <width>452</width>
      <height>22</height>
     </rect>
    </property>
@@ -459,9 +446,8 @@ timeout</string>
     <property name="title">
      <string>Main</string>
     </property>
+    <addaction name="action_open_file"/>
     <addaction name="action_save_file"/>
-    <addaction name="action_help"/>
-    <addaction name="action_quit"/>
    </widget>
    <widget class="QMenu" name="menuExperiment">
     <property name="title">
@@ -485,6 +471,7 @@ timeout</string>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_open_file"/>
    <addaction name="action_save_file"/>
    <addaction name="action_configure"/>
    <addaction name="action_start"/>
@@ -499,31 +486,16 @@ timeout</string>
     <string>Save file</string>
    </property>
   </action>
-  <action name="action_help">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/img/help.png</normaloff>:/rec/img/help.png</iconset>
-   </property>
-   <property name="text">
-    <string>Help</string>
-   </property>
-  </action>
-  <action name="action_quit">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/img/quit.png</normaloff>:/rec/img/quit.png</iconset>
-   </property>
-   <property name="text">
-    <string>Quit</string>
-   </property>
-  </action>
   <action name="action_configure">
    <property name="icon">
     <iconset resource="resource.qrc">
      <normaloff>:/rec/img/configure.png</normaloff>:/rec/img/configure.png</iconset>
    </property>
    <property name="text">
-    <string>Configure</string>
+    <string>Configure FPGA</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FPGA reprogramming with entered data&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="action_start">
@@ -532,7 +504,10 @@ timeout</string>
      <normaloff>:/rec/img/start.png</normaloff>:/rec/img/start.png</iconset>
    </property>
    <property name="text">
-    <string>Start</string>
+    <string>Start signal</string>
+   </property>
+   <property name="toolTip">
+    <string>Experiment start signal</string>
    </property>
   </action>
   <action name="action_stop">
@@ -541,10 +516,19 @@ timeout</string>
      <normaloff>:/rec/img/stop.png</normaloff>:/rec/img/stop.png</iconset>
    </property>
    <property name="text">
-    <string>Stop</string>
+    <string>Stop signal</string>
    </property>
    <property name="toolTip">
-    <string>Stop</string>
+    <string>Experiment stop signal</string>
+   </property>
+  </action>
+  <action name="action_open_file">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/img/open.png</normaloff>:/rec/img/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open file</string>
    </property>
   </action>
  </widget>

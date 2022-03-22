@@ -33,6 +33,9 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
 
+        json_config.cpp
+        json_config.h
+
         resource.qrc
 )
 
