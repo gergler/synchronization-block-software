@@ -60,12 +60,7 @@ void MainWindow::on_action_quit_triggered()
 
 void MainWindow::on_expert_mode_checkbox_stateChanged(int arg1)
 {
-    QLineEdit* line_edit[] = {ui->firmware_version_line_edit, ui->scenario_line_edit, ui->current_state_line_edit,
-                               ui->raw_fpga_clock_counter_line_edit, ui->raw_phase_impulse_counter_line_edit,
-                               ui->raw_phase_period_line_edit, ui->raw_fg_impulse_counter_line_edit,
-                               ui->raw_fg_period_line_edit, ui->raw_fg_opto_to_opened_delay_line_edit,
-                               ui->raw_phase_shift_line_edit, ui->raw_trigger_lenght_line_edit,
-                               ui->raw_trigger_counter_line_edit, ui->raw_detector_wait_timeout_line_edit};
+    QLineEdit* line_edit[] = {ui->firmware_version_line_edit, ui->scenario_line_edit, ui->current_state_line_edit};
     if (arg1 == Qt::Checked) {
         ui->statusbar->setStyleSheet("color: green");
         ui->statusbar->showMessage("Expert Mode ON");
