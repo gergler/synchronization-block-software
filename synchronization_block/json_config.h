@@ -38,13 +38,15 @@ public:
     Parameters(QJsonObject jObj);
     QJsonObject toJsonObject();
 
-    void set(QString parameter_name, QString parameter_description, QString parameter_addr, int parameter_default_val);
-    void get();
+    struct parameters_struct {
+        QString parameter_name;
+        QString parameter_description;
+        QString parameter_addr;
+        int parameter_default_val;
+    };
 
-    QString parameter_name;
-    QString parameter_description;
-    QString parameter_addr;
-    int parameter_default_val;
+    void set(parameters_struct parameters);
+    void get(parameters_struct& parameters);
 
 private:
     QString _parameter_name;

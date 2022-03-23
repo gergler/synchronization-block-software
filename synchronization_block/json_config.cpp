@@ -54,22 +54,22 @@ QJsonObject Scenario::toJsonObject() {
 Parameters::Parameters(QJsonObject jObj) {
     _parameter_name = jObj.value(KEY_PARAM_NAME).toString();
     _parameter_description = jObj.value(KEY_PARAM_DESCRIPTION).toString();
-    _parameter_addr = jObj.value(KEY_PARAM_ADDR).toString();
+    _parameter_addr = jObj.value(KEY_PARAM_ADDR).toInt();
     _parameter_default_val = jObj.value(KEY_PARAM_DEFAULT).toInt();
 }
 
-void Parameters::get() {
-    parameter_name = _parameter_name;
-    parameter_description = _parameter_description;
-    parameter_addr = _parameter_addr;
-    parameter_default_val = _parameter_default_val;
+void Parameters::get(Parameters::parameters_struct& parameters) {
+    parameters.parameter_name = _parameter_name;
+    parameters.parameter_description = _parameter_description;
+    parameters.parameter_addr = _parameter_addr;
+    parameters.parameter_default_val = _parameter_default_val;
 }
 
-void Parameters::set(QString parameter_name, QString parameter_description, QString parameter_addr, int parameter_default_val) {
-    _parameter_name = parameter_name;
-    _parameter_description = parameter_description;
-    _parameter_addr = parameter_addr;
-    _parameter_default_val = parameter_default_val;
+void Parameters::set(Parameters::parameters_struct parameters) {
+    _parameter_name = parameters.parameter_name;
+    _parameter_description = parameters.parameter_description;
+    _parameter_addr = parameters.parameter_addr;
+    _parameter_default_val = parameters.parameter_default_val;
 }
 
 QJsonObject Parameters::toJsonObject() {

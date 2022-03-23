@@ -19,6 +19,7 @@ public:
     ~MainWindow();
 
     void closeEvent(QCloseEvent *event);
+    void generate_parameters(QJsonObject jObj);
 
 private slots:
     void on_action_open_file_triggered();

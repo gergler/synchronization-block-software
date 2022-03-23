@@ -50,11 +50,7 @@ void MainWindow::on_action_open_file_triggered()
 
     ui->statusbar->showMessage("JSON file is opened");
 
-    Firmware firmware = Firmware(_currentJsonObject);
-    Scenario scenario = Scenario(_currentJsonObject);
-    Parameters parameters = Parameters(_currentJsonObject);
-    parameters.get();
-    ui->spinBox->setValue(parameters.parameter_default_val);
+    generate_parameters(_currentJsonObject);
 }
 
 void MainWindow::on_action_configure_triggered()
@@ -128,4 +124,14 @@ void MainWindow::on_expert_mode_checkbox_stateChanged(int arg1)
             line_edit[i]->setStyleSheet("background: lightGray");
         }
     }
+}
+
+void MainWindow::generate_parameters(QJsonObject jObj)
+{
+    Parameters parameters = Parameters(jObj);
+    Parameters::parameters_struct param_struct;
+    parameters.get(param_struct);
+
+    ui->detector_wait_timeout_label->setObjectName(param_struct.parameter_name);
+    ui->detector_wait_timeout_label->setToolTip(param_struct.parameter_description);
 }

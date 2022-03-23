@@ -1,0 +1,28 @@
+{
+	"BUILD_DIR" : "/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/synchronization_block_autogen",
+	"CMAKE_BINARY_DIR" : "/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug",
+	"CMAKE_CURRENT_BINARY_DIR" : "/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug",
+	"CMAKE_CURRENT_SOURCE_DIR" : "/home/sayka/diplom_project/synchronization_block",
+	"CMAKE_SOURCE_DIR" : "/home/sayka/diplom_project/synchronization_block",
+	"INCLUDE_DIR" : "/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/synchronization_block_autogen/include",
+	"INPUTS" : 
+	[
+		"/home/sayka/diplom_project/synchronization_block/img/save.png",
+		"/home/sayka/diplom_project/synchronization_block/img/stop.png",
+		"/home/sayka/diplom_project/synchronization_block/img/open.png",
+		"/home/sayka/diplom_project/synchronization_block/img/help.png",
+		"/home/sayka/diplom_project/synchronization_block/img/start.png",
+		"/home/sayka/diplom_project/synchronization_block/img/configure.png",
+		"/home/sayka/diplom_project/synchronization_block/img/quit.png"
+	],
+	"LOCK_FILE" : "/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/CMakeFiles/synchronization_block_autogen.dir/AutoRcc_resource_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "-name", "resource" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_resource.cpp",
+	"RCC_EXECUTABLE" : "/usr/lib/qt5/bin/rcc",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/CMakeFiles/synchronization_block_autogen.dir/AutoRcc_resource_EWIEGA46WW_Used.txt",
+	"SOURCE" : "/home/sayka/diplom_project/synchronization_block/resource.qrc",
+	"VERBOSITY" : 0
+}
