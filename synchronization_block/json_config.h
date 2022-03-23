@@ -14,24 +14,47 @@ public:
 class Firmware {
 public:
     Firmware(QJsonObject jObj);
-    QJsonObject toJsonObject(QJsonObject jObj);
-    QJsonArray _firmware_array;
+    virtual ~Firmware();
+
+    QJsonArray firmware_array;
+    int firmware_array_size = 0;
+
+    struct firmware_struct {
+        int firmware_id;
+        QString firmware_version;
+        QString firmware_addr;
+    };
+    firmware_struct* firmware_struct_array = 0;
+    firmware_struct* add_struct(firmware_struct* parameter, const int number);
+
+    QJsonObject toJsonObject(QJsonObject jObj, firmware_struct firmware);
+
 private:
-    int _firmware_id;
-    QString _firmware_version;
-    QString _firmware_addr;
+
 };
 
 class Scenario {
 public:
     Scenario(QJsonObject jObj);
-    QJsonObject toJsonObject(QJsonObject jObj);
+    virtual ~Scenario();
+
+    QJsonArray scenario_array;
+    int scenario_array_size = 0;
+
+    struct scenario_struct {
+        int scenario_id;
+        QString scenario_name;
+        QString min_firmware_version;
+        QJsonArray scenario_states;
+        QJsonArray scenario_parameters;
+    };
+    scenario_struct* scenario_struct_array = 0;
+    scenario_struct* add_struct(scenario_struct* parameter, const int number);
+
+    QJsonObject toJsonObject(QJsonObject jObj, scenario_struct firmware);
+
 private:
-    int _scenario_id;
-    QString _scenario_name;
-    QString _min_firmware_version;
-    QJsonArray _scenario_states;
-    QJsonArray _scenario_parameters;
+
 };
 
 class Parameters {

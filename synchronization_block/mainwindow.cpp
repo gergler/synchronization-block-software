@@ -57,6 +57,22 @@ void MainWindow::on_action_open_file_triggered()
         qDebug() << parameters.parameters_struct_array[i].parameter_default_val;
         qDebug() << parameters.parameters_struct_array[i].parameter_addr;
     }
+
+    Firmware firmware = Firmware(_currentJsonObject);
+    for (int i = 0; i < firmware.firmware_array_size; i++) {
+        qDebug() << firmware.firmware_struct_array[i].firmware_id;
+        qDebug() << firmware.firmware_struct_array[i].firmware_version;
+        qDebug() << firmware.firmware_struct_array[i].firmware_addr;
+    }
+
+    Scenario scenario = Scenario(_currentJsonObject);
+    for (int i = 0; i < scenario.scenario_array_size; i++) {
+        qDebug() << scenario.scenario_struct_array[i].scenario_id;
+        qDebug() << scenario.scenario_struct_array[i].scenario_name;
+        qDebug() << scenario.scenario_struct_array[i].min_firmware_version;
+        qDebug() << scenario.scenario_struct_array[i].scenario_states;
+        qDebug() << scenario.scenario_struct_array[i].scenario_parameters;
+    }
 }
 
 void MainWindow::on_action_configure_triggered()
