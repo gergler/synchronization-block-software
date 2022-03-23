@@ -2,16 +2,19 @@
 
 #include <QJsonValue>
 
+#define KEY_FW "FIRMWARE"
 #define KEY_FW_ID "id"
 #define KEY_FW_VERSION "version"
 #define KEY_FW_ADDR "address"
 
+#define KEY_SCEN "SCENARIOS"
 #define KEY_SCEN_ID "id"
 #define KEY_SCEN_NAME "name"
 #define KEY_SCEN_MIN_FW "min_fw_version"
 #define KEY_SCEN_STATES "states"
 #define KEY_SCEN_PARAMETERS "parameters"
 
+#define KEY_PARAM "PARAMETERS"
 #define KEY_PARAM_NAME "name"
 #define KEY_PARAM_DESCRIPTION "description"
 #define KEY_PARAM_ADDR "address"
@@ -20,13 +23,10 @@
 Json_config::Json_config() {}
 
 Firmware::Firmware(QJsonObject jObj) {
-    _firmware_id = jObj.value(KEY_FW_ID).toInt();
-    _firmware_version = jObj.value(KEY_FW_VERSION).toString();
-    _firmware_addr = jObj.value(KEY_FW_ADDR).toString();
+    _firmware_array = jObj.value(KEY_FW).toArray();
 }
 
-QJsonObject Firmware::toJsonObject(){
-    QJsonObject jObj;
+QJsonObject Firmware::toJsonObject(QJsonObject jObj){
     jObj.insert(KEY_FW_ID, _firmware_id);
     jObj.insert(KEY_FW_VERSION, _firmware_version);
     jObj.insert(KEY_FW_ADDR, _firmware_addr);
@@ -41,8 +41,7 @@ Scenario::Scenario(QJsonObject jObj) {
     _scenario_parameters = jObj.value(KEY_SCEN_PARAMETERS).toArray();
 }
 
-QJsonObject Scenario::toJsonObject() {
-    QJsonObject jObj;
+QJsonObject Scenario::toJsonObject(QJsonObject jObj) {
     jObj.insert(KEY_SCEN_ID, _scenario_id);
     jObj.insert(KEY_SCEN_NAME, _scenario_name);
     jObj.insert(KEY_SCEN_MIN_FW, _min_firmware_version);
@@ -52,31 +51,21 @@ QJsonObject Scenario::toJsonObject() {
 }
 
 Parameters::Parameters(QJsonObject jObj) {
-    _parameter_name = jObj.value(KEY_PARAM_NAME).toString();
-    _parameter_description = jObj.value(KEY_PARAM_DESCRIPTION).toString();
-    _parameter_addr = jObj.value(KEY_PARAM_ADDR).toInt();
-    _parameter_default_val = jObj.value(KEY_PARAM_DEFAULT).toInt();
+    _parameters_array = jObj.value(KEY_PARAM).toArray();
+    parameters_array_size = _parameters_array.size();
+    for (int i = 0; i < parameters_array_size; i++) {
+        QJsonObject parameter_obj = _parameters_array[i].toObject();
+        parameters_structs[i].parameter_name = parameter_obj.value(KEY_PARAM_NAME).toString();
+        parameters_structs[i].parameter_description = parameter_obj.value(KEY_PARAM_DESCRIPTION).toString();
+        parameters_structs[i].parameter_addr = parameter_obj.value(KEY_PARAM_ADDR).toString();
+        parameters_structs[i].parameter_default_val = parameter_obj.value(KEY_PARAM_DEFAULT).toInt();
+    }
 }
 
-void Parameters::get(Parameters::parameters_struct& parameters) {
-    parameters.parameter_name = _parameter_name;
-    parameters.parameter_description = _parameter_description;
-    parameters.parameter_addr = _parameter_addr;
-    parameters.parameter_default_val = _parameter_default_val;
-}
-
-void Parameters::set(Parameters::parameters_struct parameters) {
-    _parameter_name = parameters.parameter_name;
-    _parameter_description = parameters.parameter_description;
-    _parameter_addr = parameters.parameter_addr;
-    _parameter_default_val = parameters.parameter_default_val;
-}
-
-QJsonObject Parameters::toJsonObject() {
-    QJsonObject jObj;
-    jObj.insert(KEY_PARAM_NAME, _parameter_name);
-    jObj.insert(KEY_PARAM_DESCRIPTION, _parameter_description);
-    jObj.insert(KEY_PARAM_ADDR, _parameter_addr);
-    jObj.insert(KEY_PARAM_DEFAULT, _parameter_default_val);
+QJsonObject Parameters::toJsonObject(QJsonObject jObj, Parameters::parameters_struct parameter) {
+    jObj.insert(KEY_PARAM_NAME, parameter.parameter_name);
+    jObj.insert(KEY_PARAM_DESCRIPTION, parameter.parameter_description);
+    jObj.insert(KEY_PARAM_ADDR, parameter.parameter_addr);
+    jObj.insert(KEY_PARAM_DEFAULT, parameter.parameter_default_val);
     return jObj;
 }

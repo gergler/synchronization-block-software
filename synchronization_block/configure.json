@@ -22,25 +22,30 @@
        "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Trigger_Prolong"],
        "parameters": ["FG_DELAY", "TRIGGER_LEN"]}],
   
-  "PARAMETRS": {
-      "FastGate_Delay":   [{"description": "Fast gate opto to opened delay"},
-                           {"address": "0x1000"},
-                           {"default": 9}],
+  "PARAMETRS": [
+      {"name": "FastGate_Delay",
+       "description": "Fast gate opto to opened delay",
+       "address": "0x1000",
+       "default": 9},
                         
-      "Phase_Shift":      [{"description": "Phase shift length"},
-                           {"address": "0x1010"},
-                           {"default": 700}],
+      {"name": "Phase_Shift",
+       "description": "Phase shift length",
+       "address": "0x1010",
+       "default": 700},
                         
-      "Trigger_Len":      [{"description": "Trigger impulse length"},
-                           {"address": "0x1020"},
-                           {"default": 1000}],
+      {"name": "Trigger_Len",
+       "description": "Trigger impulse length",
+       "address": "0x1020",
+       "default": 1000},
                        
-      "Trigger_Count":    [{"description": "Amount of triggers emitted"},
-                           {"address": "0x1030"},
-                           {"default": 999}],                 
+      {"name": "Trigger_Count",
+       "description": "Amount of triggers emitted",
+       "address": "0x1030",
+       "default": 999},                 
                        
-      "Detector_Timeout": [{"description": "Detector wait timeout"},
-                           {"address": "0x1040"},
-                           {"default": 7000}]
-  }
+      {"name": "Detector_Timeout",
+       "description": "Detector wait timeout",
+       "address": "0x1040",
+       "default": 7000}
+  ]
 }

@@ -14,8 +14,9 @@ public:
 class Firmware {
 public:
     Firmware(QJsonObject jObj);
-    QJsonObject toJsonObject();
+    QJsonObject toJsonObject(QJsonObject jObj);
 private:
+    QJsonArray _firmware_array;
     int _firmware_id;
     QString _firmware_version;
     QString _firmware_addr;
@@ -24,7 +25,7 @@ private:
 class Scenario {
 public:
     Scenario(QJsonObject jObj);
-    QJsonObject toJsonObject();
+    QJsonObject toJsonObject(QJsonObject jObj);
 private:
     int _scenario_id;
     QString _scenario_name;
@@ -34,25 +35,20 @@ private:
 };
 
 class Parameters {
+private:
+    QJsonArray _parameters_array;
+
 public:
     Parameters(QJsonObject jObj);
-    QJsonObject toJsonObject();
-
     struct parameters_struct {
         QString parameter_name;
         QString parameter_description;
         QString parameter_addr;
         int parameter_default_val;
     };
-
-    void set(parameters_struct parameters);
-    void get(parameters_struct& parameters);
-
-private:
-    QString _parameter_name;
-    QString _parameter_description;
-    QString _parameter_addr;
-    int _parameter_default_val;
+    int parameters_array_size = 0;
+    parameters_struct *parameters_structs;
+    QJsonObject toJsonObject(QJsonObject jObj, parameters_struct parameter);
 };
 
 #endif // JSON_CONFIG_H

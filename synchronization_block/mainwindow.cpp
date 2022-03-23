@@ -129,9 +129,17 @@ void MainWindow::on_expert_mode_checkbox_stateChanged(int arg1)
 void MainWindow::generate_parameters(QJsonObject jObj)
 {
     Parameters parameters = Parameters(jObj);
-    Parameters::parameters_struct param_struct;
-    parameters.get(param_struct);
+    ui->statusbar->showMessage(parameters.parameters_structs[0].parameter_name);
+//    for (int i = 0; i < parameters.parameters_array_size; i++) {
+//        QLabel *label = new QLabel(this);
+//        QSpinBox *spinbox = new QSpinBox(this);
+//        label->setBuddy(spinbox);
 
-    ui->detector_wait_timeout_label->setObjectName(param_struct.parameter_name);
-    ui->detector_wait_timeout_label->setToolTip(param_struct.parameter_description);
+//        label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+//        label->setAlignment(Qt::AlignBottom | Qt::AlignRight);
+//        label->setText(parameters.parameters_structs[i].parameter_name);
+//        label->setToolTip(parameters.parameters_structs[i].parameter_description);
+
+//        spinbox->setValue(parameters.parameters_structs[i].parameter_default_val);
+//    }
 }
