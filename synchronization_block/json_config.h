@@ -15,8 +15,8 @@ class Firmware {
 public:
     Firmware(QJsonObject jObj);
     QJsonObject toJsonObject(QJsonObject jObj);
-private:
     QJsonArray _firmware_array;
+private:
     int _firmware_id;
     QString _firmware_version;
     QString _firmware_addr;
@@ -36,18 +36,23 @@ private:
 
 class Parameters {
 private:
-    QJsonArray _parameters_array;
 
 public:
     Parameters(QJsonObject jObj);
+    virtual ~Parameters();
+
+    QJsonArray parameters_array;
+    int parameters_array_size = 0;
+
     struct parameters_struct {
         QString parameter_name;
         QString parameter_description;
         QString parameter_addr;
         int parameter_default_val;
     };
-    int parameters_array_size = 0;
-    parameters_struct *parameters_structs;
+    parameters_struct* parameters_struct_array = 0;
+    parameters_struct* add_struct(parameters_struct* parameter, const int number);
+
     QJsonObject toJsonObject(QJsonObject jObj, parameters_struct parameter);
 };
 

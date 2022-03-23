@@ -7,12 +7,12 @@
 #define KEY_FW_VERSION "version"
 #define KEY_FW_ADDR "address"
 
-#define KEY_SCEN "SCENARIOS"
+#define KEY_SCEN "SCENARIO"
 #define KEY_SCEN_ID "id"
 #define KEY_SCEN_NAME "name"
 #define KEY_SCEN_MIN_FW "min_fw_version"
 #define KEY_SCEN_STATES "states"
-#define KEY_SCEN_PARAMETERS "parameters"
+#define KEY_SCEN_PARAMETERS "scen_parameters"
 
 #define KEY_PARAM "PARAMETERS"
 #define KEY_PARAM_NAME "name"
@@ -51,15 +51,35 @@ QJsonObject Scenario::toJsonObject(QJsonObject jObj) {
 }
 
 Parameters::Parameters(QJsonObject jObj) {
-    _parameters_array = jObj.value(KEY_PARAM).toArray();
-    parameters_array_size = _parameters_array.size();
+    parameters_array = jObj.value(KEY_PARAM).toArray();
+    parameters_array_size = parameters_array.size();
     for (int i = 0; i < parameters_array_size; i++) {
-        QJsonObject parameter_obj = _parameters_array[i].toObject();
-        parameters_structs[i].parameter_name = parameter_obj.value(KEY_PARAM_NAME).toString();
-        parameters_structs[i].parameter_description = parameter_obj.value(KEY_PARAM_DESCRIPTION).toString();
-        parameters_structs[i].parameter_addr = parameter_obj.value(KEY_PARAM_ADDR).toString();
-        parameters_structs[i].parameter_default_val = parameter_obj.value(KEY_PARAM_DEFAULT).toInt();
+        parameters_struct_array = add_struct(parameters_struct_array, i);
+        QJsonObject parameter_obj = parameters_array[i].toObject();
+
+        parameters_struct_array[i].parameter_name = parameter_obj.value(KEY_PARAM_NAME).toString();
+        parameters_struct_array[i].parameter_description = parameter_obj.value(KEY_PARAM_DESCRIPTION).toString();
+        parameters_struct_array[i].parameter_addr = parameter_obj.value(KEY_PARAM_ADDR).toString();
+        parameters_struct_array[i].parameter_default_val = parameter_obj.value(KEY_PARAM_DEFAULT).toInt();
     }
+}
+
+Parameters::~Parameters() {
+    delete [] parameters_struct_array;
+}
+
+Parameters::parameters_struct* Parameters::add_struct(Parameters::parameters_struct* parameter, const int number) {
+    if (number == 0) {
+        parameter = new Parameters::parameters_struct[number + 1];
+    } else {
+        Parameters::parameters_struct* temp_param = new Parameters::parameters_struct[number + 1];
+        for (int i = 0; i < number; i++) {
+            temp_param[i] = parameter[i];
+        }
+        delete [] parameter;
+        parameter = temp_param;
+    }
+    return parameter;
 }
 
 QJsonObject Parameters::toJsonObject(QJsonObject jObj, Parameters::parameters_struct parameter) {

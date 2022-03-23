@@ -50,7 +50,13 @@ void MainWindow::on_action_open_file_triggered()
 
     ui->statusbar->showMessage("JSON file is opened");
 
-    generate_parameters(_currentJsonObject);
+    Parameters parameters = Parameters(_currentJsonObject);
+    for (int i = 0; i < parameters.parameters_array_size; i++) {
+        qDebug() << parameters.parameters_struct_array[i].parameter_name;
+        qDebug() << parameters.parameters_struct_array[i].parameter_description;
+        qDebug() << parameters.parameters_struct_array[i].parameter_default_val;
+        qDebug() << parameters.parameters_struct_array[i].parameter_addr;
+    }
 }
 
 void MainWindow::on_action_configure_triggered()
@@ -129,7 +135,6 @@ void MainWindow::on_expert_mode_checkbox_stateChanged(int arg1)
 void MainWindow::generate_parameters(QJsonObject jObj)
 {
     Parameters parameters = Parameters(jObj);
-    ui->statusbar->showMessage(parameters.parameters_structs[0].parameter_name);
 //    for (int i = 0; i < parameters.parameters_array_size; i++) {
 //        QLabel *label = new QLabel(this);
 //        QSpinBox *spinbox = new QSpinBox(this);
