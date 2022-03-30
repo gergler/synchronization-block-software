@@ -20,6 +20,8 @@
 #define KEY_PARAM_ADDR "address"
 #define KEY_PARAM_DEFAULT "default"
 
+#define KEY_REG "REGISTER"
+
 Json_config::Json_config() {}
 
 Firmware::Firmware(QJsonObject jObj) {
@@ -139,5 +141,45 @@ QJsonObject Parameters::toJsonObject(QJsonObject jObj, Parameters::parameters_st
     jObj.insert(KEY_PARAM_DESCRIPTION, parameter.parameter_description);
     jObj.insert(KEY_PARAM_ADDR, parameter.parameter_addr);
     jObj.insert(KEY_PARAM_DEFAULT, parameter.parameter_default_val);
+    return jObj;
+}
+
+Register::Register(QJsonObject jObj) {
+    register_array = jObj.value(KEY_REG).toArray();
+    register_array_size = register_array.size();
+    for (int i = 0; i < register_array_size; i++) {
+        register_struct_array = add_struct(register_struct_array, i);
+        QJsonObject reg_obj = register_array[i].toObject();
+
+        register_struct_array[i].register_name = reg_obj.value(KEY_PARAM_NAME).toString();
+        register_struct_array[i].register_description = reg_obj.value(KEY_PARAM_DESCRIPTION).toString();
+        register_struct_array[i].register_addr = reg_obj.value(KEY_PARAM_ADDR).toString();
+        register_struct_array[i].register_default_val = reg_obj.value(KEY_PARAM_DEFAULT).toInt();
+    }
+}
+
+Register::~Register() {
+    delete [] register_struct_array;
+}
+
+Register::register_struct* Register::add_struct(Register::register_struct* parameter, const int number) {
+    if (number == 0) {
+        parameter = new Register::register_struct[number + 1];
+    } else {
+        Register::register_struct* temp_param = new Register::register_struct[number + 1];
+        for (int i = 0; i < number; i++) {
+            temp_param[i] = parameter[i];
+        }
+        delete [] parameter;
+        parameter = temp_param;
+    }
+    return parameter;
+}
+
+QJsonObject Register::toJsonObject(QJsonObject jObj, Register::register_struct reg) {
+    jObj.insert(KEY_PARAM_NAME, reg.register_name);
+    jObj.insert(KEY_PARAM_DESCRIPTION, reg.register_description);
+    jObj.insert(KEY_PARAM_ADDR, reg.register_addr);
+    jObj.insert(KEY_PARAM_DEFAULT, reg.register_default_val);
     return jObj;
 }

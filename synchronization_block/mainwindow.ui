@@ -2,16 +2,19 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>452</width>
-    <height>658</height>
+    <height>686</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -35,408 +38,38 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>-1</y>
+      <width>431</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout"/>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_2">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
+      <y>100</y>
       <width>431</width>
-      <height>571</height>
+      <height>271</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
-     <item row="2" column="1" colspan="2">
-      <widget class="QComboBox" name="firmware_version_combobox">
-       <item>
-        <property name="text">
-         <string>2022v1.01</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="12" column="1" colspan="2">
-      <widget class="QSpinBox" name="spinBox_8">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string> ns</string>
-       </property>
-      </widget>
-     </item>
-     <item row="13" column="0">
-      <widget class="QLabel" name="fg_impulse_counter_label">
-       <property name="text">
-        <string>Fast gate impulse
-counter</string>
-       </property>
-      </widget>
-     </item>
-     <item row="13" column="1" colspan="2">
-      <widget class="QSpinBox" name="spinBox_7">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="3">
-      <widget class="QLineEdit" name="scenario_line_edit"/>
-     </item>
-     <item row="11" column="1" colspan="2">
-      <widget class="QSpinBox" name="spinBox_9">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string> ns</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="1" colspan="2">
-      <widget class="QSpinBox" name="spinBox_10">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string> Mhz</string>
-       </property>
-      </widget>
-     </item>
-     <item row="18" column="0">
-      <widget class="QLabel" name="trigger_counter_label">
-       <property name="text">
-        <string>Trigger counter</string>
-       </property>
-      </widget>
-     </item>
-     <item row="19" column="3">
-      <widget class="QSpinBox" name="expert_detector_wait_timeout_spinBox">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="13" column="3">
-      <widget class="QSpinBox" name="spinBox_17">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string> Hz</string>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="0">
-      <widget class="QLabel" name="fg_period_label">
-       <property name="text">
-        <string>Fast gate period</string>
-       </property>
-      </widget>
-     </item>
-     <item row="16" column="1" colspan="2">
-      <widget class="QSpinBox" name="spinBox_4">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="suffix">
-        <string> ns</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="scenario_label">
-       <property name="text">
-        <string>Scenario selected</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="fpga_clock_counter_label">
-       <property name="text">
-        <string>FPGA Clock counter</string>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="3">
-      <widget class="QSpinBox" name="spinBox_16">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="17" column="1" colspan="2">
-      <widget class="QSpinBox" name="spinBox_2">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="suffix">
-        <string> ns</string>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="0">
-      <widget class="QLabel" name="phase_impulse_counter_label">
-       <property name="text">
-        <string>Phase impulse
-counter</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <widget class="QLineEdit" name="firmware_version_line_edit"/>
-     </item>
-     <item row="5" column="1" colspan="2">
-      <widget class="QComboBox" name="scenario_combobox">
-       <item>
-        <property name="text">
-         <string>EXPERIMENT</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>CALIBRATION</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="16" column="0">
-      <widget class="QLabel" name="phase_shift_label">
-       <property name="text">
-        <string>Phase shift</string>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="1" colspan="2">
-      <widget class="QSpinBox" name="spinBox_6">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
-       </property>
-       <property name="suffix">
-        <string> ms</string>
-       </property>
-      </widget>
-     </item>
-     <item row="18" column="3">
-      <widget class="QSpinBox" name="spinBox_12">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="17" column="0">
-      <widget class="QLabel" name="trigger_lenght_label">
-       <property name="text">
-        <string>Trigger lenght</string>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="3">
-      <widget class="QSpinBox" name="spinBox_18">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="current_state_label">
-       <property name="text">
-        <string>Current state</string>
-       </property>
-      </widget>
-     </item>
-     <item row="15" column="3">
-      <widget class="QSpinBox" name="spinBox_15">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="3">
-      <widget class="QLineEdit" name="current_state_line_edit"/>
-     </item>
-     <item row="12" column="0">
-      <widget class="QLabel" name="phase_period_label">
-       <property name="text">
-        <string>Phase period </string>
-       </property>
-      </widget>
-     </item>
-     <item row="15" column="1" colspan="2">
-      <widget class="QSpinBox" name="spinBox_5">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="suffix">
-        <string> ms</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="firmware_version_label">
-       <property name="text">
-        <string>Firmware version</string>
-       </property>
-      </widget>
-     </item>
-     <item row="17" column="3">
-      <widget class="QSpinBox" name="spinBox_13">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="19" column="1" colspan="2">
-      <widget class="QSpinBox" name="detector_wait_timeout_spinBox">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="suffix">
-        <string> ns</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="3">
-      <widget class="QSpinBox" name="spinBox_20">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="3">
-      <widget class="QSpinBox" name="spinBox_19">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string> Khz</string>
-       </property>
-      </widget>
-     </item>
-     <item row="15" column="0">
-      <widget class="QLabel" name="fg_opto_to_open_delay_label">
-       <property name="text">
-        <string>Fast gate opto to
-opened delay</string>
-       </property>
-      </widget>
-     </item>
-     <item row="16" column="3">
-      <widget class="QSpinBox" name="spinBox_14">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::UpDownArrows</enum>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="18" column="1" colspan="2">
-      <widget class="QSpinBox" name="spinBox_3">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="suffix">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QCheckBox" name="expert_mode_checkbox">
-       <property name="text">
-        <string>Expert Mode</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="19" column="0">
-      <widget class="QLabel" name="detector_wait_timeout_label">
-       <property name="text">
-        <string>Detector wait
-timeout</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1" colspan="2">
-      <widget class="QLineEdit" name="current_state_line_edit_2"/>
-     </item>
-    </layout>
+    <layout class="QGridLayout" name="gridLayout_reg"/>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>370</y>
+      <width>431</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_parameters"/>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

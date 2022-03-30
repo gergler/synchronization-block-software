@@ -2,9 +2,16 @@
 #define MAINWINDOW_H
 
 #include "./json_config.h"
+#include <QSpinBox>
 
 #include <QMainWindow>
 #include <QJsonObject>
+#include <QVBoxLayout>
+#include <QGroupBox>
+#include <QCheckBox>
+#include <QLabel>
+#include <QLabel>
+#include <QComboBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,7 +26,28 @@ public:
     ~MainWindow();
 
     void closeEvent(QCloseEvent *event);
+    void generate(QJsonObject jObj);
+    void generate_reg(QJsonObject jObj);
     void generate_parameters(QJsonObject jObj);
+
+    void expert_checkbox_stateChanged(int arg1);
+
+    QCheckBox* expert_checkbox;
+
+    QLabel* firmware_label;
+    QComboBox* firmware_combobox;
+
+    QLabel* scenario_label;
+    QComboBox* scenario_combobox;
+
+    struct expert_param_struct {
+        QLineEdit* firmware_line;
+        QLineEdit* scenario_line;
+        QSpinBox* reg_spinboxes[5];
+        QSpinBox* param_spinboxes[5];
+    };
+
+    expert_param_struct expert_struct;
 
 private slots:
     void on_action_open_file_triggered();
@@ -29,8 +57,6 @@ private slots:
 
     void on_action_start_triggered();
     void on_action_stop_triggered();
-
-    void on_expert_mode_checkbox_stateChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

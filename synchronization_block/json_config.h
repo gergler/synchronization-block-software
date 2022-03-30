@@ -79,4 +79,26 @@ public:
     QJsonObject toJsonObject(QJsonObject jObj, parameters_struct parameter);
 };
 
+class Register {
+private:
+
+public:
+    Register(QJsonObject jObj);
+    virtual ~Register();
+
+    QJsonArray register_array;
+    int register_array_size = 0;
+
+    struct register_struct {
+        QString register_name;
+        QString register_description;
+        QString register_addr;
+        int register_default_val;
+    };
+    register_struct* register_struct_array = 0;
+    register_struct* add_struct(register_struct* reg, const int number);
+
+    QJsonObject toJsonObject(QJsonObject jObj, register_struct reg);
+};
+
 #endif // JSON_CONFIG_H
