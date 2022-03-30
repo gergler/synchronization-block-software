@@ -30,8 +30,6 @@ public:
     void generate_reg(QJsonObject jObj);
     void generate_parameters(QJsonObject jObj);
 
-    void expert_checkbox_stateChanged(int arg1);
-
     QCheckBox* expert_checkbox;
 
     QLabel* firmware_label;
@@ -57,6 +55,8 @@ private slots:
 
     void on_action_start_triggered();
     void on_action_stop_triggered();
+
+    void expert_checkbox_state_changed(bool checked);
 
 private:
     Ui::MainWindow *ui;

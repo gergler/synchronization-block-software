@@ -132,8 +132,8 @@ void MainWindow::closeEvent(QCloseEvent *)
     }
 }
 
-void MainWindow::expert_checkbox_stateChanged(int arg1) {
-    if (arg1 == Qt::Checked) {
+void MainWindow::expert_checkbox_state_changed(bool checked) {
+    if (checked) {
         ui->statusbar->setStyleSheet("color: green");
         ui->statusbar->showMessage("Expert Mode ON");
 
@@ -143,12 +143,12 @@ void MainWindow::expert_checkbox_stateChanged(int arg1) {
         expert_struct.scenario_line->setReadOnly(false);
         expert_struct.scenario_line->setStyleSheet("background: white");
 
-        for (int i = 0; i < sizeof(expert_struct.reg_spinboxes); i++) {
+        for (int i = 0; i < sizeof(expert_struct.reg_spinboxes)/sizeof(expert_struct.reg_spinboxes[0]); i++) {
             expert_struct.reg_spinboxes[i]->setReadOnly(false);
             expert_struct.reg_spinboxes[i]->setStyleSheet("background: white");
         }
 
-        for (int i = 0; i < sizeof(expert_struct.param_spinboxes); i++) {
+        for (int i = 0; i < sizeof(expert_struct.param_spinboxes)/sizeof(expert_struct.param_spinboxes[0]); i++) {
             expert_struct.param_spinboxes[i]->setReadOnly(false);
             expert_struct.param_spinboxes[i]->setStyleSheet("background: white");
         }
@@ -163,12 +163,12 @@ void MainWindow::expert_checkbox_stateChanged(int arg1) {
         expert_struct.scenario_line->setReadOnly(true);
         expert_struct.scenario_line->setStyleSheet("background: lightGray");
 
-        for (int i = 0; i < sizeof(expert_struct.reg_spinboxes); i++) {
+        for (int i = 0; i < sizeof(expert_struct.reg_spinboxes)/sizeof(expert_struct.reg_spinboxes[0]); i++) {
             expert_struct.reg_spinboxes[i]->setReadOnly(true);
             expert_struct.reg_spinboxes[i]->setStyleSheet("background: lightGray");
         }
 
-        for (int i = 0; i < sizeof(expert_struct.param_spinboxes); i++) {
+        for (int i = 0; i < sizeof(expert_struct.param_spinboxes)/sizeof(expert_struct.param_spinboxes[0]); i++) {
             expert_struct.param_spinboxes[i]->setReadOnly(true);
             expert_struct.param_spinboxes[i]->setStyleSheet("background: lightGray");
         }
@@ -183,7 +183,7 @@ void MainWindow::generate(QJsonObject jObj) {
     expert_checkbox->setText("Expert mode");
     ui->gridLayout->addWidget(expert_checkbox, 0, 3);
 
-    connect(expert_checkbox, SIGNAL(stateChanged(int)), this, SLOT(expert_checkbox_stateChanged(int)));
+    QObject::connect(expert_checkbox, SIGNAL(clicked(bool)), this, SLOT(expert_checkbox_state_changed(bool)));
 
     firmware_label = new QLabel(this);
     firmware_label->setText("Firmware");

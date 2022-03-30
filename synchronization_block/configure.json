@@ -60,7 +60,7 @@
        "address": "0x1010",
        "default": 100500},
                         
-      {"name": "Phase impulse counter",
+      {"name": "Phase impulse\ncounter",
        "description": "Phase impulse counter",
        "address": "0x1020",
        "default": 999},

@@ -48,13 +48,13 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->setEnabled(true);
-        MainWindow->resize(452, 686);
+        MainWindow->resize(452, 603);
         QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
-        MainWindow->setMinimumSize(QSize(452, 658));
+        MainWindow->setMinimumSize(QSize(452, 596));
         MainWindow->setMaximumSize(QSize(16777215, 16777215));
         MainWindow->setContextMenuPolicy(Qt::NoContextMenu);
         action_save_file = new QAction(MainWindow);
@@ -92,13 +92,13 @@ public:
         gridLayout->setContentsMargins(0, 0, 0, 0);
         gridLayoutWidget_2 = new QWidget(centralwidget);
         gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
-        gridLayoutWidget_2->setGeometry(QRect(10, 100, 431, 271));
+        gridLayoutWidget_2->setGeometry(QRect(10, 110, 431, 201));
         gridLayout_reg = new QGridLayout(gridLayoutWidget_2);
         gridLayout_reg->setObjectName(QString::fromUtf8("gridLayout_reg"));
         gridLayout_reg->setContentsMargins(0, 0, 0, 0);
         gridLayoutWidget_3 = new QWidget(centralwidget);
         gridLayoutWidget_3->setObjectName(QString::fromUtf8("gridLayoutWidget_3"));
-        gridLayoutWidget_3->setGeometry(QRect(10, 370, 431, 221));
+        gridLayoutWidget_3->setGeometry(QRect(10, 310, 431, 201));
         gridLayout_parameters = new QGridLayout(gridLayoutWidget_3);
         gridLayout_parameters->setObjectName(QString::fromUtf8("gridLayout_parameters"));
         gridLayout_parameters->setContentsMargins(0, 0, 0, 0);
