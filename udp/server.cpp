@@ -8,14 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <sys/mman.h>
-#include <fcntl.h>
-
 #include "server_parameters.h"
 #include "cmd_packet.h"
-
-#define ALT_LWFPGASLVS_OFST 0xFF200000
-#define SPAN 0x8
 
 void dump(void* buffer, int len) {
     uint8_t* arg = reinterpret_cast<uint8_t*>(buffer);
@@ -35,38 +29,12 @@ void dump2(void* buffer, int len) {
     printf("\n");
 }
 
-uint32_t read_register(uint32_t register_addr) {
-    int fd = open("/dev/mem", (O_RDWR | O_SYNC));
-    void *reg = mmap(NULL, SPAN, (PROT_READ | PROT_WRITE), MAP_SHARED, fd, (ALT_LWFPGASLVS_OFST + r
-egister_addr));
-    uint32_t val = *reinterpret_cast<unsigned long*>(reg);
-    munmap(reg, SPAN);
-    close(fd);
-    return val;
-}
-
-uint32_t write_register(uint32_t register_addr, uint32_t value) {
-    int fd = open("/dev/mem", (O_RDWR | O_SYNC));
-    void *reg = mmap(NULL, SPAN, (PROT_READ | PROT_WRITE), MAP_SHARED, fd, (ALT_LWFPGASLVS_OFST + r
-egister_addr));
-    *reinterpret_cast<unsigned long*>(reg) = value;
-    munmap(reg, SPAN);
-    close(fd);
-    return value;
-}
 
 void process_command(CMD_Packet &packet) {
-	printf("Execute:    ");
-	print_packet(packet);
-	//printf("\n");
-	packet.status = 0;
-	if ('R'== packet.cmd) {
-		packet.value = read_register(packet.number);
-	}
-	if ('W' == packet.cmd) {
-		packet.value = write_register(packet.number, packet.value);
-	}
-	print_packet(packet);
+    printf("Execute:    ");
+    print_packet(packet);
+    //printf("\n");
+    packet.status = 0;
 }
 
 int main(int argc, char* argv[])
@@ -111,10 +79,9 @@ int main(int argc, char* argv[])
     
     for (;;) {
         socklen_t addrlen = sizeof(cliaddr);  //len is value/resuslt
-        int n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliadd
-r, &addrlen);
+        int n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, &addrlen);
 
-        //system("date --rfc-3339=seconds");
+        system("date --rfc-3339=seconds");
         printf("Client from addr_len=%d, size=%d\n", addrlen, n);
         printf("addr: ");
 #ifdef USE_IPV6
@@ -125,8 +92,7 @@ r, &addrlen);
         if (n == sizeof(CMD_Packet)) {
             process_command( reinterpret_cast<CMD_Packet&>(buffer) );
         }
-        sendto(sockfd, buffer, sizeof(CMD_Packet), MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
- addrlen);
+        sendto(sockfd, buffer, sizeof(CMD_Packet), MSG_CONFIRM, (const struct sockaddr *) &cliaddr, addrlen);
         printf("Reply sent: "); 
         print_packet(reinterpret_cast<CMD_Packet&>(buffer));
         printf("\n");
