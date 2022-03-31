@@ -12,7 +12,11 @@
 #include "server_parameters.h"
 #include "cmd_packet.h"
 
-#define IP "192.168.7.1"
+#if 0
+  #define IP "192.168.7.1"
+#else
+  #define IP "127.1"
+#endif
 
 CMD_Packet packet { 'z', 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF };
    
@@ -69,4 +73,3 @@ int main(int argc, char* argv[]) {
     close(sockfd);
     return 0;
 }
-
