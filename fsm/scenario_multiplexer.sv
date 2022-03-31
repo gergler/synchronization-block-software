@@ -1,58 +1,95 @@
+//import bus_package::*;
+`include "bus_package.sv"
+
 module scenario_multiplexer (
-		input [2:0] control_reg_input,
-		input clock_reg_input, reset_reg_input, start_reg_input, fg_reg_input, phase_reg_input, wire_reg_input, detector_ready_reg_input,
-		
-		input fg_open_delay_reg_input, detectr_ready_timeout_reg_input, phase_shift_reg_input, detonate_len_reg_input, trigger_len_reg_input,
-		
-		output detonation_signal_reg_output, trigger_reg_output, 
-		output [7:0] scenario_state_reg_output, output int counter_reg_output,
-		
-		output [2:0] scenario_reg_output
+	input clock,
+	input [7:0] scen_sel,
+    input scen_start,
+    input scen_reset,
+        
+    input_ports_bus      input_ports,
+    parameters_ports_bus parameters_ports,
+    output_ports_bus     output_ports
 );
 
-reg [2:0] control_reg =0;
-assign control_reg = control_reg_input;
+//output_ports_bus output_ports_bus_n[4];
+output_ports_bus output_ports_bus_0();
+output_ports_bus output_ports_bus_1();
+output_ports_bus output_ports_bus_2();
+output_ports_bus output_ports_bus_3();
 
-assign scenario_reg_output = control_reg;
+enum logic [7:0] {EXPERIMENT, EXPERIMENT_PHASE, CALIBRATION, CALIBRATION_PHASE} scenario;
 
-reg [2:0] control_reg_history = '0;
+/*
+assign output_ports_bus_0 = '{0, 0, 0, 0};
+assign output_ports_bus_1 = '1;
+assign output_ports_bus_2 = '0;
+assign output_ports_bus_3 = '1;
 
-struct {
-	logic clock;
-	logic reset_signal; 
-	logic start_signal;
-	logic fg_signal;
-	logic phase_signal;
-	logic wire_signal;
-	logic detector_ready;
-} input_ports;
+assign output_ports_bus_n[0] = '0;
+assign output_ports_bus_n[1] = '1;
+assign output_ports_bus_n[2] = '0;
+assign output_ports_bus_n[3] = '1;
+*/
 
-assign input_ports = '{clock_reg_input, reset_reg_input, start_reg_input, fg_reg_input, phase_reg_input, wire_reg_input, detector_ready_reg_input};
+assign output_ports_bus_0.detonation_signal = 'Z;
+assign output_ports_bus_0.output_trigger    = 'Z;
+assign output_ports_bus_0.scenario_state    = '0; 
+assign output_ports_bus_0.counter_out       = '0;
 
-struct {
-	logic fg_open_delay;  
-	logic detectr_ready_timeout;
-	logic phase_shift;
-	logic detonate_len;
-	logic trigger_len;
-} parameters_ports;
+assign output_ports_bus_1.detonation_signal = '1;
+assign output_ports_bus_1.output_trigger    = '1;
+assign output_ports_bus_1.scenario_state    = '1; 
+assign output_ports_bus_1.counter_out       = '1;
 
-assign parameters_ports = '{fg_open_delay_reg_input, detectr_ready_timeout_reg_input, phase_shift_reg_input, detonate_len_reg_input, trigger_len_reg_input};
+assign output_ports_bus_2.detonation_signal = '0;
+assign output_ports_bus_2.output_trigger    = '0;
+assign output_ports_bus_2.scenario_state    = '0; 
+assign output_ports_bus_2.counter_out       = '0;
 
-struct {
-	logic detonation_signal; 
-	logic output_trigger;
-	logic [7:0] scenario_state; 
-	logic counter_out;
-} output_ports;
+assign output_ports_bus_3.detonation_signal = 'Z;
+assign output_ports_bus_3.output_trigger    = 'Z;
+assign output_ports_bus_3.scenario_state    = 'Z; 
+assign output_ports_bus_3.counter_out       = 'Z;
 
-assign output_ports = '{detonation_signal_reg_output, trigger_reg_output, scenario_state_reg_output, counter_reg_output};
+always_comb begin
+        // output_ports_bus <= output_ports_bus_n[scen_sel];
+		unique case (scen_sel)
+        0 : begin
+            output_ports.detonation_signal <= output_ports_bus_0.detonation_signal;
+            output_ports.output_trigger    <= output_ports_bus_0.output_trigger;
+            output_ports.scenario_state    <= output_ports_bus_0.scenario_state; 
+            output_ports.counter_out       <= output_ports_bus_0.counter_out;
+        end
+        1 : begin
+            output_ports.detonation_signal <= output_ports_bus_1.detonation_signal;
+            output_ports.output_trigger    <= output_ports_bus_1.output_trigger;
+            output_ports.scenario_state    <= output_ports_bus_1.scenario_state; 
+            output_ports.counter_out       <= output_ports_bus_1.counter_out;
+        end
+        2 : begin
+            output_ports.detonation_signal <= output_ports_bus_2.detonation_signal;
+            output_ports.output_trigger    <= output_ports_bus_2.output_trigger;
+            output_ports.scenario_state    <= output_ports_bus_2.scenario_state; 
+            output_ports.counter_out       <= output_ports_bus_2.counter_out;
+        end
+        3 : begin
+            output_ports.detonation_signal <= output_ports_bus_3.detonation_signal;
+            output_ports.output_trigger    <= output_ports_bus_3.output_trigger;
+            output_ports.scenario_state    <= output_ports_bus_3.scenario_state; 
+            output_ports.counter_out       <= output_ports_bus_3.counter_out;
+        end
+        default : begin
+            output_ports.detonation_signal <= 'Z;
+            output_ports.output_trigger    <= 'Z;
+            output_ports.scenario_state    <= 'Z;
+            output_ports.counter_out       <= 'Z;
+        end
 
-enum logic [1:0] {EXPERIMENT, EXPERIMENT_PHASE, CALIBRATION, CALIBRATION_PHASE} scenario;
-
-always @(posedge clock_reg_input) begin
-	if (control_reg_history != control_reg) begin
-		case (control_reg)
+        endcase
+        
+        /*
+        case (scen_sel)
 			EXPERIMENT: begin
 				output_ports <= '{0, 0, 0, 0};
 			end
@@ -73,9 +110,7 @@ always @(posedge clock_reg_input) begin
 				output_ports <= '{'z, 'z, 'z, 'z};
 			end
 		
-		endcase
-	control_reg_history = control_reg;
-	end
+		endcase  */
 end
 
 endmodule
