@@ -30,12 +30,11 @@ public:
     QAction *action_start;
     QAction *action_stop;
     QAction *action_open_file;
+    QAction *action_read_registers;
     QWidget *centralwidget;
-    QWidget *gridLayoutWidget;
+    QGridLayout *gridLayout_2;
     QGridLayout *gridLayout;
-    QWidget *gridLayoutWidget_2;
     QGridLayout *gridLayout_reg;
-    QWidget *gridLayoutWidget_3;
     QGridLayout *gridLayout_parameters;
     QMenuBar *menubar;
     QMenu *menuSynchronization_block_software;
@@ -48,13 +47,8 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->setEnabled(true);
-        MainWindow->resize(452, 603);
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
-        MainWindow->setSizePolicy(sizePolicy);
-        MainWindow->setMinimumSize(QSize(452, 596));
+        MainWindow->resize(381, 475);
+        MainWindow->setMinimumSize(QSize(0, 0));
         MainWindow->setMaximumSize(QSize(16777215, 16777215));
         MainWindow->setContextMenuPolicy(Qt::NoContextMenu);
         action_save_file = new QAction(MainWindow);
@@ -82,30 +76,37 @@ public:
         QIcon icon4;
         icon4.addFile(QString::fromUtf8(":/rec/img/open.png"), QSize(), QIcon::Normal, QIcon::Off);
         action_open_file->setIcon(icon4);
+        action_read_registers = new QAction(MainWindow);
+        action_read_registers->setObjectName(QString::fromUtf8("action_read_registers"));
+        QIcon icon5;
+        icon5.addFile(QString::fromUtf8(":/rec/img/read.png"), QSize(), QIcon::Normal, QIcon::Off);
+        action_read_registers->setIcon(icon5);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        gridLayoutWidget = new QWidget(centralwidget);
-        gridLayoutWidget->setObjectName(QString::fromUtf8("gridLayoutWidget"));
-        gridLayoutWidget->setGeometry(QRect(9, -1, 431, 101));
-        gridLayout = new QGridLayout(gridLayoutWidget);
+        gridLayout_2 = new QGridLayout(centralwidget);
+        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
+        gridLayout = new QGridLayout();
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        gridLayout->setContentsMargins(0, 0, 0, 0);
-        gridLayoutWidget_2 = new QWidget(centralwidget);
-        gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
-        gridLayoutWidget_2->setGeometry(QRect(10, 110, 431, 201));
-        gridLayout_reg = new QGridLayout(gridLayoutWidget_2);
+        gridLayout->setSizeConstraint(QLayout::SetNoConstraint);
+
+        gridLayout_2->addLayout(gridLayout, 0, 0, 1, 1);
+
+        gridLayout_reg = new QGridLayout();
         gridLayout_reg->setObjectName(QString::fromUtf8("gridLayout_reg"));
-        gridLayout_reg->setContentsMargins(0, 0, 0, 0);
-        gridLayoutWidget_3 = new QWidget(centralwidget);
-        gridLayoutWidget_3->setObjectName(QString::fromUtf8("gridLayoutWidget_3"));
-        gridLayoutWidget_3->setGeometry(QRect(10, 310, 431, 201));
-        gridLayout_parameters = new QGridLayout(gridLayoutWidget_3);
+        gridLayout_reg->setSizeConstraint(QLayout::SetNoConstraint);
+
+        gridLayout_2->addLayout(gridLayout_reg, 1, 0, 1, 1);
+
+        gridLayout_parameters = new QGridLayout();
         gridLayout_parameters->setObjectName(QString::fromUtf8("gridLayout_parameters"));
-        gridLayout_parameters->setContentsMargins(0, 0, 0, 0);
+        gridLayout_parameters->setSizeConstraint(QLayout::SetNoConstraint);
+
+        gridLayout_2->addLayout(gridLayout_parameters, 2, 0, 1, 1);
+
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 452, 22));
+        menubar->setGeometry(QRect(0, 0, 381, 22));
         menuSynchronization_block_software = new QMenu(menubar);
         menuSynchronization_block_software->setObjectName(QString::fromUtf8("menuSynchronization_block_software"));
         menuExperiment = new QMenu(menubar);
@@ -125,8 +126,8 @@ public:
         menuExperiment->addAction(action_configure);
         menuExperiment->addAction(action_start);
         menuExperiment->addAction(action_stop);
-        toolBar->addAction(action_open_file);
-        toolBar->addAction(action_save_file);
+        menuExperiment->addAction(action_read_registers);
+        toolBar->addAction(action_read_registers);
         toolBar->addAction(action_configure);
         toolBar->addAction(action_start);
         toolBar->addAction(action_stop);
@@ -153,6 +154,10 @@ public:
         action_stop->setToolTip(QApplication::translate("MainWindow", "Experiment stop signal", nullptr));
 #endif // QT_NO_TOOLTIP
         action_open_file->setText(QApplication::translate("MainWindow", "Open file", nullptr));
+#ifndef QT_NO_TOOLTIP
+        action_open_file->setToolTip(QApplication::translate("MainWindow", "Open JSON file", nullptr));
+#endif // QT_NO_TOOLTIP
+        action_read_registers->setText(QApplication::translate("MainWindow", "Read registers", nullptr));
         menuSynchronization_block_software->setTitle(QApplication::translate("MainWindow", "Main", nullptr));
         menuExperiment->setTitle(QApplication::translate("MainWindow", "Experiment", nullptr));
         toolBar->setWindowTitle(QApplication::translate("MainWindow", "toolBar", nullptr));

@@ -9,20 +9,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>452</width>
-    <height>603</height>
+    <width>381</width>
+    <height>475</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>452</width>
-    <height>596</height>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -38,46 +32,36 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="gridLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>9</x>
-      <y>-1</y>
-      <width>431</width>
-      <height>101</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout"/>
-   </widget>
-   <widget class="QWidget" name="gridLayoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>110</y>
-      <width>431</width>
-      <height>201</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_reg"/>
-   </widget>
-   <widget class="QWidget" name="gridLayoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>310</y>
-      <width>431</width>
-      <height>201</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_parameters"/>
-   </widget>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetNoConstraint</enum>
+      </property>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <layout class="QGridLayout" name="gridLayout_reg">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetNoConstraint</enum>
+      </property>
+     </layout>
+    </item>
+    <item row="2" column="0">
+     <layout class="QGridLayout" name="gridLayout_parameters">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetNoConstraint</enum>
+      </property>
+     </layout>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>452</width>
+     <width>381</width>
      <height>22</height>
     </rect>
    </property>
@@ -95,6 +79,7 @@
     <addaction name="action_configure"/>
     <addaction name="action_start"/>
     <addaction name="action_stop"/>
+    <addaction name="action_read_registers"/>
    </widget>
    <addaction name="menuSynchronization_block_software"/>
    <addaction name="menuExperiment"/>
@@ -110,8 +95,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="action_open_file"/>
-   <addaction name="action_save_file"/>
+   <addaction name="action_read_registers"/>
    <addaction name="action_configure"/>
    <addaction name="action_start"/>
    <addaction name="action_stop"/>
@@ -168,6 +152,18 @@
    </property>
    <property name="text">
     <string>Open file</string>
+   </property>
+   <property name="toolTip">
+    <string>Open JSON file</string>
+   </property>
+  </action>
+  <action name="action_read_registers">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/img/read.png</normaloff>:/rec/img/read.png</iconset>
+   </property>
+   <property name="text">
+    <string>Read registers</string>
    </property>
   </action>
  </widget>

@@ -36,6 +36,12 @@ set(PROJECT_SOURCES
         json_config.cpp
         json_config.h
 
+        server_parameters.h
+        cmd_packet.h
+
+        client.cpp
+        client.h
+
         resource.qrc
 )
 

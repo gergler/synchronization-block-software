@@ -2,6 +2,8 @@
 #include "./ui_mainwindow.h"
 #include "./json_config.h"
 
+#include "client.h"
+
 #include <QMessageBox>
 #include <QDebug>
 #include <QFileDialog>
@@ -12,11 +14,30 @@
 #include <QLineEdit>
 #include <QLayout>
 
+CMD_Packet packet { 'z', 0, 0, 0 };
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    setWindowTitle("Synchronization block application");
+
+    QString openFileName = "configure.json";
+    QFileInfo fileInfo(openFileName);
+    QDir::setCurrent(fileInfo.path());
+    QFile jsonFile(openFileName);
+    if (!jsonFile.open(QIODevice::ReadOnly))
+    {
+        ui->statusbar->showMessage("ERROR");
+        return;
+    }
+    QByteArray saveData = jsonFile.readAll();
+    QJsonDocument jsonDocument(QJsonDocument::fromJson(saveData));
+    _currentJsonObject = jsonDocument.object();
+
+    generate(_currentJsonObject);
 }
 
 MainWindow::~MainWindow()
@@ -29,100 +50,89 @@ void MainWindow::on_action_open_file_triggered()
     ui->statusbar->setStyleSheet("color: darkBlue");
     ui->statusbar->showMessage("Open JSON file");
 
-    // Выбираем файл
     QString openFileName = QFileDialog::getOpenFileName(this,
                                                         tr("Open Json File"),
                                                         QString(),
                                                         tr("JSON (*.json)"));
-    QFileInfo fileInfo(openFileName);   // С помощью QFileInfo
-    QDir::setCurrent(fileInfo.path());  // установим текущую рабочую директорию, где будет файл
-    // Создаём объект файла и открываем его на чтение
+    QFileInfo fileInfo(openFileName);
+    QDir::setCurrent(fileInfo.path());
     QFile jsonFile(openFileName);
     if (!jsonFile.open(QIODevice::ReadOnly))
     {
         ui->statusbar->showMessage("ERROR");
         return;
     }
-
-    // Считываем весь файл
     QByteArray saveData = jsonFile.readAll();
-    // Создаём QJsonDocument
     QJsonDocument jsonDocument(QJsonDocument::fromJson(saveData));
-    // Из которого выделяем объект в текущий рабочий QJsonObject
     _currentJsonObject = jsonDocument.object();
 
     ui->statusbar->showMessage("JSON file is opened");
-
-    /*Parameters parameters = Parameters(_currentJsonObject);
-    for (int i = 0; i < parameters.parameters_array_size; i++) {
-        qDebug() << parameters.parameters_struct_array[i].parameter_name;
-        qDebug() << parameters.parameters_struct_array[i].parameter_description;
-        qDebug() << parameters.parameters_struct_array[i].parameter_default_val;
-        qDebug() << parameters.parameters_struct_array[i].parameter_addr;
-    }
-
-    Firmware firmware = Firmware(_currentJsonObject);
-    for (int i = 0; i < firmware.firmware_array_size; i++) {
-        qDebug() << firmware.firmware_struct_array[i].firmware_id;
-        qDebug() << firmware.firmware_struct_array[i].firmware_version;
-        qDebug() << firmware.firmware_struct_array[i].firmware_addr;
-    }
-
-    Scenario scenario = Scenario(_currentJsonObject);
-    for (int i = 0; i < scenario.scenario_array_size; i++) {
-        qDebug() << scenario.scenario_struct_array[i].scenario_id;
-        qDebug() << scenario.scenario_struct_array[i].scenario_name;
-        qDebug() << scenario.scenario_struct_array[i].min_firmware_version;
-        qDebug() << scenario.scenario_struct_array[i].scenario_states;
-        qDebug() << scenario.scenario_struct_array[i].scenario_parameters;
-    }*/
 
     generate(_currentJsonObject);
 }
 
 void MainWindow::on_action_configure_triggered()
 {
-    ui->statusbar->setStyleSheet("color: darkBlue");
-    ui->statusbar->showMessage("Configuring fpga with the selected file");
+    QString data;
 
+    CMD_Packet reply;
+    CMD_Packet req {'C', 0, 0, 1};
+    req.number = firmware_combobox->currentIndex();
+
+    int n = execUDPCommand(req, reply, 500000);
+
+    if (n < 0) {
+        data = strerror(errno);
+    } else if (n != sizeof (CMD_Packet)) {
+        data = "Error: invalid size";
+    } else if (reply.status != 0) {
+        data = "Error: bad reply status";
+    } else {
+        data = "OK: "+QString::number( reply.number );
+    }
+
+    ui->statusbar->showMessage(data);
+    expert_struct.firmware_line->setText(data);
 }
 
 void MainWindow::on_action_start_triggered()
 {
     ui->statusbar->setStyleSheet("color: green");
     ui->statusbar->showMessage("START signal sent successfully");
+
 }
 
 void MainWindow::on_action_stop_triggered()
 {
     ui->statusbar->setStyleSheet("color: darkRed");
-    ui->statusbar->showMessage("RESET signal sent successfully");
+    ui->statusbar->showMessage("STOP signal sent successfully");
 }
 
 
 void MainWindow::on_action_save_file_triggered()
 {
-    // С помощью диалогового окна получаем имя файла с абсолютным путём
     QString saveFileName = QFileDialog::getSaveFileName(this,
                                                         tr("Save Json File"),
                                                         QString(),
                                                         tr("JSON (*.json)"));
-    QFileInfo fileInfo(saveFileName);   // С помощью QFileInfo
-    QDir::setCurrent(fileInfo.path());  // установим текущую рабочую директорию, где будет файл, иначе может не заработать
-    // Создаём объект файла и открываем его на запись
+    QFileInfo fileInfo(saveFileName);
+    QDir::setCurrent(fileInfo.path());
     QFile jsonFile(saveFileName);
     if (!jsonFile.open(QIODevice::WriteOnly))
     {
         return;
     }
-
-    // Записываем текущий объект Json в файл
     jsonFile.write(QJsonDocument(_currentJsonObject).toJson(QJsonDocument::Indented));
-    jsonFile.close();   // Закрываем файл
+    jsonFile.close();
+
+    ui->statusbar->setStyleSheet("color: darkBlue");
+    ui->statusbar->showMessage("Save JSON file");
 }
 
 void MainWindow::closeEvent(QCloseEvent *)
 {
+    return; // FIXME!!
+
     QMessageBox::StandardButton reply = QMessageBox::question(this, "QUIT", "Are you sure you want to exit? All unsaved data will be lost.",
                                                               QMessageBox::Yes | QMessageBox::No);
     if (reply == QMessageBox::Yes) {
@@ -239,8 +249,12 @@ void MainWindow::generate_reg(QJsonObject jObj)
         label->setToolTip(reg.register_struct_array[i].register_description);
 
         spinbox_array[i][0]->setValue(reg.register_struct_array[i].register_default_val);
+        spinbox_array[i][0]->setReadOnly(true);
         spinbox_array[i][1]->setReadOnly(true);
         spinbox_array[i][1]->setStyleSheet("background: lightGray");
+
+        spinbox_array[i][0]->setButtonSymbols(QAbstractSpinBox::NoButtons);
+        spinbox_array[i][1]->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
         ui->gridLayout_reg->addWidget(label, i+1, 0);
         ui->gridLayout_reg->addWidget(spinbox_array[i][0], i+1, 1);
@@ -280,4 +294,31 @@ void MainWindow::generate_parameters(QJsonObject jObj)
 
         expert_struct.param_spinboxes[i] = spinbox_array[i][1];
     }
+}
+
+void MainWindow::on_action_read_registers_triggered()
+{
+    QString data;
+
+    CMD_Packet reply;
+    CMD_Packet req {'R', 0x1000, 0, 1};
+
+    int n = execUDPCommand(req, reply);
+
+    if (n < 0) {
+        data = strerror(errno);
+    } else if (n != sizeof (CMD_Packet)) {
+        data = "Error: invalid size";
+    } else if (reply.status != 0) {
+        data = "Error: bad reply status";
+    } else {
+        data = "0x"+QString::number( reply.value, 16 );
+    }
+
+    //QString data = QString(reinterpret_cast<CMD_Packet&>(buffer).value);
+
+
+    //ui->statusbar->showMessage("Recv data:");
+    ui->statusbar->showMessage(data);
+    expert_struct.firmware_line->setText(data);
 }

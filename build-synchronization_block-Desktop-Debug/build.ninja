@@ -93,6 +93,14 @@ build CMakeFiles/synchronization_block.dir/json_config.cpp.o: CXX_COMPILER__sync
   OBJECT_DIR = CMakeFiles/synchronization_block.dir
   OBJECT_FILE_DIR = CMakeFiles/synchronization_block.dir
 
+build CMakeFiles/synchronization_block.dir/client.cpp.o: CXX_COMPILER__synchronization_block /home/sayka/diplom_project/synchronization_block/client.cpp || cmake_object_order_depends_target_synchronization_block
+  DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB
+  DEP_FILE = CMakeFiles/synchronization_block.dir/client.cpp.o.d
+  FLAGS = -g   -fPIC -std=gnu++11
+  INCLUDES = -I. -I/home/sayka/diplom_project/synchronization_block -Isynchronization_block_autogen/include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+  OBJECT_DIR = CMakeFiles/synchronization_block.dir
+  OBJECT_FILE_DIR = CMakeFiles/synchronization_block.dir
+
 build CMakeFiles/synchronization_block.dir/synchronization_block_autogen/EWIEGA46WW/qrc_resource.cpp.o: CXX_COMPILER__synchronization_block synchronization_block_autogen/EWIEGA46WW/qrc_resource.cpp || cmake_object_order_depends_target_synchronization_block
   DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB
   DEP_FILE = CMakeFiles/synchronization_block.dir/synchronization_block_autogen/EWIEGA46WW/qrc_resource.cpp.o.d
@@ -109,7 +117,7 @@ build CMakeFiles/synchronization_block.dir/synchronization_block_autogen/EWIEGA4
 #############################################
 # Link the executable synchronization_block
 
-build synchronization_block: CXX_EXECUTABLE_LINKER__synchronization_block CMakeFiles/synchronization_block.dir/synchronization_block_autogen/mocs_compilation.cpp.o CMakeFiles/synchronization_block.dir/main.cpp.o CMakeFiles/synchronization_block.dir/mainwindow.cpp.o CMakeFiles/synchronization_block.dir/json_config.cpp.o CMakeFiles/synchronization_block.dir/synchronization_block_autogen/EWIEGA46WW/qrc_resource.cpp.o | /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.12.8 /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.12.8 /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.12.8 || synchronization_block_autogen
+build synchronization_block: CXX_EXECUTABLE_LINKER__synchronization_block CMakeFiles/synchronization_block.dir/synchronization_block_autogen/mocs_compilation.cpp.o CMakeFiles/synchronization_block.dir/main.cpp.o CMakeFiles/synchronization_block.dir/mainwindow.cpp.o CMakeFiles/synchronization_block.dir/json_config.cpp.o CMakeFiles/synchronization_block.dir/client.cpp.o CMakeFiles/synchronization_block.dir/synchronization_block_autogen/EWIEGA46WW/qrc_resource.cpp.o | /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.12.8 /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.12.8 /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.12.8 || synchronization_block_autogen
   FLAGS = -g
   LINK_LIBRARIES = /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.12.8  /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.12.8  /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.12.8
   OBJECT_DIR = CMakeFiles/synchronization_block.dir
@@ -128,7 +136,7 @@ build synchronization_block_autogen: phony CMakeFiles/synchronization_block_auto
 #############################################
 # Custom command for synchronization_block_autogen/EWIEGA46WW/qrc_resource.cpp
 
-build synchronization_block_autogen/EWIEGA46WW/qrc_resource.cpp: CUSTOM_COMMAND /home/sayka/diplom_project/synchronization_block/resource.qrc CMakeFiles/synchronization_block_autogen.dir/AutoRcc_resource_EWIEGA46WW_Info.json /home/sayka/diplom_project/synchronization_block/img/save.png /home/sayka/diplom_project/synchronization_block/img/stop.png /home/sayka/diplom_project/synchronization_block/img/open.png /home/sayka/diplom_project/synchronization_block/img/help.png /home/sayka/diplom_project/synchronization_block/img/start.png /home/sayka/diplom_project/synchronization_block/img/configure.png /home/sayka/diplom_project/synchronization_block/img/quit.png /usr/lib/qt5/bin/rcc || synchronization_block_autogen
+build synchronization_block_autogen/EWIEGA46WW/qrc_resource.cpp: CUSTOM_COMMAND /home/sayka/diplom_project/synchronization_block/resource.qrc CMakeFiles/synchronization_block_autogen.dir/AutoRcc_resource_EWIEGA46WW_Info.json /home/sayka/diplom_project/synchronization_block/img/read.png /home/sayka/diplom_project/synchronization_block/img/save.png /home/sayka/diplom_project/synchronization_block/img/stop.png /home/sayka/diplom_project/synchronization_block/img/open.png /home/sayka/diplom_project/synchronization_block/img/help.png /home/sayka/diplom_project/synchronization_block/img/start.png /home/sayka/diplom_project/synchronization_block/img/configure.png /home/sayka/diplom_project/synchronization_block/img/quit.png /usr/lib/qt5/bin/rcc || synchronization_block_autogen
   COMMAND = cd /home/sayka/diplom_project/build-synchronization_block-Desktop-Debug && /usr/bin/cmake -E cmake_autorcc /home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/CMakeFiles/synchronization_block_autogen.dir/AutoRcc_resource_EWIEGA46WW_Info.json Debug
   DESC = Automatic RCC for resource.qrc
   restat = 1

@@ -123,6 +123,15 @@
 		<Unit filename="/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/synchronization_block_autogen/mocs_compilation.cpp">
 			<Option target="synchronization_block"/>
 		</Unit>
+		<Unit filename="/home/sayka/diplom_project/synchronization_block/client.cpp">
+			<Option target="synchronization_block"/>
+		</Unit>
+		<Unit filename="/home/sayka/diplom_project/synchronization_block/client.h">
+			<Option target="synchronization_block"/>
+		</Unit>
+		<Unit filename="/home/sayka/diplom_project/synchronization_block/cmd_packet.h">
+			<Option target="synchronization_block"/>
+		</Unit>
 		<Unit filename="/home/sayka/diplom_project/synchronization_block/json_config.cpp">
 			<Option target="synchronization_block"/>
 		</Unit>
@@ -142,6 +151,9 @@
 			<Option target="synchronization_block"/>
 		</Unit>
 		<Unit filename="/home/sayka/diplom_project/synchronization_block/resource.qrc">
+			<Option target="synchronization_block"/>
+		</Unit>
+		<Unit filename="/home/sayka/diplom_project/synchronization_block/server_parameters.h">
 			<Option target="synchronization_block"/>
 		</Unit>
 		<Unit filename="/home/sayka/diplom_project/synchronization_block/CMakeLists.txt">

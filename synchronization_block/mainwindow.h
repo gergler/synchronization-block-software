@@ -58,6 +58,8 @@ private slots:
 
     void expert_checkbox_state_changed(bool checked);
 
+    void on_action_read_registers_triggered();
+
 private:
     Ui::MainWindow *ui;
     QJsonObject _currentJsonObject;

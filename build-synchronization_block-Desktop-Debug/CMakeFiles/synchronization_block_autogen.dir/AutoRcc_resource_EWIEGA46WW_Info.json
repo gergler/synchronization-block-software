@@ -7,6 +7,7 @@
 	"INCLUDE_DIR" : "/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/synchronization_block_autogen/include",
 	"INPUTS" : 
 	[
+		"/home/sayka/diplom_project/synchronization_block/img/read.png",
 		"/home/sayka/diplom_project/synchronization_block/img/save.png",
 		"/home/sayka/diplom_project/synchronization_block/img/stop.png",
 		"/home/sayka/diplom_project/synchronization_block/img/open.png",

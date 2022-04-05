@@ -8,6 +8,16 @@
 	"HEADERS" : 
 	[
 		[
+			"/home/sayka/diplom_project/synchronization_block/client.h",
+			"MU",
+			"EWIEGA46WW/moc_client.cpp"
+		],
+		[
+			"/home/sayka/diplom_project/synchronization_block/cmd_packet.h",
+			"MU",
+			"EWIEGA46WW/moc_cmd_packet.cpp"
+		],
+		[
 			"/home/sayka/diplom_project/synchronization_block/json_config.h",
 			"MU",
 			"EWIEGA46WW/moc_json_config.cpp"
@@ -16,6 +26,11 @@
 			"/home/sayka/diplom_project/synchronization_block/mainwindow.h",
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp"
+		],
+		[
+			"/home/sayka/diplom_project/synchronization_block/server_parameters.h",
+			"MU",
+			"EWIEGA46WW/moc_server_parameters.cpp"
 		]
 	],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
@@ -69,6 +84,7 @@
 	"SETTINGS_FILE" : "/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/CMakeFiles/synchronization_block_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
+		[ "/home/sayka/diplom_project/synchronization_block/client.cpp", "MU" ],
 		[
 			"/home/sayka/diplom_project/synchronization_block/json_config.cpp",
 			"MU"
