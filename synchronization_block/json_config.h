@@ -13,8 +13,10 @@ public:
 
 class Firmware {
 public:
-    Firmware(QJsonObject jObj);
+    Firmware();
     virtual ~Firmware();
+
+    void firmware_init(QJsonObject jObj);
 
     QJsonArray firmware_array;
     int firmware_array_size = 0;
@@ -35,8 +37,10 @@ private:
 
 class Scenario {
 public:
-    Scenario(QJsonObject jObj);
+    Scenario();
     virtual ~Scenario();
+
+    void scenario_init(QJsonObject jObj);
 
     QJsonArray scenario_array;
     int scenario_array_size = 0;
@@ -61,8 +65,10 @@ class Parameters {
 private:
 
 public:
-    Parameters(QJsonObject jObj);
+    Parameters();
     virtual ~Parameters();
+
+    void parameters_init(QJsonObject jObj);
 
     QJsonArray parameters_array;
     int parameters_array_size = 0;
@@ -83,8 +89,10 @@ class Register {
 private:
 
 public:
-    Register(QJsonObject jObj);
+    Register();
     virtual ~Register();
+
+    void register_init(QJsonObject jObj);
 
     QJsonArray register_array;
     int register_array_size = 0;

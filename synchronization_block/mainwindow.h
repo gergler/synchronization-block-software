@@ -25,6 +25,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    Firmware firmware;
+    Scenario scenario;
+    Parameters parameters;
+    Register reg;
+
     void closeEvent(QCloseEvent *event);
     void generate(QJsonObject jObj);
     void generate_reg(QJsonObject jObj);
@@ -59,6 +64,8 @@ public:
     QLineEdit* add_line_edit(QString text, int expert_mode=0);
     QSpinBox* add_spinbox(int value, int maximum=10000, int arrow=1, int expert_mode=0);
     QCheckBox* add_checkbox(QString text);
+
+    uint32_t read_register(uint32_t address);
 
 private slots:
     void on_action_open_file_triggered();

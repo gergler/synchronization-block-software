@@ -87,7 +87,7 @@ void MainWindow::on_action_configure_triggered()
     } else if (reply.status != 0) {
         data = "Error: bad reply status";
     } else {
-        data = "OK: "+QString::number( reply.number );
+        data = "OK: " + QString::number(reply.number);
     }
 
     ui->statusbar->showMessage(data);
@@ -231,8 +231,8 @@ QCheckBox* MainWindow::add_checkbox(QString text) {
 }
 
 void MainWindow::generate(QJsonObject jObj) {
-    Firmware firmware = Firmware(jObj);
-    Scenario scenario = Scenario(jObj);
+    firmware.firmware_init(jObj);
+    scenario.scenario_init(jObj);
 
     expert_struct.expert_checkbox = add_checkbox("Expert mode");
     ui->gridLayout->addWidget(expert_struct.expert_checkbox, 0, 3);
@@ -268,7 +268,7 @@ void MainWindow::generate(QJsonObject jObj) {
 
 void MainWindow::generate_reg(QJsonObject jObj)
 {
-    Register reg = Register(jObj);
+    reg.register_init(jObj);
 
     state_label = add_label(reg.register_struct_array[0].register_name, reg.register_struct_array[0].register_description);
     ui->gridLayout_reg->addWidget(state_label, 1, 0);
@@ -294,7 +294,7 @@ void MainWindow::generate_reg(QJsonObject jObj)
 
 void MainWindow::generate_parameters(QJsonObject jObj)
 {
-    Parameters parameters = Parameters(jObj);
+    parameters.parameters_init(jObj);
 
     for (int i = 0; i < parameters.parameters_array_size; ++i) {
         QLabel* label = add_label(parameters.parameters_struct_array[i].parameter_name, parameters.parameters_struct_array[i].parameter_description);
@@ -308,14 +308,13 @@ void MainWindow::generate_parameters(QJsonObject jObj)
     }
 }
 
-void MainWindow::on_action_read_registers_triggered()
-{
+uint32_t MainWindow::read_register(uint32_t address) {
     QString data;
 
     CMD_Packet reply;
-    CMD_Packet req {'R', 0x1000, 0, 1};
+    CMD_Packet request {'R', address, 0, 1};
 
-    int n = exec_UDP_command(req, reply);
+    int n = exec_UDP_command(request, reply);
 
     if (n < 0) {
         data = strerror(errno);
@@ -324,9 +323,15 @@ void MainWindow::on_action_read_registers_triggered()
     } else if (reply.status != 0) {
         data = "Error: bad reply status";
     } else {
-        data = "0x"+QString::number( reply.value, 16 );
+        data = "0x"+QString::number(reply.value, 16);
     }
-
     ui->statusbar->showMessage(data);
-    expert_struct.firmware_line->setText(data);
+
+    return reply.value;
+}
+
+void MainWindow::on_action_read_registers_triggered()
+{
+    uint32_t data = read_register(0x1000);
+    expert_struct.firmware_line->setText(QString::number(data, 16));
 }

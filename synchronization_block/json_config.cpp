@@ -23,8 +23,12 @@
 #define KEY_REG "REGISTER"
 
 Json_config::Json_config() {}
+Firmware::Firmware() {}
+Scenario::Scenario() {}
+Parameters::Parameters() {}
+Register::Register() {}
 
-Firmware::Firmware(QJsonObject jObj) {
+void Firmware::firmware_init(QJsonObject jObj) {
     firmware_array = jObj.value(KEY_FW).toArray();
     firmware_array_size = firmware_array.size();
     for (int i = 0; i < firmware_array_size; i++) {
@@ -62,7 +66,7 @@ QJsonObject Firmware::toJsonObject(QJsonObject jObj, Firmware::firmware_struct f
     return jObj;
 }
 
-Scenario::Scenario(QJsonObject jObj) {
+void Scenario::scenario_init(QJsonObject jObj) {
     scenario_array = jObj.value(KEY_SCEN).toArray();
     scenario_array_size = scenario_array.size();
     for (int i = 0; i < scenario_array_size; i++) {
@@ -104,7 +108,7 @@ Scenario::~Scenario() {
     delete [] scenario_struct_array;
 }
 
-Parameters::Parameters(QJsonObject jObj) {
+void Parameters::parameters_init(QJsonObject jObj) {
     parameters_array = jObj.value(KEY_PARAM).toArray();
     parameters_array_size = parameters_array.size();
     for (int i = 0; i < parameters_array_size; i++) {
@@ -144,7 +148,7 @@ QJsonObject Parameters::toJsonObject(QJsonObject jObj, Parameters::parameters_st
     return jObj;
 }
 
-Register::Register(QJsonObject jObj) {
+void Register::register_init(QJsonObject jObj) {
     register_array = jObj.value(KEY_REG).toArray();
     register_array_size = register_array.size();
     for (int i = 0; i < register_array_size; i++) {
