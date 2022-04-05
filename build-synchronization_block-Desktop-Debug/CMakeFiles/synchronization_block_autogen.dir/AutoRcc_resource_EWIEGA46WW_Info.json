@@ -14,7 +14,8 @@
 		"/home/sayka/diplom_project/synchronization_block/img/help.png",
 		"/home/sayka/diplom_project/synchronization_block/img/start.png",
 		"/home/sayka/diplom_project/synchronization_block/img/configure.png",
-		"/home/sayka/diplom_project/synchronization_block/img/quit.png"
+		"/home/sayka/diplom_project/synchronization_block/img/quit.png",
+		"/home/sayka/diplom_project/synchronization_block/img/main.png"
 	],
 	"LOCK_FILE" : "/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/CMakeFiles/synchronization_block_autogen.dir/AutoRcc_resource_EWIEGA46WW_Lock.lock",
 	"MULTI_CONFIG" : false,

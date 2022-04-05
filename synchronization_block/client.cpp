@@ -11,7 +11,7 @@
 #include <string.h>
 #include <ctype.h>
 
-static void setSocketTimeout( int socket, int sec, int usec ) {
+static void set_socket_timeout( int socket, int sec, int usec ) {
     struct timeval tv;
     tv.tv_sec = sec;
     tv.tv_usec = usec;
@@ -19,7 +19,7 @@ static void setSocketTimeout( int socket, int sec, int usec ) {
     setsockopt( socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(struct timeval) );
 }
 
-int execUDPCommand(CMD_Packet req, CMD_Packet &reply, int timeout_us) {
+int exec_UDP_command(CMD_Packet req, CMD_Packet &reply, int timeout_us) {
     int  sockfd;
     char buffer[MAXLINE];
     //char* buffer = &packet;
@@ -47,7 +47,7 @@ int execUDPCommand(CMD_Packet req, CMD_Packet &reply, int timeout_us) {
     #endif
         socklen_t addrlen = sizeof(servaddr);
 
-    setSocketTimeout(sockfd, 0, timeout_us);
+    set_socket_timeout(sockfd, 0, timeout_us);
 
     sendto(sockfd, &req, sizeof(req), MSG_CONFIRM, (const struct sockaddr *) &servaddr, addrlen);
 

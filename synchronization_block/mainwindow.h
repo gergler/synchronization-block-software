@@ -30,22 +30,35 @@ public:
     void generate_reg(QJsonObject jObj);
     void generate_parameters(QJsonObject jObj);
 
-    QCheckBox* expert_checkbox;
-
     QLabel* firmware_label;
-    QComboBox* firmware_combobox;
-
     QLabel* scenario_label;
-    QComboBox* scenario_combobox;
+    QLabel* state_label;
 
     struct expert_param_struct {
+        QCheckBox* expert_checkbox;
         QLineEdit* firmware_line;
         QLineEdit* scenario_line;
-        QSpinBox* reg_spinboxes[5];
+        QLineEdit* current_state;
+        QSpinBox* reg_spinboxes[4];
         QSpinBox* param_spinboxes[5];
     };
 
     expert_param_struct expert_struct;
+
+    struct param_struct {
+        QComboBox* firmware_combobox;
+        QComboBox* scenario_combobox;
+        QLineEdit* current_state;
+        QSpinBox* reg_spinboxes[4];
+        QSpinBox* param_spinboxes[5];
+    };
+
+    param_struct param_struct;
+
+    QLabel* add_label(QString name, QString description);
+    QLineEdit* add_line_edit(QString text, int expert_mode=0);
+    QSpinBox* add_spinbox(int value, int maximum=10000, int arrow=1, int expert_mode=0);
+    QCheckBox* add_checkbox(QString text);
 
 private slots:
     void on_action_open_file_triggered();

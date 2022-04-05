@@ -6,19 +6,19 @@
       {"id": 3, "version": "2022v1.99", "address": "0xAA20220199"}],
       
   "SCENARIO": [
-      {"id": 0, "name": "EXPERIMENT with PHASE", "min_fw_version": "2022v1.00",
+      {"id": 0, "name": "EXPERIMENT PHASE", "min_fw_version": "2022v1.00",
        "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Detonate", "Wait_WIRE_sensor", "Wait_Phase_front", "Wait_Phase_delay", "Trigger_Prolong", "Detector_Busy", "Wait_Detector", "Detector_finished"],
        "scen_parameters": ["FG_DELAY", "PHASE_SHIFT", "TRIGGER_LEN", "DETECTOR_TIMEOUT"]},
        
-      {"id": 1, "name": "CALIBRATION with PHASE", "min_fw_version": "2022v1.00",
+      {"id": 1, "name": "CALIBRATION PHASE", "min_fw_version": "2022v1.00",
        "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Wait_Phase_front", "Wait_Phase_delay", "Trigger_Prolong"],
        "scen_parameters": ["FG_DELAY", "PHASE_SHIFT", "TRIGGER_LEN"]},
 
-      {"id": 2, "name": "EXPERIMENT without PHASE", "min_fw_version": "2022v1.00",
+      {"id": 2, "name": "EXPERIMENT", "min_fw_version": "2022v1.00",
        "states":  ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Detonate", "Wait_WIRE_sensor", "Trigger_Prolong", "Detector_Busy", "Wait_Detector", "Detector_finished"],
        "scen_parameters": ["FG_DELAY", "TRIGGER_LEN", "DETECTOR_TIMEOUT"]},
 
-      {"id": 3, "name": "CALIBRATION with PHASE", "min_fw_version": "2022v1.00",
+      {"id": 3, "name": "CALIBRATION", "min_fw_version": "2022v1.00",
        "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Trigger_Prolong"],
        "scen_parameters": ["FG_DELAY", "TRIGGER_LEN"]}],
   
@@ -53,7 +53,7 @@
       {"name": "Current state",
        "description": "Current state",
        "address": "0x1000",
-       "default": 200},
+       "default": 0},
                         
       {"name": "FPGA clock counter",
        "description": "FPGA clock counter",

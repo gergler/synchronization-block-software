@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     setWindowTitle("Synchronization block application");
+    setWindowIcon(QIcon("main.png"));
 
     QString openFileName = "configure.json";
     QFileInfo fileInfo(openFileName);
@@ -47,9 +48,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_action_open_file_triggered()
 {
-    ui->statusbar->setStyleSheet("color: darkBlue");
-    ui->statusbar->showMessage("Open JSON file");
-
     QString openFileName = QFileDialog::getOpenFileName(this,
                                                         tr("Open Json File"),
                                                         QString(),
@@ -66,6 +64,7 @@ void MainWindow::on_action_open_file_triggered()
     QJsonDocument jsonDocument(QJsonDocument::fromJson(saveData));
     _currentJsonObject = jsonDocument.object();
 
+    ui->statusbar->setStyleSheet("color: darkBlue");
     ui->statusbar->showMessage("JSON file is opened");
 
     generate(_currentJsonObject);
@@ -77,9 +76,9 @@ void MainWindow::on_action_configure_triggered()
 
     CMD_Packet reply;
     CMD_Packet req {'C', 0, 0, 1};
-    req.number = firmware_combobox->currentIndex();
+    req.number = param_struct.firmware_combobox->currentIndex();
 
-    int n = execUDPCommand(req, reply, 500000);
+    int n = exec_UDP_command(req, reply, 500000);
 
     if (n < 0) {
         data = strerror(errno);
@@ -153,6 +152,9 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
         expert_struct.scenario_line->setReadOnly(false);
         expert_struct.scenario_line->setStyleSheet("background: white");
 
+        expert_struct.current_state->setReadOnly(false);
+        expert_struct.current_state->setStyleSheet("background: white");
+
         for (int i = 0; i < sizeof(expert_struct.reg_spinboxes)/sizeof(expert_struct.reg_spinboxes[0]); i++) {
             expert_struct.reg_spinboxes[i]->setReadOnly(false);
             expert_struct.reg_spinboxes[i]->setStyleSheet("background: white");
@@ -173,6 +175,9 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
         expert_struct.scenario_line->setReadOnly(true);
         expert_struct.scenario_line->setStyleSheet("background: lightGray");
 
+        expert_struct.current_state->setReadOnly(true);
+        expert_struct.current_state->setStyleSheet("background: lightGray");
+
         for (int i = 0; i < sizeof(expert_struct.reg_spinboxes)/sizeof(expert_struct.reg_spinboxes[0]); i++) {
             expert_struct.reg_spinboxes[i]->setReadOnly(true);
             expert_struct.reg_spinboxes[i]->setStyleSheet("background: lightGray");
@@ -185,44 +190,76 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
     }
 }
 
+QLabel* MainWindow::add_label(QString name, QString description) {
+    QLabel* label = new QLabel(this);
+    label->setText(name);
+    label->setToolTip(description);
+    return label;
+}
+
+QLineEdit* MainWindow::add_line_edit(QString text, int expert_mode) {
+    QLineEdit* line = new QLineEdit(this);
+    line->setAlignment(Qt::AlignRight);
+    line->setText(text);
+    line->setReadOnly(true);
+    if (expert_mode) {
+        line->setStyleSheet("background: lightGray");
+    }
+    return line;
+}
+
+QSpinBox* MainWindow::add_spinbox(int value, int maximum, int arrow, int expert_mode) {
+    QSpinBox* spinbox = new QSpinBox(this);
+    spinbox->setMaximum(maximum);
+    spinbox->setValue(value);
+    spinbox->setAlignment(Qt::AlignRight);
+    if (expert_mode) {
+        spinbox->setReadOnly(true);
+        spinbox->setStyleSheet("background: lightGray");
+    }
+    if (!arrow) {
+        spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    }
+    return spinbox;
+}
+
+QCheckBox* MainWindow::add_checkbox(QString text) {
+    QCheckBox* checkbox = new QCheckBox(this);
+    checkbox->setText(text);
+
+    return checkbox;
+}
+
 void MainWindow::generate(QJsonObject jObj) {
     Firmware firmware = Firmware(jObj);
     Scenario scenario = Scenario(jObj);
 
-    expert_checkbox = new QCheckBox(this);
-    expert_checkbox->setText("Expert mode");
-    ui->gridLayout->addWidget(expert_checkbox, 0, 3);
+    expert_struct.expert_checkbox = add_checkbox("Expert mode");
+    ui->gridLayout->addWidget(expert_struct.expert_checkbox, 0, 3);
+    QObject::connect(expert_struct.expert_checkbox, SIGNAL(clicked(bool)), this, SLOT(expert_checkbox_state_changed(bool)));
 
-    QObject::connect(expert_checkbox, SIGNAL(clicked(bool)), this, SLOT(expert_checkbox_state_changed(bool)));
-
-    firmware_label = new QLabel(this);
-    firmware_label->setText("Firmware");
+    firmware_label = add_label("Firmware", "Firmware version");
     ui->gridLayout->addWidget(firmware_label, 1, 1);
 
-    firmware_combobox = new QComboBox(this);
+    param_struct.firmware_combobox = new QComboBox(this);
     for (int i = 0; i < firmware.firmware_array_size; ++i) {
-        firmware_combobox->addItem(firmware.firmware_struct_array[i].firmware_version);
+        param_struct.firmware_combobox->addItem(firmware.firmware_struct_array[i].firmware_version);
     }
-    ui->gridLayout->addWidget(firmware_combobox, 1, 2);
+    ui->gridLayout->addWidget(param_struct.firmware_combobox, 1, 2);
 
-    expert_struct.firmware_line = new QLineEdit(this);
-    expert_struct.firmware_line->setReadOnly(true);
-    expert_struct.firmware_line->setStyleSheet("background: lightGray");
+    expert_struct.firmware_line = add_line_edit(" ", 1);
     ui->gridLayout->addWidget(expert_struct.firmware_line, 1, 3);
 
-    scenario_label = new QLabel(this);
-    scenario_label->setText("Scenario");
+    scenario_label = add_label("Scenario", "Experiment scenario");
     ui->gridLayout->addWidget(scenario_label, 2, 1);
 
-    scenario_combobox = new QComboBox(this);
+    param_struct.scenario_combobox = new QComboBox(this);
     for (int i = 0; i < scenario.scenario_array_size; ++i) {
-        scenario_combobox->addItem(scenario.scenario_struct_array[i].scenario_name);
+        param_struct.scenario_combobox->addItem(scenario.scenario_struct_array[i].scenario_name);
     }
-    ui->gridLayout->addWidget(scenario_combobox, 2, 2);
+    ui->gridLayout->addWidget(param_struct.scenario_combobox, 2, 2);
 
-    expert_struct.scenario_line = new QLineEdit(this);
-    expert_struct.scenario_line->setReadOnly(true);
-    expert_struct.scenario_line->setStyleSheet("background: lightGray");
+    expert_struct.scenario_line = add_line_edit(" ", 1);
     ui->gridLayout->addWidget(expert_struct.scenario_line, 2, 3);
 
     generate_reg(jObj);
@@ -232,67 +269,42 @@ void MainWindow::generate(QJsonObject jObj) {
 void MainWindow::generate_reg(QJsonObject jObj)
 {
     Register reg = Register(jObj);
-    QSpinBox* spinbox_array[reg.register_array_size][2];
 
-    for (int i = 0; i < reg.register_array_size; ++i) {
-        QLabel *label = new QLabel(this);
-        spinbox_array[i][0] = new QSpinBox(this);
-        spinbox_array[i][1] = new QSpinBox(this);
+    state_label = add_label(reg.register_struct_array[0].register_name, reg.register_struct_array[0].register_description);
+    ui->gridLayout_reg->addWidget(state_label, 1, 0);
 
-        spinbox_array[i][0]->setMaximum(100500);
-        spinbox_array[i][1]->setMaximum(10000);
+    param_struct.current_state = add_line_edit("IDLE");
+    ui->gridLayout_reg->addWidget(param_struct.current_state, 1, 1);
 
-        spinbox_array[i][0]->setAlignment(Qt::AlignRight);
-        spinbox_array[i][1]->setAlignment(Qt::AlignRight);
+    expert_struct.current_state = add_line_edit(" ", 1);
+    ui->gridLayout_reg->addWidget(expert_struct.current_state, 1, 2);
 
-        label->setText(reg.register_struct_array[i].register_name);
-        label->setToolTip(reg.register_struct_array[i].register_description);
-
-        spinbox_array[i][0]->setValue(reg.register_struct_array[i].register_default_val);
-        spinbox_array[i][0]->setReadOnly(true);
-        spinbox_array[i][1]->setReadOnly(true);
-        spinbox_array[i][1]->setStyleSheet("background: lightGray");
-
-        spinbox_array[i][0]->setButtonSymbols(QAbstractSpinBox::NoButtons);
-        spinbox_array[i][1]->setButtonSymbols(QAbstractSpinBox::NoButtons);
-
+    for (int i = 1; i < reg.register_array_size; ++i) {
+        QLabel *label = add_label(reg.register_struct_array[i].register_name, reg.register_struct_array[i].register_description);
         ui->gridLayout_reg->addWidget(label, i+1, 0);
-        ui->gridLayout_reg->addWidget(spinbox_array[i][0], i+1, 1);
-        ui->gridLayout_reg->addWidget(spinbox_array[i][1], i+1, 2);
 
-        expert_struct.reg_spinboxes[i] = spinbox_array[i][1];
+        param_struct.reg_spinboxes[i - 1] = add_spinbox(reg.register_struct_array[i].register_default_val, 100500, 0);
+        param_struct.reg_spinboxes[i - 1]->setReadOnly(true);
+        ui->gridLayout_reg->addWidget(param_struct.reg_spinboxes[i - 1], i+1, 1);
+
+        expert_struct.reg_spinboxes[i - 1] = add_spinbox(0, 10000, 0, 1);
+        ui->gridLayout_reg->addWidget(expert_struct.reg_spinboxes[i - 1], i+1, 2);
     }
-
 }
 
 void MainWindow::generate_parameters(QJsonObject jObj)
 {
     Parameters parameters = Parameters(jObj);
-    QSpinBox* spinbox_array[parameters.parameters_array_size][2];
 
     for (int i = 0; i < parameters.parameters_array_size; ++i) {
-        QLabel *label = new QLabel(this);
-        spinbox_array[i][0] = new QSpinBox(this);
-        spinbox_array[i][1] = new QSpinBox(this);
-
-        spinbox_array[i][0]->setMaximum(10000);
-        spinbox_array[i][1]->setMaximum(10000);
-
-        spinbox_array[i][0]->setAlignment(Qt::AlignRight);
-        spinbox_array[i][1]->setAlignment(Qt::AlignRight);
-
-        label->setText(parameters.parameters_struct_array[i].parameter_name);
-        label->setToolTip(parameters.parameters_struct_array[i].parameter_description);
-
-        spinbox_array[i][0]->setValue(parameters.parameters_struct_array[i].parameter_default_val);
-        spinbox_array[i][1]->setReadOnly(true);
-        spinbox_array[i][1]->setStyleSheet("background: lightGray");
-
+        QLabel* label = add_label(parameters.parameters_struct_array[i].parameter_name, parameters.parameters_struct_array[i].parameter_description);
         ui->gridLayout_parameters->addWidget(label, i+1, 0);
-        ui->gridLayout_parameters->addWidget(spinbox_array[i][0], i+1, 1);
-        ui->gridLayout_parameters->addWidget(spinbox_array[i][1], i+1, 2);
 
-        expert_struct.param_spinboxes[i] = spinbox_array[i][1];
+        param_struct.param_spinboxes[i] = add_spinbox(parameters.parameters_struct_array[i].parameter_default_val);
+        ui->gridLayout_parameters->addWidget(param_struct.param_spinboxes[i], i+1, 1);
+
+        expert_struct.param_spinboxes[i] = add_spinbox(0, 10000, 1, 1);
+        ui->gridLayout_parameters->addWidget(expert_struct.param_spinboxes[i], i+1, 2);
     }
 }
 
@@ -303,7 +315,7 @@ void MainWindow::on_action_read_registers_triggered()
     CMD_Packet reply;
     CMD_Packet req {'R', 0x1000, 0, 1};
 
-    int n = execUDPCommand(req, reply);
+    int n = exec_UDP_command(req, reply);
 
     if (n < 0) {
         data = strerror(errno);
@@ -315,10 +327,6 @@ void MainWindow::on_action_read_registers_triggered()
         data = "0x"+QString::number( reply.value, 16 );
     }
 
-    //QString data = QString(reinterpret_cast<CMD_Packet&>(buffer).value);
-
-
-    //ui->statusbar->showMessage("Recv data:");
     ui->statusbar->showMessage(data);
     expert_struct.firmware_line->setText(data);
 }
