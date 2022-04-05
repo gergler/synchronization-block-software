@@ -66,6 +66,8 @@ public:
     QCheckBox* add_checkbox(QString text);
 
     uint32_t read_register(uint32_t address);
+    void write_register(uint32_t value, uint32_t address);
+    void configure_register(uint32_t firmware_version, uint32_t address=0x1000);
 
 private slots:
     void on_action_open_file_triggered();

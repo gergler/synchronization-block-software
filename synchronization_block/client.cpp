@@ -11,7 +11,7 @@
 #include <string.h>
 #include <ctype.h>
 
-static void set_socket_timeout( int socket, int sec, int usec ) {
+static void set_socket_timeout(int socket, int sec, int usec) {
     struct timeval tv;
     tv.tv_sec = sec;
     tv.tv_usec = usec;

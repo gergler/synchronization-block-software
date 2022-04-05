@@ -330,8 +330,61 @@ uint32_t MainWindow::read_register(uint32_t address) {
     return reply.value;
 }
 
+void MainWindow::write_register(uint32_t value, uint32_t address) {
+    QString data;
+
+    CMD_Packet reply;
+    CMD_Packet request {'W', address, value, 1};
+
+    int n = exec_UDP_command(request, reply);
+
+    if (n < 0) {
+        data = strerror(errno);
+    } else if (n != sizeof (CMD_Packet)) {
+        data = "Error: invalid size";
+    } else if (reply.status != 0) {
+        data = "Error: bad reply status";
+    } else {
+        data = "0x"+QString::number(reply.value, 16);
+    }
+    ui->statusbar->showMessage(data);
+}
+
+void MainWindow::configure_register(uint32_t firmware_version, uint32_t address) {
+    QString data;
+
+    CMD_Packet reply;
+    CMD_Packet req {'C', address, firmware_version, 1};
+
+    int n = exec_UDP_command(req, reply, 500000);
+
+    if (n < 0) {
+        data = strerror(errno);
+    } else if (n != sizeof (CMD_Packet)) {
+        data = "Error: invalid size";
+    } else if (reply.status != 0) {
+        data = "Error: bad reply status";
+    } else {
+        data = "OK, firmware version: " + QString::number(reply.number);
+    }
+
+    ui->statusbar->showMessage(data);
+}
+
 void MainWindow::on_action_read_registers_triggered()
 {
-    uint32_t data = read_register(0x1000);
-    expert_struct.firmware_line->setText(QString::number(data, 16));
+//    uint32_t data = read_register(0x1000);
+//    expert_struct.firmware_line->setText(QString::number(data, 16));
+
+    expert_struct.firmware_line->setText(QString::number(read_register(0x1000)));
+    expert_struct.scenario_line->setText(QString::number(read_register(0x1000)));
+    expert_struct.current_state->setText(QString::number(read_register(0x1000)));
+
+    for (int i = 1; i < reg.register_array_size; ++i) {
+        expert_struct.reg_spinboxes[i - 1]->setValue(read_register((reg.register_struct_array[i].register_addr).toUInt()));
+    }
+
+    for (int i = 0; i < parameters.parameters_array_size; ++i) {
+        expert_struct.param_spinboxes[i]->setValue(read_register((parameters.parameters_struct_array[i].parameter_addr).toUInt()));
+    }
 }
