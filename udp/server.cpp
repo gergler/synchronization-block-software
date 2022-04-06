@@ -41,17 +41,14 @@ int main(int argc, char* argv[])
 {
     int sockfd;
     char buffer[MAXLINE];
-    const char *hello = "Hello from server";
     
 #ifdef USE_IPV6
     struct sockaddr_in6 servaddr, cliaddr;
 #else
     struct sockaddr_in  servaddr, cliaddr;
 #endif
-       
-    // Creating socket file descriptor
-    if ( (sockfd = socket(AF_PROTOCOL, SOCK_DGRAM, 0)) < 0 )
-    {
+
+    if ((sockfd = socket(AF_PROTOCOL, SOCK_DGRAM, 0)) < 0) {
         perror("socket creation failed");
         exit(EXIT_FAILURE);
     }
@@ -70,8 +67,7 @@ int main(int argc, char* argv[])
 #endif
 
 
-    if ( bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0 )
-    {
+    if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
@@ -80,6 +76,10 @@ int main(int argc, char* argv[])
     for (;;) {
         socklen_t addrlen = sizeof(cliaddr);  //len is value/resuslt
         int n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, &addrlen);
+        if (n < 0) {
+            perror("recieve data error");
+            exit(EXIT_FAILURE);
+        }
 
         system("date --rfc-3339=seconds");
         printf("Client from addr_len=%d, size=%d\n", addrlen, n);
@@ -92,13 +92,21 @@ int main(int argc, char* argv[])
         if (n == sizeof(CMD_Packet)) {
             process_command( reinterpret_cast<CMD_Packet&>(buffer) );
         }
-        sendto(sockfd, buffer, sizeof(CMD_Packet), MSG_CONFIRM, (const struct sockaddr *) &cliaddr, addrlen);
+
+        if (sendto(sockfd, buffer, sizeof(CMD_Packet), MSG_CONFIRM, (const struct sockaddr *) &cliaddr, addrlen) < 0) {
+            perror("send data error");
+            exit(EXIT_FAILURE);
+        }
+
         printf("Reply sent: "); 
         print_packet(reinterpret_cast<CMD_Packet&>(buffer));
         printf("\n");
     }
     
-    close(sockfd);
-       
-    return 0;
+    if (close(sockfd) < 0) {
+        perror("socket close error");
+        exit(EXIT_FAILURE);
+    }
+    else
+        return 0;
 }
