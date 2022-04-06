@@ -3,7 +3,6 @@
 module fsm_calibration_tb();
 	
     logic clock = 0;
-	logic phase = 0;
 	
 	logic reset = 0;
     logic start = 0;
@@ -18,12 +17,10 @@ module fsm_calibration_tb();
     localparam CLOCK = 2.5;
     localparam FG_PERIOD = 20 * 1000_000; // 10ms
     localparam FG_OPENED = 100_000;    // 100us
-    localparam PHASE_HALF_PERIOD = 600; 
 	localparam DETECTOR_PROLONG = 6400us;
 	
     
     always clock = #CLOCK ~clock;
-    always phase = #PHASE_HALF_PERIOD ~phase;
 	 
 	reset_generate reset_gen(.*);
 	start_generate start_gen(.*);
@@ -36,7 +33,6 @@ module fsm_calibration_tb();
 		.reset_signal(reset),
         .start_signal(start), 
         .fg_signal(fg_opto), 
-        .phase_signal(phase), 
         
         .output_trigger(output_trigger),
 		.scenario_state(scenario_state),
