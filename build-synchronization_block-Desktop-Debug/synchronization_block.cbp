@@ -123,6 +123,9 @@
 		<Unit filename="/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/synchronization_block_autogen/mocs_compilation.cpp">
 			<Option target="synchronization_block"/>
 		</Unit>
+		<Unit filename="/home/sayka/diplom_project/synchronization_block/addresses.h">
+			<Option target="synchronization_block"/>
+		</Unit>
 		<Unit filename="/home/sayka/diplom_project/synchronization_block/client.cpp">
 			<Option target="synchronization_block"/>
 		</Unit>

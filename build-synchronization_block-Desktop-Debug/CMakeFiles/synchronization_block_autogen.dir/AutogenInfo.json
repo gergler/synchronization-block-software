@@ -8,6 +8,11 @@
 	"HEADERS" : 
 	[
 		[
+			"/home/sayka/diplom_project/synchronization_block/addresses.h",
+			"MU",
+			"EWIEGA46WW/moc_addresses.cpp"
+		],
+		[
 			"/home/sayka/diplom_project/synchronization_block/client.h",
 			"MU",
 			"EWIEGA46WW/moc_client.cpp"

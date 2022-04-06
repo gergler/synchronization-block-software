@@ -42,6 +42,8 @@ set(PROJECT_SOURCES
         client.cpp
         client.h
 
+        addresses.h
+
         resource.qrc
 )
 

@@ -2,8 +2,10 @@
 #define MAINWINDOW_H
 
 #include "./json_config.h"
-#include <QSpinBox>
+#include "./client.h"
+#include "addresses.h"
 
+#include <QSpinBox>
 #include <QMainWindow>
 #include <QJsonObject>
 #include <QVBoxLayout>
@@ -65,9 +67,15 @@ public:
     QSpinBox* add_spinbox(int value, int maximum=10000, int arrow=1, int expert_mode=0);
     QCheckBox* add_checkbox(QString text);
 
+    QJsonObject open_file_JSON(QString file_name);
+
+    void exec_reg_command(CMD_Packet request, CMD_Packet &reply);
+
     uint32_t read_register(uint32_t address);
     void write_register(uint32_t value, uint32_t address);
     void configure_register(uint32_t firmware_version, uint32_t address=0x1000);
+
+    void read_register_values();
 
 private slots:
     void on_action_open_file_triggered();

@@ -1,8 +1,5 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "./json_config.h"
-
-#include "client.h"
 
 #include <QMessageBox>
 #include <QDebug>
@@ -25,18 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Synchronization block application");
     setWindowIcon(QIcon("main.png"));
 
-    QString openFileName = "configure.json";
-    QFileInfo fileInfo(openFileName);
-    QDir::setCurrent(fileInfo.path());
-    QFile jsonFile(openFileName);
-    if (!jsonFile.open(QIODevice::ReadOnly))
-    {
-        ui->statusbar->showMessage("ERROR");
-        return;
-    }
-    QByteArray saveData = jsonFile.readAll();
-    QJsonDocument jsonDocument(QJsonDocument::fromJson(saveData));
-    _currentJsonObject = jsonDocument.object();
+    _currentJsonObject = open_file_JSON("configure.json");
 
     generate(_currentJsonObject);
 }
@@ -46,148 +32,21 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_action_open_file_triggered()
-{
-    QString openFileName = QFileDialog::getOpenFileName(this,
-                                                        tr("Open Json File"),
-                                                        QString(),
-                                                        tr("JSON (*.json)"));
-    QFileInfo fileInfo(openFileName);
+QJsonObject MainWindow::open_file_JSON(QString file_name) {
+    QFileInfo fileInfo(file_name);
     QDir::setCurrent(fileInfo.path());
-    QFile jsonFile(openFileName);
+    QFile jsonFile(file_name);
     if (!jsonFile.open(QIODevice::ReadOnly))
     {
         ui->statusbar->showMessage("ERROR");
-        return;
     }
     QByteArray saveData = jsonFile.readAll();
     QJsonDocument jsonDocument(QJsonDocument::fromJson(saveData));
-    _currentJsonObject = jsonDocument.object();
 
     ui->statusbar->setStyleSheet("color: darkBlue");
     ui->statusbar->showMessage("JSON file is opened");
 
-    generate(_currentJsonObject);
-}
-
-void MainWindow::on_action_configure_triggered()
-{
-    QString data;
-
-    CMD_Packet reply;
-    CMD_Packet req {'C', 0, 0, 1};
-    req.number = param_struct.firmware_combobox->currentIndex();
-
-    int n = exec_UDP_command(req, reply, 500000);
-
-    if (n < 0) {
-        data = strerror(errno);
-    } else if (n != sizeof (CMD_Packet)) {
-        data = "Error: invalid size";
-    } else if (reply.status != 0) {
-        data = "Error: bad reply status";
-    } else {
-        data = "OK: " + QString::number(reply.number);
-    }
-
-    ui->statusbar->showMessage(data);
-    expert_struct.firmware_line->setText(data);
-}
-
-void MainWindow::on_action_start_triggered()
-{
-    ui->statusbar->setStyleSheet("color: green");
-    ui->statusbar->showMessage("START signal sent successfully");
-
-}
-
-void MainWindow::on_action_stop_triggered()
-{
-    ui->statusbar->setStyleSheet("color: darkRed");
-    ui->statusbar->showMessage("STOP signal sent successfully");
-}
-
-
-void MainWindow::on_action_save_file_triggered()
-{
-    QString saveFileName = QFileDialog::getSaveFileName(this,
-                                                        tr("Save Json File"),
-                                                        QString(),
-                                                        tr("JSON (*.json)"));
-    QFileInfo fileInfo(saveFileName);
-    QDir::setCurrent(fileInfo.path());
-    QFile jsonFile(saveFileName);
-    if (!jsonFile.open(QIODevice::WriteOnly))
-    {
-        return;
-    }
-    jsonFile.write(QJsonDocument(_currentJsonObject).toJson(QJsonDocument::Indented));
-    jsonFile.close();
-
-    ui->statusbar->setStyleSheet("color: darkBlue");
-    ui->statusbar->showMessage("Save JSON file");
-}
-
-void MainWindow::closeEvent(QCloseEvent *)
-{
-    return; // FIXME!!
-
-    QMessageBox::StandardButton reply = QMessageBox::question(this, "QUIT", "Are you sure you want to exit? All unsaved data will be lost.",
-                                                              QMessageBox::Yes | QMessageBox::No);
-    if (reply == QMessageBox::Yes) {
-        QApplication::quit();
-    } else {
-        MainWindow::on_action_save_file_triggered();
-    }
-}
-
-void MainWindow::expert_checkbox_state_changed(bool checked) {
-    if (checked) {
-        ui->statusbar->setStyleSheet("color: green");
-        ui->statusbar->showMessage("Expert Mode ON");
-
-        expert_struct.firmware_line->setReadOnly(false);
-        expert_struct.firmware_line->setStyleSheet("background: white");
-
-        expert_struct.scenario_line->setReadOnly(false);
-        expert_struct.scenario_line->setStyleSheet("background: white");
-
-        expert_struct.current_state->setReadOnly(false);
-        expert_struct.current_state->setStyleSheet("background: white");
-
-        for (int i = 0; i < sizeof(expert_struct.reg_spinboxes)/sizeof(expert_struct.reg_spinboxes[0]); i++) {
-            expert_struct.reg_spinboxes[i]->setReadOnly(false);
-            expert_struct.reg_spinboxes[i]->setStyleSheet("background: white");
-        }
-
-        for (int i = 0; i < sizeof(expert_struct.param_spinboxes)/sizeof(expert_struct.param_spinboxes[0]); i++) {
-            expert_struct.param_spinboxes[i]->setReadOnly(false);
-            expert_struct.param_spinboxes[i]->setStyleSheet("background: white");
-        }
-
-    } else {
-        ui->statusbar->setStyleSheet("color: red");
-        ui->statusbar->showMessage("Expert Mode OFF");
-
-        expert_struct.firmware_line->setReadOnly(true);
-        expert_struct.firmware_line->setStyleSheet("background: lightGray");
-
-        expert_struct.scenario_line->setReadOnly(true);
-        expert_struct.scenario_line->setStyleSheet("background: lightGray");
-
-        expert_struct.current_state->setReadOnly(true);
-        expert_struct.current_state->setStyleSheet("background: lightGray");
-
-        for (int i = 0; i < sizeof(expert_struct.reg_spinboxes)/sizeof(expert_struct.reg_spinboxes[0]); i++) {
-            expert_struct.reg_spinboxes[i]->setReadOnly(true);
-            expert_struct.reg_spinboxes[i]->setStyleSheet("background: lightGray");
-        }
-
-        for (int i = 0; i < sizeof(expert_struct.param_spinboxes)/sizeof(expert_struct.param_spinboxes[0]); i++) {
-            expert_struct.param_spinboxes[i]->setReadOnly(true);
-            expert_struct.param_spinboxes[i]->setStyleSheet("background: lightGray");
-        }
-    }
+    return jsonDocument.object();
 }
 
 QLabel* MainWindow::add_label(QString name, QString description) {
@@ -308,11 +167,8 @@ void MainWindow::generate_parameters(QJsonObject jObj)
     }
 }
 
-uint32_t MainWindow::read_register(uint32_t address) {
+void MainWindow::exec_reg_command(CMD_Packet request, CMD_Packet &reply) {
     QString data;
-
-    CMD_Packet reply;
-    CMD_Packet request {'R', address, 0, 1};
 
     int n = exec_UDP_command(request, reply);
 
@@ -326,49 +182,29 @@ uint32_t MainWindow::read_register(uint32_t address) {
         data = "0x"+QString::number(reply.value, 16);
     }
     ui->statusbar->showMessage(data);
+}
+
+uint32_t MainWindow::read_register(uint32_t address) {
+    CMD_Packet reply;
+    CMD_Packet request {'R', address, 0, 1};
+
+    exec_reg_command(request, reply);
 
     return reply.value;
 }
 
 void MainWindow::write_register(uint32_t value, uint32_t address) {
-    QString data;
-
     CMD_Packet reply;
     CMD_Packet request {'W', address, value, 1};
 
-    int n = exec_UDP_command(request, reply);
-
-    if (n < 0) {
-        data = strerror(errno);
-    } else if (n != sizeof (CMD_Packet)) {
-        data = "Error: invalid size";
-    } else if (reply.status != 0) {
-        data = "Error: bad reply status";
-    } else {
-        data = "0x"+QString::number(reply.value, 16);
-    }
-    ui->statusbar->showMessage(data);
+    exec_reg_command(request, reply);
 }
 
 void MainWindow::configure_register(uint32_t firmware_version, uint32_t address) {
-    QString data;
-
     CMD_Packet reply;
-    CMD_Packet req {'C', address, firmware_version, 1};
+    CMD_Packet request {'C', address, firmware_version, 1};
 
-    int n = exec_UDP_command(req, reply, 500000);
-
-    if (n < 0) {
-        data = strerror(errno);
-    } else if (n != sizeof (CMD_Packet)) {
-        data = "Error: invalid size";
-    } else if (reply.status != 0) {
-        data = "Error: bad reply status";
-    } else {
-        data = "OK, firmware version: " + QString::number(reply.number);
-    }
-
-    ui->statusbar->showMessage(data);
+    exec_reg_command(request, reply);
 }
 
 void MainWindow::on_action_read_registers_triggered()
@@ -378,13 +214,136 @@ void MainWindow::on_action_read_registers_triggered()
 
     expert_struct.firmware_line->setText(QString::number(read_register(0x1000)));
     expert_struct.scenario_line->setText(QString::number(read_register(0x1000)));
-    expert_struct.current_state->setText(QString::number(read_register(0x1000)));
 
-    for (int i = 1; i < reg.register_array_size; ++i) {
-        expert_struct.reg_spinboxes[i - 1]->setValue(read_register((reg.register_struct_array[i].register_addr).toUInt()));
-    }
+    read_register_values();
 
     for (int i = 0; i < parameters.parameters_array_size; ++i) {
         expert_struct.param_spinboxes[i]->setValue(read_register((parameters.parameters_struct_array[i].parameter_addr).toUInt()));
+    }
+}
+
+void MainWindow::on_action_configure_triggered()
+{
+    configure_register(param_struct.firmware_combobox->currentIndex(), 0x1000);
+}
+
+void MainWindow::read_register_values() {
+    expert_struct.current_state->setText(QString::number(read_register((reg.register_struct_array[0].register_addr).toUInt())));
+    for (int i = 1; i < reg.register_array_size; ++i) {
+        expert_struct.reg_spinboxes[i - 1]->setValue(read_register((reg.register_struct_array[i].register_addr).toUInt()));
+    }
+}
+
+void MainWindow::on_action_start_triggered()
+{
+    write_register(1, STOP_ADDR);
+
+    write_register(param_struct.firmware_combobox->currentIndex(), FIRMWARE_ADDR);
+    write_register(param_struct.scenario_combobox->currentIndex(), SCENARIO_ADDR);
+
+    read_register_values();
+
+    for (int i = 0; i < parameters.parameters_array_size; ++i) {
+        write_register(param_struct.param_spinboxes[i]->value(), (parameters.parameters_struct_array[i].parameter_addr).toUInt());
+    }
+
+    write_register(1, START_ADDR);
+}
+
+void MainWindow::on_action_stop_triggered()
+{
+    write_register(1, 0x2008);
+}
+
+void MainWindow::on_action_open_file_triggered()
+{
+    QString open_file_name = QFileDialog::getOpenFileName(this,
+                                                        tr("Open Json File"),
+                                                        QString(),
+                                                        tr("JSON (*.json)"));
+    _currentJsonObject = open_file_JSON(open_file_name);
+
+    generate(_currentJsonObject);
+}
+
+void MainWindow::on_action_save_file_triggered()
+{
+    QString saveFileName = QFileDialog::getSaveFileName(this,
+                                                        tr("Save Json File"),
+                                                        QString(),
+                                                        tr("JSON (*.json)"));
+    QFileInfo fileInfo(saveFileName);
+    QDir::setCurrent(fileInfo.path());
+    QFile jsonFile(saveFileName);
+    if (!jsonFile.open(QIODevice::WriteOnly))
+    {
+        return;
+    }
+    jsonFile.write(QJsonDocument(_currentJsonObject).toJson(QJsonDocument::Indented));
+    jsonFile.close();
+
+    ui->statusbar->setStyleSheet("color: darkBlue");
+    ui->statusbar->showMessage("Save JSON file");
+}
+
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    return; // FIXME!!
+
+    QMessageBox::StandardButton reply = QMessageBox::question(this, "QUIT", "Are you sure you want to exit? All unsaved data will be lost.",
+                                                              QMessageBox::Yes | QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        QApplication::quit();
+    } else {
+        MainWindow::on_action_save_file_triggered();
+    }
+}
+
+void MainWindow::expert_checkbox_state_changed(bool checked) {
+    if (checked) {
+        ui->statusbar->setStyleSheet("color: green");
+        ui->statusbar->showMessage("Expert Mode ON");
+
+        expert_struct.firmware_line->setReadOnly(false);
+        expert_struct.firmware_line->setStyleSheet("background: white");
+
+        expert_struct.scenario_line->setReadOnly(false);
+        expert_struct.scenario_line->setStyleSheet("background: white");
+
+        expert_struct.current_state->setReadOnly(false);
+        expert_struct.current_state->setStyleSheet("background: white");
+
+        for (int i = 0; i < sizeof(expert_struct.reg_spinboxes)/sizeof(expert_struct.reg_spinboxes[0]); i++) {
+            expert_struct.reg_spinboxes[i]->setReadOnly(false);
+            expert_struct.reg_spinboxes[i]->setStyleSheet("background: white");
+        }
+
+        for (int i = 0; i < sizeof(expert_struct.param_spinboxes)/sizeof(expert_struct.param_spinboxes[0]); i++) {
+            expert_struct.param_spinboxes[i]->setReadOnly(false);
+            expert_struct.param_spinboxes[i]->setStyleSheet("background: white");
+        }
+
+    } else {
+        ui->statusbar->setStyleSheet("color: red");
+        ui->statusbar->showMessage("Expert Mode OFF");
+
+        expert_struct.firmware_line->setReadOnly(true);
+        expert_struct.firmware_line->setStyleSheet("background: lightGray");
+
+        expert_struct.scenario_line->setReadOnly(true);
+        expert_struct.scenario_line->setStyleSheet("background: lightGray");
+
+        expert_struct.current_state->setReadOnly(true);
+        expert_struct.current_state->setStyleSheet("background: lightGray");
+
+        for (int i = 0; i < sizeof(expert_struct.reg_spinboxes)/sizeof(expert_struct.reg_spinboxes[0]); i++) {
+            expert_struct.reg_spinboxes[i]->setReadOnly(true);
+            expert_struct.reg_spinboxes[i]->setStyleSheet("background: lightGray");
+        }
+
+        for (int i = 0; i < sizeof(expert_struct.param_spinboxes)/sizeof(expert_struct.param_spinboxes[0]); i++) {
+            expert_struct.param_spinboxes[i]->setReadOnly(true);
+            expert_struct.param_spinboxes[i]->setStyleSheet("background: lightGray");
+        }
     }
 }
