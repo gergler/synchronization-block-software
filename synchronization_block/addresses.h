@@ -1,0 +1,10 @@
+#ifndef ADDRESSES_H
+#define ADDRESSES_H
+
+#define FIRMWARE_ADDR 0x1000
+#define SCENARIO_ADDR 0x1000
+
+#define START_ADDR 0x1008
+#define STOP_ADDR 0x1000
+
+#endif // ADDRESSES_H
