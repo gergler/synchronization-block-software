@@ -1,54 +1,77 @@
-`ifndef GUARD_FSM_TB_PACKAGE
-`define GUARD_FSM_TB_PACKAGE
+module reset_generate(output logic reset);
+	initial begin
+		reset = 1;
+		#100ns;
+		reset = 0;
+	end
+endmodule
 
-	package fsm_tb_package;
-		
-		task automatic reset_generate(ref reset, input time delay);
-			reset = 1;
-			#delay;
-			reset = 0;
-		endtask
-		
-		task automatic start_generate(ref start, input time delay_1, delay_2);
-			#delay_1;
-			start = 1;
-			#delay_2;
-			start = 0;
-		endtask
-		
-		task automatic fg_opto_generate(ref fg_opto, input time fg_period, fg_opened);
+
+module start_generate(output logic start);
+	initial begin
+		#5ms;
+		start = 1;
+		#100us;
+		start = 0;
+	end
+endmodule
+
+
+module fg_opto_generate(output logic fg_opto, 
+						input logic fg_period, fg_opened);
+	initial begin
+		$urandom(1);
+		#($urandom_range(FG_PERIOD/2, FG_PERIOD/8));
+		repeat(10) begin 
 			fg_opto = 1;
-            #fg_opened;
-            fg_opto = 0;
-            #(fg_period - fg_opened);
-		endtask
-		
-		task automatic fg_open_generate(ref fg_open, input time fg_opened);
-			#2ms;
-			fg_open = 1;
 			#fg_opened;
-			fg_open = 0;
-		endtask
-		
-		task automatic wire_sensor_generate(ref wire_sensor);
+			fg_opto = 0;
+			#(fg_period - fg_opened);
+		end
+	end
+endmodule
+
+
+module fg_open_generate(output logic fg_open, 
+						input logic fg_opto, fg_opened);
+	always @(posedge fg_opto) begin
+		#9ms;
+		fg_open = 1;
+		#fg_opened;
+		fg_open = 0;
+	end
+endmodule
+
+
+module wire_sensor_generate(input logic detonator_triggered, reset,
+							output logic wire_sensor
+);
+	always @(posedge detonator_triggered) begin
+		if (reset == '0) begin
 			#5us;
-            wire_sensor = 1;
-            for (int i = 0; i < 10; i++) begin
-                #( 10*(1+($urandom() % 10)) );
-                wire_sensor = ~wire_sensor;
-            end
-            #100;
-            wire_sensor = 1;
-            #1ms;
-            wire_sensor = 0;
-		endtask
-		
-		task automatic detector_ready_generate(ref detector_ready, input time detector_prolong);
-            detector_ready = 0;
-            #detector_prolong;
-            detector_ready = 1;
-		endtask
-		
-	endpackage
-	
-`endif
+			wire_sensor = 1;
+			for (int i = 0; i < 10; i++) begin
+				#( 10*(1+($urandom() % 10)) );
+				wire_sensor = ~wire_sensor;
+			end
+			#100;
+			wire_sensor = 1;
+			#1ms;
+			wire_sensor = 0;
+		end
+	end
+endmodule
+
+
+module detector_ready_generate(input logic output_trigger, reset, detector_prolong, 
+							   output logic detector_ready
+);
+	always @(posedge output_trigger) begin
+		if (reset == '0) begin
+			#200ns;
+			detector_ready = 0;
+			#detector_prolong;
+			detector_ready = 1;
+		end;
+	end
+endmodule

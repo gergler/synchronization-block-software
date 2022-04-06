@@ -15,7 +15,7 @@ reg[1:0] reset_history = 0;
 reg[1:0] phase_history = 0; 
 reg[1:0] fg_history = 0; 
 
-enum logic [2:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, WAIT_PHASE_FRONT, WAIT_PHASE_DELAY, TRIGGER_PROLONG} state;
+enum logic [7:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, WAIT_PHASE_FRONT, WAIT_PHASE_DELAY, TRIGGER_PROLONG} state;
 
 assign scenario_state = state;
 assign counter_out = counter;

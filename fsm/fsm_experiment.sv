@@ -120,7 +120,7 @@ always @(posedge clock) begin
 			else begin
 				state <= DETECTOR_FINISHED;
 				output_trigger_reg <= '0;
-				counter <= '0;
+				counter <= 0;
 			end
 		end
 		
