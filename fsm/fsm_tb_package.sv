@@ -1,3 +1,13 @@
+module clock_generate #(parameter PERIOD=20) (output logic clock);
+	initial forever begin
+		clock = 0;
+		#(PERIOD/2);
+		clock = 1;
+		#(PERIOD/2);
+	end
+endmodule
+
+
 module reset_generate(output logic reset);
 	initial begin
 		reset = 1;

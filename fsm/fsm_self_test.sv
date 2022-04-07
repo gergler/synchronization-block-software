@@ -1,32 +1,19 @@
 `timescale 1ns/10ps
 
-module fsm_self_test(input logic clock,
-					 output [7:0] state_out
+module fsm_self_test(input clock,
+					 output output_signals_t out
+//					 output [7:0] state_out
 );
 
 enum logic [7:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, WAIT_PHASE_FRONT, WAIT_PHASE_DELAY, TRIGGER_PROLONG, DETECTOR_BUSY, DETECTOR_WAIT, DETECTOR_FINISHED} state;
 
-assign state_out = state;
+assign out.scenario_state = {'0, state [3:0]};
 
-always @(posedge clock) begin
-		state <= IDLE;
+always_comb begin
+	for (int i = 0; i < variants.num(); i++) begin
+		state <= i;
 		#10us;
-		state <= FG_WAIT_OPTO;
-		#10us;
-		state <= FG_WAIT_OPEN;
-		#10us;
-		state <= WAIT_PHASE_FRONT;
-		#10us;
-		state <= WAIT_PHASE_DELAY;
-		#10us;
-		state <= TRIGGER_PROLONG;
-		#10us;
-		state <= DETECTOR_BUSY;
-		#10us;
-		state <= DETECTOR_WAIT;
-		#10us;
-		state <= DETECTOR_FINISHED;
-		#10us;
+	end
 end
 
 endmodule

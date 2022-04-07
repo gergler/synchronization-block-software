@@ -1,3 +1,5 @@
+import types_pkg::*;
+
 `timescale 1ns/10ps
 
 module fsm_experiment_phase_tb();
@@ -32,20 +34,25 @@ module fsm_experiment_phase_tb();
 	fg_open_generate fg_open_gen(.*, .fg_opened(FG_OPENED));
 	wire_sensor_generate wire_sensor_gen(.*);
 	detector_ready_generate detector_ready_gen(.*, .detector_prolong(DETECTOR_PROLONG));
+	
+	localparam PHASE_SHIFT = (700/5 - 1);
+	localparam FG_OPEN_DELAY = 400_000ns;    //10;  
+	localparam DETECTOR_READY_TIMEOUT = 7_000_000/5; //5*100; 
+	localparam DETONATE_LEN = 1000/5;
+	localparam TRIGGER_LEN = 1000/5;
+
+	
+	input_signals_t  in = '{start, fg_opto, phase, wire_sensor, detector_ready};
+	output_signals_t out = '{detonator_triggered, output_trigger, [7:0] scenario_state};
+    parameters_t     par = '{FG_OPEN_DELAY, DETECTOR_READY_TIMEOUT, PHASE_SHIFT, DETONATE_LEN, TRIGGER_LEN};
+    
     
     fsm_experiment_phase fsm_exp_phase(
         .clock(clock), 
 		.reset_signal(reset),
-        .start_signal(start_condition), 
-        .fg_signal(fast_gate_opto), 
-		.phase_signal(phase), 
-        .wire_signal(wire_sensor), 
-        .detector_ready(detector_ready),
-        
-        .detonation_signal(detonator_triggered),
-        .output_trigger(output_trigger),
-        .scenario_state(scenario_state),
-        .counter_out(counter)
+        .in(in), 
+        .out(out),
+		.par(par)
     );
     
 endmodule

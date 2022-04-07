@@ -1,13 +1,17 @@
 module fsm_experiment(
-		input clock, reset_signal, start_signal, fg_signal, wire_signal, detector_ready, 
-		output detonation_signal, output_trigger, 
-		output [7:0] scenario_state, output int counter_out
+	input  clock, reset_signal,
+	input  input_signals_t  in,
+	input  parameters_t     par,
+	output output_signals_t out
+//		input clock, reset_signal, start_signal, fg_signal, wire_signal, detector_ready, 
+//		output detonation_signal, output_trigger, 
+//		output [7:0] scenario_state, output int counter_out
 );
 
-localparam FG_OPEN_DELAY = 100_000*4;    //10;  
-localparam DETECTOR_READY_TIMEOUT = 7_000_000/5; //5*100; 
-localparam DETONATE_LEN = 1000/5;
-localparam TRIGGER_LEN = 1000/5;
+logic FG_OPEN_DELAY = par.fg_open_delay; //100_000*4;    //10;  
+logic DETECTOR_READY_TIMEOUT = par.detector_ready_timeout; //7_000_000/5; //5*100; 
+logic DETONATE_LEN = par.detonate_len; //1000/5;
+logic TRIGGER_LEN = par.trigger_len; //1000/5;
 
 reg[31:0] counter = '0;
 
@@ -19,13 +23,20 @@ reg[1:0] wire_history = 0;
 reg detonation_signal_reg = '0;
 reg output_trigger_reg    = '0;
 
-enum logic [3:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, DETONATE, WIRE_TRIGGER, TRIGGER_PROLONG, DETECTOR_BUSY, DETECTOR_WAIT, DETECTOR_FINISHED} state;
+enum logic [7:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, DETONATE, WIRE_TRIGGER, TRIGGER_PROLONG, DETECTOR_BUSY, DETECTOR_WAIT, DETECTOR_FINISHED} state;
 
-assign scenario_state [7:0] = { '0, state [3:0] };
-assign counter_out = counter;
+assign out.scenario_state [7:0] = {'0, state [3:0]};
+//assign counter_out = counter;
 
-assign output_trigger = output_trigger_reg;
-assign detonation_signal = detonation_signal_reg;
+assign out.output_trigger = output_trigger_reg;
+assign out.detonation_signal = detonation_signal_reg;
+
+logic start_signal, fg_signal, wire_signal, detector_ready;
+
+assign start_signal = in.start_signal;
+assign fg_signal = in.fg_signal;
+assign wire_signal = in.wire_signal;
+assign detector_ready = in.detector_ready;
 
 always @(posedge clock) begin
 	reset_history[1:0] = {reset_history[0], reset_signal};

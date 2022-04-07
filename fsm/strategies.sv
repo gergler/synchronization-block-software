@@ -2,7 +2,7 @@ import types_pkg::*;
 
 
 /* no-operation, pass value w/o modification */
-module nop_strategy (
+module experiment (
     input  clock, reset,
     input  input_signals_t  in,
     input  parameters_t     par,
@@ -15,7 +15,7 @@ always_comb
 endmodule
 
 
-module xor_strategy (
+module experiment_phase (
     input  clock, reset,
     input  input_signals_t  in,
     input  parameters_t     par,
