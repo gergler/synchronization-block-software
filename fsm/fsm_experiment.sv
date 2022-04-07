@@ -3,9 +3,6 @@ module fsm_experiment(
 	input  input_signals_t  in,
 	input  parameters_t     par,
 	output output_signals_t out
-//		input clock, reset_signal, start_signal, fg_signal, wire_signal, detector_ready, 
-//		output detonation_signal, output_trigger, 
-//		output [7:0] scenario_state, output int counter_out
 );
 
 logic FG_OPEN_DELAY = par.fg_open_delay; //100_000*4;    //10;  
@@ -14,29 +11,24 @@ logic DETONATE_LEN = par.detonate_len; //1000/5;
 logic TRIGGER_LEN = par.trigger_len; //1000/5;
 
 reg[31:0] counter = '0;
-
 reg[1:0] reset_history = 0; 
 reg[1:0] start_history = 0; 
 reg[1:0] fg_history = 0; 
 reg[1:0] wire_history = 0;
 
-reg detonation_signal_reg = '0;
-reg output_trigger_reg    = '0;
-
-enum logic [7:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, DETONATE, WIRE_TRIGGER, TRIGGER_PROLONG, DETECTOR_BUSY, DETECTOR_WAIT, DETECTOR_FINISHED} state;
-
-assign out.scenario_state [7:0] = {'0, state [3:0]};
-//assign counter_out = counter;
-
-assign out.output_trigger = output_trigger_reg;
-assign out.detonation_signal = detonation_signal_reg;
-
 logic start_signal, fg_signal, wire_signal, detector_ready;
-
 assign start_signal = in.start_signal;
 assign fg_signal = in.fg_signal;
 assign wire_signal = in.wire_signal;
 assign detector_ready = in.detector_ready;
+
+reg detonation_signal_reg = '0;
+reg output_trigger_reg    = '0;
+assign out.output_trigger = output_trigger_reg;
+assign out.detonation_signal = detonation_signal_reg;
+
+enum logic [7:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, DETONATE, WIRE_TRIGGER, TRIGGER_PROLONG, DETECTOR_BUSY, DETECTOR_WAIT, DETECTOR_FINISHED} state;
+assign out.scenario_state [7:0] = {'0, state [3:0]};
 
 always @(posedge clock) begin
 	reset_history[1:0] = {reset_history[0], reset_signal};

@@ -1,11 +1,10 @@
-import types_pkg::*;
-
 `timescale 1ns/10ps
+
+import types_pkg::*;
 
 module fsm_experiment_tb();
 
 	logic clock = 0;
-
     logic reset = 0;
     logic start = 0;
     logic fg_opto = 0;
@@ -16,7 +15,6 @@ module fsm_experiment_tb();
     logic detonator_triggered = 0;
     logic output_trigger = 0;
     logic [7:0] scenario_state;
-    int counter = 0;
     
     localparam CLOCK = 2.5;
     localparam FG_PERIOD = 10 * 1000_000; // 10ms

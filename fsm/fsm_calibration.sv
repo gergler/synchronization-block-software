@@ -5,33 +5,25 @@ module fsm_calibration(
     input  input_signals_t  in,
     input  parameters_t     par,
     output output_signals_t out
-	
-//  input  logic clock, reset_signal,
-//	input start_signal, fg_signal, 
-//	output logic output_trigger,
-//  output [7:0] scenario_state, output int counter_out
 );
 
 localparam FG_OPEN_DELAY = par.fg_open_delay; //9_000_000/5;  
 localparam TRIGGER_LEN = par.trigger_len; //100; 
 
 reg[31:0] counter = 0;
-
 reg[1:0] start_history = 0; 
 reg[1:0] reset_history = 0; 
 reg[1:0] fg_history = 0; 
 
-enum logic [7:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, TRIGGER_PROLONG} state;
-
-assign out.scenario_state = {'0, state [1:0]};
-//assign counter_out = counter;
+logic start_signal, fg_signal;
+assign start_signal = in.start_signal;
+assign fg_signal = in.fg_signal;
 
 reg output_trigger_reg    = '0;
 assign out.output_trigger = output_trigger_reg;
 
-logic start_signal, fg_signal;
-assign start_signal = in.start_signal;
-assign fg_signal = in.fg_signal;
+enum logic [7:0] {IDLE, FG_WAIT_OPTO, FG_WAIT_OPEN, TRIGGER_PROLONG} state;
+assign out.scenario_state = {'0, state [1:0]};
 
 always @(posedge clock) begin
     start_history[1:0] = {start_history[0], in.start_signal}; 

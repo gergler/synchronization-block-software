@@ -1,12 +1,11 @@
-import types_pkg::*;
-
 `timescale 1ns/10ps
+
+import types_pkg::*;
 
 module fsm_experiment_phase_tb();
 
 	logic clock = 0;
 	logic phase = 0;
-
     logic reset = 0;
     logic start = 0;
     logic fg_opto = 0;
@@ -17,14 +16,12 @@ module fsm_experiment_phase_tb();
     logic detonator_triggered = 0;
     logic output_trigger = 0;
     logic [7:0] scenario_state;
-    int counter = 0;
     
     localparam CLOCK = 2.5;
-    localparam FG_PERIOD = 10 * 1000_000; // 10ms
-    localparam FG_OPENED = 100_000;    // 100us
-    localparam PHASE_HALF_PERIOD = 600; 
 	localparam DETECTOR_PROLONG = 6400us;
-
+    localparam FG_PERIOD = 10 * 1000_000; // 10ms
+    localparam PHASE_HALF_PERIOD = 600; 
+	
     always clock = #CLOCK ~clock;
 	always phase = #PHASE_HALF_PERIOD ~phase;
 	

@@ -27,8 +27,9 @@ module start_generate(output logic start);
 endmodule
 
 
-module fg_opto_generate(output logic fg_opto, 
-						input logic fg_period, fg_opened);
+module fg_opto_generate(input logic fg_period, fg_opened,
+						output logic fg_opto
+);
 	initial begin
 		$urandom(1);
 		#($urandom_range(FG_PERIOD/2, FG_PERIOD/8));
@@ -42,8 +43,9 @@ module fg_opto_generate(output logic fg_opto,
 endmodule
 
 
-module fg_open_generate(output logic fg_open, 
-						input logic fg_opto, fg_opened);
+module fg_open_generate(input logic fg_opto, fg_opened,
+						output logic fg_open
+);
 	always @(posedge fg_opto) begin
 		#9ms;
 		fg_open = 1;
