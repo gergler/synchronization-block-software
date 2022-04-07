@@ -27,4 +27,6 @@ always @(posedge clock) begin
 		#10us;
 		state <= DETECTOR_FINISHED;
 		#10us;
+end
+
 endmodule
