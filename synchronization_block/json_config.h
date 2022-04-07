@@ -78,6 +78,7 @@ public:
         QString parameter_description;
         QString parameter_addr;
         int parameter_default_val;
+        QString parameter_suffix;
     };
     parameters_struct* parameters_struct_array = 0;
     parameters_struct* add_struct(parameters_struct* parameter, const int number);
@@ -102,6 +103,7 @@ public:
         QString register_description;
         QString register_addr;
         int register_default_val;
+        QString register_suffix;
     };
     register_struct* register_struct_array = 0;
     register_struct* add_struct(register_struct* reg, const int number);

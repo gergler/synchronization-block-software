@@ -160,7 +160,7 @@
   <action name="action_read_registers">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/img/read.png</normaloff>:/rec/img/read.png</iconset>
+     <normaloff>:/rec/img/reload.png</normaloff>:/rec/img/reload.png</iconset>
    </property>
    <property name="text">
     <string>Read registers</string>

@@ -14,6 +14,8 @@
 #include <QLabel>
 #include <QLabel>
 #include <QComboBox>
+#include <QTimer>
+#include <QTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -41,12 +43,16 @@ public:
     QLabel* scenario_label;
     QLabel* state_label;
 
+    QCheckBox* expert_checkbox;
+    QCheckBox* reload_checkbox;
+
+    QTimer *timer;
+
     struct expert_param_struct {
-        QCheckBox* expert_checkbox;
         QLineEdit* firmware_line;
         QLineEdit* scenario_line;
         QLineEdit* current_state;
-        QSpinBox* reg_spinboxes[4];
+        QSpinBox* reg_spinboxes[5];
         QSpinBox* param_spinboxes[5];
     };
 
@@ -56,7 +62,7 @@ public:
         QComboBox* firmware_combobox;
         QComboBox* scenario_combobox;
         QLineEdit* current_state;
-        QSpinBox* reg_spinboxes[4];
+        QSpinBox* reg_spinboxes[5];
         QSpinBox* param_spinboxes[5];
     };
 
@@ -64,7 +70,7 @@ public:
 
     QLabel* add_label(QString name, QString description);
     QLineEdit* add_line_edit(QString text, int expert_mode=0);
-    QSpinBox* add_spinbox(int value, int maximum=10000, int arrow=1, int expert_mode=0);
+    QSpinBox* add_spinbox(int value, QString suffix, int maximum=10000, int arrow=1, int expert_mode=0);
     QCheckBox* add_checkbox(QString text);
 
     QJsonObject open_file_JSON(QString file_name);
@@ -87,6 +93,8 @@ private slots:
     void on_action_stop_triggered();
 
     void expert_checkbox_state_changed(bool checked);
+    void reload_checkbox_state_changed(bool checked);
+    void timer_timeout();
 
     void on_action_read_registers_triggered();
 

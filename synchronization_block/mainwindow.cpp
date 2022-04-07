@@ -10,6 +10,7 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QLayout>
+#include <QErrorMessage>
 
 CMD_Packet packet { 'z', 0, 0, 0 };
 
@@ -22,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Synchronization block application");
     setWindowIcon(QIcon("main.png"));
 
-    _currentJsonObject = open_file_JSON("configure.json");
+    _currentJsonObject = open_file_JSON("configure_suffix.json");
 
     generate(_currentJsonObject);
 }
@@ -38,7 +39,7 @@ QJsonObject MainWindow::open_file_JSON(QString file_name) {
     QFile jsonFile(file_name);
     if (!jsonFile.open(QIODevice::ReadOnly))
     {
-        ui->statusbar->showMessage("ERROR");
+        ui->statusbar->showMessage("Open JSON file error");
     }
     QByteArray saveData = jsonFile.readAll();
     QJsonDocument jsonDocument(QJsonDocument::fromJson(saveData));
@@ -67,10 +68,11 @@ QLineEdit* MainWindow::add_line_edit(QString text, int expert_mode) {
     return line;
 }
 
-QSpinBox* MainWindow::add_spinbox(int value, int maximum, int arrow, int expert_mode) {
+QSpinBox* MainWindow::add_spinbox(int value, QString suffix, int maximum, int arrow, int expert_mode) {
     QSpinBox* spinbox = new QSpinBox(this);
     spinbox->setMaximum(maximum);
     spinbox->setValue(value);
+    spinbox->setSuffix(suffix);
     spinbox->setAlignment(Qt::AlignRight);
     if (expert_mode) {
         spinbox->setReadOnly(true);
@@ -93,9 +95,9 @@ void MainWindow::generate(QJsonObject jObj) {
     firmware.firmware_init(jObj);
     scenario.scenario_init(jObj);
 
-    expert_struct.expert_checkbox = add_checkbox("Expert mode");
-    ui->gridLayout->addWidget(expert_struct.expert_checkbox, 0, 3);
-    QObject::connect(expert_struct.expert_checkbox, SIGNAL(clicked(bool)), this, SLOT(expert_checkbox_state_changed(bool)));
+    expert_checkbox = add_checkbox("Expert mode");
+    ui->gridLayout->addWidget(expert_checkbox, 0, 3);
+    QObject::connect(expert_checkbox, SIGNAL(clicked(bool)), this, SLOT(expert_checkbox_state_changed(bool)));
 
     firmware_label = add_label("Firmware", "Firmware version");
     ui->gridLayout->addWidget(firmware_label, 1, 1);
@@ -129,24 +131,28 @@ void MainWindow::generate_reg(QJsonObject jObj)
 {
     reg.register_init(jObj);
 
+    reload_checkbox = add_checkbox("Autoreload");
+    ui->gridLayout_reg->addWidget(reload_checkbox, 0, 2);
+    QObject::connect(reload_checkbox, SIGNAL(clicked(bool)), this, SLOT(reload_checkbox_state_changed(bool)));
+
     state_label = add_label(reg.register_struct_array[0].register_name, reg.register_struct_array[0].register_description);
-    ui->gridLayout_reg->addWidget(state_label, 1, 0);
+    ui->gridLayout_reg->addWidget(state_label, 1, 0);    
 
     param_struct.current_state = add_line_edit("IDLE");
     ui->gridLayout_reg->addWidget(param_struct.current_state, 1, 1);
 
-    expert_struct.current_state = add_line_edit(" ", 1);
+    expert_struct.current_state = add_line_edit("", 1);
     ui->gridLayout_reg->addWidget(expert_struct.current_state, 1, 2);
 
     for (int i = 1; i < reg.register_array_size; ++i) {
         QLabel *label = add_label(reg.register_struct_array[i].register_name, reg.register_struct_array[i].register_description);
         ui->gridLayout_reg->addWidget(label, i+1, 0);
 
-        param_struct.reg_spinboxes[i - 1] = add_spinbox(reg.register_struct_array[i].register_default_val, 100500, 0);
+        param_struct.reg_spinboxes[i - 1] = add_spinbox(reg.register_struct_array[i].register_default_val, reg.register_struct_array[i].register_suffix, 100500, 0);
         param_struct.reg_spinboxes[i - 1]->setReadOnly(true);
         ui->gridLayout_reg->addWidget(param_struct.reg_spinboxes[i - 1], i+1, 1);
 
-        expert_struct.reg_spinboxes[i - 1] = add_spinbox(0, 10000, 0, 1);
+        expert_struct.reg_spinboxes[i - 1] = add_spinbox(0, "", 10000, 0, 1);
         ui->gridLayout_reg->addWidget(expert_struct.reg_spinboxes[i - 1], i+1, 2);
     }
 }
@@ -159,10 +165,10 @@ void MainWindow::generate_parameters(QJsonObject jObj)
         QLabel* label = add_label(parameters.parameters_struct_array[i].parameter_name, parameters.parameters_struct_array[i].parameter_description);
         ui->gridLayout_parameters->addWidget(label, i+1, 0);
 
-        param_struct.param_spinboxes[i] = add_spinbox(parameters.parameters_struct_array[i].parameter_default_val);
+        param_struct.param_spinboxes[i] = add_spinbox(parameters.parameters_struct_array[i].parameter_default_val, parameters.parameters_struct_array[i].parameter_suffix);
         ui->gridLayout_parameters->addWidget(param_struct.param_spinboxes[i], i+1, 1);
 
-        expert_struct.param_spinboxes[i] = add_spinbox(0, 10000, 1, 1);
+        expert_struct.param_spinboxes[i] = add_spinbox(0, "", 10000, 1, 1);
         ui->gridLayout_parameters->addWidget(expert_struct.param_spinboxes[i], i+1, 2);
     }
 }
@@ -212,8 +218,8 @@ void MainWindow::on_action_read_registers_triggered()
 //    uint32_t data = read_register(0x1000);
 //    expert_struct.firmware_line->setText(QString::number(data, 16));
 
-    expert_struct.firmware_line->setText(QString::number(read_register(0x1000)));
-    expert_struct.scenario_line->setText(QString::number(read_register(0x1000)));
+    expert_struct.firmware_line->setText(QString::number(read_register(FIRMWARE_ADDR)));
+    expert_struct.scenario_line->setText(QString::number(read_register(SCENARIO_ADDR)));
 
     read_register_values();
 
@@ -224,19 +230,26 @@ void MainWindow::on_action_read_registers_triggered()
 
 void MainWindow::on_action_configure_triggered()
 {
-    configure_register(param_struct.firmware_combobox->currentIndex(), 0x1000);
+    configure_register(param_struct.firmware_combobox->currentIndex(), SYSID_ADDR);
 }
 
 void MainWindow::read_register_values() {
-    expert_struct.current_state->setText(QString::number(read_register((reg.register_struct_array[0].register_addr).toUInt())));
+    param_struct.current_state->setText(QString::number(read_register((reg.register_struct_array[0].register_addr).toUInt())));
     for (int i = 1; i < reg.register_array_size; ++i) {
-        expert_struct.reg_spinboxes[i - 1]->setValue(read_register((reg.register_struct_array[i].register_addr).toUInt()));
+        param_struct.reg_spinboxes[i - 1]->setValue(read_register((reg.register_struct_array[i].register_addr).toUInt()));
+    }
+    if (expert_checkbox->isChecked()) {
+        expert_struct.current_state->setText(QString::number(read_register((reg.register_struct_array[0].register_addr).toUInt())));
+        for (int i = 1; i < reg.register_array_size; ++i) {
+            expert_struct.reg_spinboxes[i - 1]->setValue(read_register((reg.register_struct_array[i].register_addr).toUInt()));
+        }
     }
 }
 
 void MainWindow::on_action_start_triggered()
 {
     write_register(1, STOP_ADDR);
+    write_register(0, STOP_ADDR);
 
     write_register(param_struct.firmware_combobox->currentIndex(), FIRMWARE_ADDR);
     write_register(param_struct.scenario_combobox->currentIndex(), SCENARIO_ADDR);
@@ -248,6 +261,7 @@ void MainWindow::on_action_start_triggered()
     }
 
     write_register(1, START_ADDR);
+    write_register(0, START_ADDR);
 }
 
 void MainWindow::on_action_stop_triggered()
@@ -296,6 +310,26 @@ void MainWindow::closeEvent(QCloseEvent *)
         QApplication::quit();
     } else {
         MainWindow::on_action_save_file_triggered();
+    }
+}
+
+void MainWindow::timer_timeout() {
+    read_register_values();
+}
+
+void MainWindow::reload_checkbox_state_changed(bool checked) {
+    if (checked) {
+        timer = new QTimer();
+        connect(timer, SIGNAL(timeout()), this, SLOT(timer_timeout()));
+        timer->start(10000);
+
+        ui->statusbar->setStyleSheet("color: green");
+        ui->statusbar->showMessage("Autoreload ON");
+    } else {
+        timer->stop();
+
+        ui->statusbar->setStyleSheet("color: red");
+        ui->statusbar->showMessage("Autoreload OFF");
     }
 }
 

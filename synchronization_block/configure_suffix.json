@@ -27,56 +27,67 @@
        "description": "Fast gate opto to opened delay",
        "address": "0x15000",
        "default": 9,
-       "suffix": "ms"},
+       "suffix": " ms"},
                         
       {"name": "Phase shift",
        "description": "Phase shift length",
        "address": "0x15010",
-       "default": 700},
+       "default": 700,
+       "suffix": " ns"},
                         
       {"name": "Trigger length",
        "description": "Trigger impulse length",
        "address": "0x15100",
-       "default": 1000},
+       "default": 1000,
+       "suffix": " ns"},
                        
       {"name": "Trigger count",
        "description": "Amount of triggers emitted",
        "address": "0x16000",
-       "default": 999},                 
+       "default": 999,
+       "suffix": ""},                 
                        
       {"name": "Detector timeout",
        "description": "Detector wait timeout",
        "address": "0x15110",
-       "default": 7000}],
+       "default": 7000,
+       "suffix": " us"}
+  ],
   
    "REGISTER": [
       {"name": "Current state",
        "description": "Current state",
        "address": "0x14000",
-       "default": 0},
+       "default": 0,
+       "suffix": ""},
                         
       {"name": "FPGA clock counter",
        "description": "FPGA clock counter",
        "address": "0x18000",
-       "default": 200},
+       "default": 200,
+       "suffix": " MHz"},
                         
       {"name": "Phase impulse\ncounter",
        "description": "Phase impulse counter",
        "address": "0x17010",
-       "default": 999},
+       "default": 999,
+       "suffix": ""},
                        
       {"name": "Phase period",
        "description": "Phase period",
        "address": "0x17000",
-       "default": 1200},  
+       "default": 1200,
+       "suffix": " ns"},  
        
-      {"name": "Fast gate impulse\ncounter",
+      {"name": "Fast gate impulse\n counter",
        "description": "Fast gate impulse counter",
        "address": "0x17110",
-       "default": 999},               
+       "default": 999,
+       "suffix": ""},               
                        
       {"name": "Fast gate period",
        "description": "Fast gate period",
        "address": "0x17100",
-       "default": 20}]
+       "default": 20,
+       "suffix": " ms"}]
 }
