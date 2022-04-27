@@ -1,4 +1,0 @@
-/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/CMakeFiles/rebuild_cache.dir
-/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/CMakeFiles/edit_cache.dir
-/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/CMakeFiles/synchronization_block.dir
-/home/sayka/diplom_project/build-synchronization_block-Desktop-Debug/CMakeFiles/synchronization_block_autogen.dir
