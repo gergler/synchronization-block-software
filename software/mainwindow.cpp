@@ -168,6 +168,7 @@ void MainWindow::generate_parameters(QJsonObject jObj)
         ui->gridLayout_parameters->addWidget(param_struct.param_spinboxes[i], i+1, 1);
 
         expert_struct.param_spinboxes[i] = add_spinbox(0, "", 10000, 1, 1);
+        expert_struct.param_spinboxes[i]->setRange(INT32_MIN, INT32_MAX);
         ui->gridLayout_parameters->addWidget(expert_struct.param_spinboxes[i], i+1, 2);
     }
 }
@@ -190,23 +191,26 @@ void MainWindow::exec_reg_command(CMD_Packet request, CMD_Packet &reply) {
 }
 
 uint32_t MainWindow::read_register(uint32_t address) {
-    CMD_Packet reply;
+    CMD_Packet reply   {'R', address, 0, 1};
     CMD_Packet request {'R', address, 0, 1};
 
     exec_reg_command(request, reply);
 
-    return reply.value;
+    if (reply.status == 0)
+        return reply.value;
+    else
+        return -1;
 }
 
 void MainWindow::write_register(uint32_t address, uint32_t value) {
-    CMD_Packet reply;
+    CMD_Packet reply   {'W', address, value, 1};
     CMD_Packet request {'W', address, value, 1};
 
     exec_reg_command(request, reply);
 }
 
-void MainWindow::configure_register(uint32_t address, uint32_t firmware_version) {
-    CMD_Packet reply;
+void MainWindow::configure_fpga(uint32_t address, uint32_t firmware_version) {
+    CMD_Packet reply   {'C', address, firmware_version, 1};
     CMD_Packet request {'C', address, firmware_version, 1};
 
     exec_reg_command(request, reply);
@@ -227,7 +231,8 @@ void MainWindow::on_action_read_registers_triggered()
 
 void MainWindow::on_action_configure_triggered()
 {
-    configure_register(SYSID_ADDR, param_struct.firmware_combobox->currentIndex());
+    configure_fpga(SYSID_ADDR, param_struct.firmware_combobox->currentIndex());
+    QThread::msleep(100);
     uint32_t data = read_register(SYSID_ADDR);
     expert_struct.firmware_line->setText("0x" + QString::number(data, 16));
 }
@@ -251,7 +256,15 @@ void MainWindow::read_register_values() {
 #else
     int scen_number = (control_reg_value >> 8) & 0xFF;
     int state_number = status_reg_value & 0xFF;
-    QString scen_state_str = scenario.scenario_struct_array[scen_number].scenario_states[state_number].toString();
+    QString scen_state_str;
+    if (scen_number >= 0 && scen_number < scenario.scenario_array_size) {
+        if (state_number >= 0 && state_number < scenario.scenario_struct_array[scen_number].scenario_states.size())
+            scen_state_str = scenario.scenario_struct_array[scen_number].scenario_states[state_number].toString();
+        else
+            scen_state_str = QString::number(state_number);
+    }
+
+
     param_struct.status ->setText(scen_state_str);
 #endif
 
@@ -341,18 +354,29 @@ void MainWindow::on_action_wtite_parameters_triggered()
         printf("%d json_addr %s\n", i, parameters.parameters_struct_array[i].parameter_addr.toStdString().c_str() );
 
         uint32_t param_addr  = qstring2uint(parameters.parameters_struct_array[i].parameter_addr);
-        uint32_t param_value = param_struct.param_spinboxes[i]->value();
+        uint32_t param_value = expert_struct.param_spinboxes[i]->value();
         write_register(param_addr, param_value);
 
         printf("%d Addr = %04x, Value = %x\n", i, param_addr, param_value);
 //        param_struct.param_spinboxes[i]->setValue(param_value);
-        expert_struct.param_spinboxes[i]->setValue(param_value);
+        //expert_struct.param_spinboxes[i]->setValue(param_value);
     }
 }
 
 void MainWindow::on_action_start_triggered()
 {
     uint32_t old_value = read_register(SCENARIO_CONTROL_ADDR);
+    uint32_t selected_scen = (old_value >> 8) & 0xFF;
+
+    uint32_t selected_scen_old = param_struct.scenario_combobox->currentIndex();
+
+    param_struct.scenario_combobox->setCurrentIndex(selected_scen);
+
+    if (selected_scen != selected_scen_old) {
+        ui->statusbar->showMessage("Wrong scenario!");
+        return;
+    }
+
     write_register(SCENARIO_CONTROL_ADDR, old_value | START_MSK);
     QThread::usleep(1);
     write_register(SCENARIO_CONTROL_ADDR, old_value & ~START_MSK);

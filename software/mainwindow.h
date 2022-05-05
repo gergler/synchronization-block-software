@@ -87,7 +87,7 @@ public:
 
     uint32_t read_register(uint32_t address);
     void write_register(uint32_t address, uint32_t value);
-    void configure_register(uint32_t address, uint32_t firmware_version);
+    void configure_fpga(uint32_t address, uint32_t firmware_version);
 
     void read_register_values();
 
