@@ -4,6 +4,7 @@
 #include "./json_config.h"
 #include "./client.h"
 #include "addresses.h"
+#include <chrono>
 
 #include <QSpinBox>
 #include <QMainWindow>
@@ -47,6 +48,13 @@ public:
     QCheckBox* reload_checkbox;
 
     QTimer *timer;
+
+    struct register_values_snapshot_t {
+        std::chrono::time_point<std::chrono::system_clock> timestamp;
+        std::map<uint32_t, uint32_t> values;
+    };
+
+    register_values_snapshot_t previous_measurements;
 
     struct expert_param_struct {
         QLineEdit* firmware_line;
@@ -98,6 +106,8 @@ private slots:
 
     void on_action_read_registers_triggered();
     void on_action_set_scenario_triggered();
+    void on_action_read_parameters_triggered();
+    void on_action_wtite_parameters_triggered();
 
 private:
     Ui::MainWindow *ui;

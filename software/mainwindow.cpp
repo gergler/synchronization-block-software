@@ -218,7 +218,7 @@ void MainWindow::on_action_read_registers_triggered()
     expert_struct.scenario_line->setText("0x" + QString::number(read_register(SCENARIO_CONTROL_ADDR), 16));
     param_struct.status->setText("0x" + QString::number(read_register(SCENARIO_STATUS_ADDR), 16));
 
-//    read_register_values();
+    read_register_values();
 
 //    for (int i = 0; i < parameters.parameters_array_size; ++i) {
 //        expert_struct.param_spinboxes[i]->setValue(read_register((parameters.parameters_struct_array[i].parameter_addr).toUInt()));
@@ -240,6 +240,8 @@ void MainWindow::read_register_values() {
     uint32_t control_reg_value = read_register(SCENARIO_CONTROL_ADDR);
     uint32_t status_reg_value = read_register(SCENARIO_STATUS_ADDR);
 
+    register_values_snapshot_t new_values; // = {std::chrono::system_clock::now(), {0, expert_struct.reg_spinboxes[0]->value()}};
+    new_values.timestamp = std::chrono::system_clock::now();
 
     expert_struct.status->setText("0x"+QString::number( status_reg_value, 16 ));
     expert_struct.scenario_line->setText("0x"+QString::number( control_reg_value, 16 ));
@@ -259,10 +261,45 @@ void MainWindow::read_register_values() {
         uint32_t reg_addr  = qstring2uint(reg.register_struct_array[i].register_addr);
         uint32_t reg_value = read_register(reg_addr);
 
+        new_values.values [reg_addr] = reg_value;
+
         printf("%d Addr = %04x, Value = %x\n", i, reg_addr, reg_value);
         param_struct.reg_spinboxes[i - 1]->setValue(reg_value);
         expert_struct.reg_spinboxes[i - 1]->setValue(reg_value);
     }
+
+    /* ui update */
+
+    for (int i = 1; i < reg.register_array_size; ++i) {
+        std::string reg_name = reg.register_struct_array[i].register_name.toStdString();
+        printf("reg_name = %s \n", reg_name.c_str());
+
+        if (reg_name.find("counter") == std::string::npos)
+            continue;
+
+        uint32_t reg_addr  = qstring2uint(reg.register_struct_array[i].register_addr);
+        uint32_t reg_value, reg_old_value;
+
+        reg_value     = new_values.values [reg_addr];
+        reg_old_value = previous_measurements.values [reg_addr];
+        printf("reg_addr = %x, old_value = %d, new_value = %d\n", reg_addr, reg_old_value, reg_value);
+
+        //printf("%d Addr = %04x, Value = %x\n", i, reg_addr, reg_value);
+        //param_struct.reg_spinboxes[i - 1]->setValue(reg_value);
+        long diff_value = long(reg_value) - long(reg_old_value);
+        if (diff_value < 0)
+            diff_value += INT32_MAX;
+
+        double frequency = diff_value * 1000000;
+        frequency /= std::chrono::duration_cast<std::chrono::microseconds>( new_values.timestamp - previous_measurements.timestamp  ).count();
+        printf("frequency = %e\n", frequency);
+
+        param_struct.reg_spinboxes[i - 1]->setValue(frequency);
+        param_struct.reg_spinboxes[i - 1]->setSuffix(" Hz");
+    }
+
+    /* old = new */
+    previous_measurements = new_values;
 }
 
 void MainWindow::on_action_set_scenario_triggered()
@@ -282,6 +319,35 @@ void MainWindow::on_action_set_scenario_triggered()
 //    }
 
     write_register(SCENARIO_CONTROL_ADDR, new_value & ~RESET_MSK);
+}
+
+void MainWindow::on_action_read_parameters_triggered()
+{
+    for (int i = 0; i < parameters.parameters_array_size; ++i) {
+        printf("%d json_addr %s\n", i, parameters.parameters_struct_array[i].parameter_addr.toStdString().c_str() );
+
+        uint32_t param_addr  = qstring2uint(parameters.parameters_struct_array[i].parameter_addr);
+        uint32_t param_value = read_register(param_addr);
+
+        printf("%d Addr = %04x, Value = %x\n", i, param_addr, param_value);
+        param_struct.param_spinboxes[i]->setValue(param_value);
+        expert_struct.param_spinboxes[i]->setValue(param_value);
+    }
+}
+
+void MainWindow::on_action_wtite_parameters_triggered()
+{
+    for (int i = 0; i < parameters.parameters_array_size; ++i) {
+        printf("%d json_addr %s\n", i, parameters.parameters_struct_array[i].parameter_addr.toStdString().c_str() );
+
+        uint32_t param_addr  = qstring2uint(parameters.parameters_struct_array[i].parameter_addr);
+        uint32_t param_value = param_struct.param_spinboxes[i]->value();
+        write_register(param_addr, param_value);
+
+        printf("%d Addr = %04x, Value = %x\n", i, param_addr, param_value);
+//        param_struct.param_spinboxes[i]->setValue(param_value);
+        expert_struct.param_spinboxes[i]->setValue(param_value);
+    }
 }
 
 void MainWindow::on_action_start_triggered()
@@ -345,18 +411,7 @@ void MainWindow::closeEvent(QCloseEvent *)
 }
 
 void MainWindow::timer_timeout() {
-//    auto start = std::chrono::system_clock::now();
-    int old_value = expert_struct.reg_spinboxes[0]->value();
     read_register_values();
-    int new_value = expert_struct.reg_spinboxes[0]->value();
-//    auto end = std::chrono::system_clock::now();
-    //auto diff_value = new_value - old_value;
-    long diff_value = long(new_value) - long(old_value);
-    if (diff_value < 0)
-        diff_value += INT32_MAX;
-//    std::chrono::duration<double> diff = end - start;
-    param_struct.reg_spinboxes[0]->setValue(diff_value);
-    param_struct.reg_spinboxes[0]->setSuffix(" Hz");
 }
 
 void MainWindow::reload_checkbox_state_changed(bool checked) {
@@ -423,5 +478,3 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
         }
     }
 }
-
-

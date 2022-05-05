@@ -121,6 +121,8 @@
     <addaction name="action_stop"/>
     <addaction name="action_read_registers"/>
     <addaction name="action_set_scenario"/>
+    <addaction name="action_read_parameters"/>
+    <addaction name="action_wtite_parameters"/>
    </widget>
    <addaction name="menuSynchronization_block_software"/>
    <addaction name="menuExperiment"/>
@@ -210,6 +212,16 @@
   <action name="action_set_scenario">
    <property name="text">
     <string>Set scenario</string>
+   </property>
+  </action>
+  <action name="action_read_parameters">
+   <property name="text">
+    <string>Read parameters</string>
+   </property>
+  </action>
+  <action name="action_wtite_parameters">
+   <property name="text">
+    <string>Wtite parameters</string>
    </property>
   </action>
  </widget>

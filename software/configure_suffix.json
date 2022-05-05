@@ -7,27 +7,27 @@
       
   "SCENARIO": [
       {"name": "SELF TEST", "min_fw_version": "2022v1.00",
-       "states": ["Idle", "Test"],
+       "states": ["IDLE", "TEST"],
        "scen_parameters": []},
        
       {"name": "EXPERIMENT", "min_fw_version": "2022v1.00",
-       "states":  ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Detonate", "Wait_WIRE_sensor", "Trigger_Prolong", "Detector_Busy", "Wait_Detector", "Detector_finished"],
+       "states":  ["IDLE", "WAIT FASTGATE OPTO", "WAIT FASTGATE OPEN", "DETONATE", "WAIT WIRE SENSOR", "TRIGGER PROLONG", "DETECTOR BUSY", "WAIT DETECTOR", "DETECTOR FINISHED"],
        "scen_parameters": ["FG_DELAY", "TRIGGER_LEN", "DETECTOR_TIMEOUT"]},
 
       {"name": "CALIBRATION", "min_fw_version": "2022v1.00",
-       "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Trigger_Prolong"],
+       "states": ["IDLE", "WAIT FASTGATE OPTO", "WAIT FASTGATE OPEN", "TRIGGER PROLONG"],
        "scen_parameters": ["FG_DELAY", "TRIGGER_LEN"]},
        
       {"name": "EXPERIMENT PHASE", "min_fw_version": "2022v1.00",
-       "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Detonate", "Wait_WIRE_sensor", "Wait_Phase_front", "Wait_Phase_delay", "Trigger_Prolong", "Detector_Busy", "Wait_Detector", "Detector_finished"],
+       "states": ["IDLE", "WAIT FASTGATE OPTO", "WAIT FASTGATE OPEN", "DETONATE", "WAIT WIRE SENSOR", "WAIT PHASE FRONT", "WAIT PHASE DELAY", "TRIGGER PROLONG", "DETECTOR BUSY", "WAIT DETECTOR", "DETECTOR FINISHED"],
        "scen_parameters": ["FG_DELAY", "PHASE_SHIFT", "TRIGGER_LEN", "DETECTOR_TIMEOUT"]},
        
       {"name": "CALIBRATION PHASE", "min_fw_version": "2022v1.00",
-       "states": ["Idle", "Wait_FastGate_Opto", "Wait_FastGate_to_Open", "Wait_Phase_front", "Wait_Phase_delay", "Trigger_Prolong"],
+       "states": ["IDLE", "WAIT FASTGATE OPTO", "WAIT FASTGATE OPEN", "WAIT PHASE FRONT", "WAIT PHASE DELAY", "TRIGGER PROLONG"],
        "scen_parameters": ["FG_DELAY", "PHASE_SHIFT", "TRIGGER_LEN"]}],
   
   "PARAMETERS": [
-      {"name": "Fast gate delay",
+      {"name": "FastGate delay",
        "description": "Fast gate opto to opened delay",
        "address": "0x40000",
        "default": 9,
@@ -83,13 +83,13 @@
        "default": 1200,
        "suffix": " ns"},  
        
-      {"name": "Fast gate impulse\n counter",
+      {"name": "FastGate impulse\ncounter",
        "description": "Fast gate impulse counter",
        "address": "0x34000",
        "default": 999,
        "suffix": ""},               
                        
-      {"name": "Fast gate period",
+      {"name": "FastGate period",
        "description": "Fast gate period",
        "address": "0x33000",
        "default": 20,
