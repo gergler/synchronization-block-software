@@ -1,0 +1,31 @@
+{
+	"BUILD_DIR" : "/home/polina/devel/synchronization-block-software/synchronization_block/synchronization_block_autogen",
+	"CMAKE_BINARY_DIR" : "/home/polina/devel/synchronization-block-software/synchronization_block",
+	"CMAKE_CURRENT_BINARY_DIR" : "/home/polina/devel/synchronization-block-software/synchronization_block",
+	"CMAKE_CURRENT_SOURCE_DIR" : "/home/polina/devel/synchronization-block-software/synchronization_block",
+	"CMAKE_SOURCE_DIR" : "/home/polina/devel/synchronization-block-software/synchronization_block",
+	"INCLUDE_DIR" : "/home/polina/devel/synchronization-block-software/synchronization_block/synchronization_block_autogen/include",
+	"INPUTS" : 
+	[
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/read.png",
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/save.png",
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/stop.png",
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/open.png",
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/reload.png",
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/help.png",
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/start.png",
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/configure.png",
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/quit.png",
+		"/home/polina/devel/synchronization-block-software/synchronization_block/img/main.png"
+	],
+	"LOCK_FILE" : "/home/polina/devel/synchronization-block-software/synchronization_block/CMakeFiles/synchronization_block_autogen.dir/AutoRcc_resource_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "-name", "resource" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_resource.cpp",
+	"RCC_EXECUTABLE" : "/usr/lib/qt5/bin/rcc",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "/home/polina/devel/synchronization-block-software/synchronization_block/CMakeFiles/synchronization_block_autogen.dir/AutoRcc_resource_EWIEGA46WW_Used.txt",
+	"SOURCE" : "/home/polina/devel/synchronization-block-software/synchronization_block/resource.qrc",
+	"VERBOSITY" : 0
+}

@@ -1,0 +1,12 @@
+#ifndef ADDRESSES_H
+#define ADDRESSES_H
+
+#define SYSID_ADDR 0x1000
+#define SCENARIO_CONTROL_ADDR 0x20000
+#define SCENARIO_STATUS_ADDR 0x21000
+
+#define START_MSK 0x2
+#define RESET_MSK 0x1
+
+
+#endif // ADDRESSES_H
