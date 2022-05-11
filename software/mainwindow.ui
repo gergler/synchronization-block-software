@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
+    <width>419</width>
     <height>574</height>
    </rect>
   </property>
@@ -101,7 +101,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>381</width>
+     <width>419</width>
      <height>22</height>
     </rect>
    </property>
@@ -116,11 +116,11 @@
     <property name="title">
      <string>Experiment</string>
     </property>
-    <addaction name="action_configure"/>
     <addaction name="action_start"/>
     <addaction name="action_stop"/>
-    <addaction name="action_read_registers"/>
+    <addaction name="action_configure"/>
     <addaction name="action_set_scenario"/>
+    <addaction name="action_read_registers"/>
     <addaction name="action_read_parameters"/>
     <addaction name="action_wtite_parameters"/>
    </widget>
@@ -138,13 +138,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="action_read_registers"/>
-   <addaction name="action_configure"/>
    <addaction name="action_start"/>
    <addaction name="action_stop"/>
-   <addaction name="action_set_scenario"/>
-   <addaction name="action_read_parameters"/>
-   <addaction name="action_wtite_parameters"/>
   </widget>
   <action name="action_save_file">
    <property name="icon">
@@ -156,10 +151,6 @@
    </property>
   </action>
   <action name="action_configure">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/img/configure.png</normaloff>:/rec/img/configure.png</iconset>
-   </property>
    <property name="text">
     <string>Configure FPGA</string>
    </property>
@@ -204,12 +195,8 @@
    </property>
   </action>
   <action name="action_read_registers">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/rec/img/reload.png</normaloff>:/rec/img/reload.png</iconset>
-   </property>
    <property name="text">
-    <string>Read registers</string>
+    <string>Read measurement registers</string>
    </property>
   </action>
   <action name="action_set_scenario">
@@ -219,12 +206,12 @@
   </action>
   <action name="action_read_parameters">
    <property name="text">
-    <string>Read parameters</string>
+    <string>Read parameter registers</string>
    </property>
   </action>
   <action name="action_wtite_parameters">
    <property name="text">
-    <string>Wtite parameters</string>
+    <string>Wtite parameters to registers</string>
    </property>
   </action>
  </widget>

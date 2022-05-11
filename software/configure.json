@@ -1,7 +1,6 @@
 {
   "FIRMWARE": [
-      {"version": "2022v1.00", "address": "0xAA20220100"},
-      {"version": "2022v1.01", "address": "0xAA20220101"}],
+      {"version": "2022v1.00", "address": "0xAA20220100", "default": {"FPGA clock counter": 2e+6, "Phase period": 1200e-9, "FastGate period": 20e-3}}],
       
   "SCENARIO": [
       {"name": "SELF TEST", "min_fw_version": "2022v1.00",
@@ -28,68 +27,50 @@
       {"name": "FastGate delay",
        "description": "Fast gate opto to opened delay",
        "address": "0x40000",
-       "default": 9,
-       "suffix": " ms"},
+       "default": 9e-3},
                         
       {"name": "Phase shift",
        "description": "Phase shift length",
        "address": "0x44000",
-       "default": 700,
-       "suffix": " ns"},
+       "default": 700e-9},
                         
       {"name": "Trigger length",
        "description": "Trigger impulse length",
        "address": "0x41000",
-       "default": 1000,
-       "suffix": " ns"},
+       "default": 1000e-9},
                        
       {"name": "Trigger count",
        "description": "Amount of triggers emitted",
        "address": "0x43000",
-       "default": 999,
-       "suffix": ""},                 
+       "default": 999},                 
                        
       {"name": "Detector timeout",
        "description": "Detector wait timeout",
        "address": "0x42000",
-       "default": 7000,
-       "suffix": " us"}
-  ],
+       "default": 7000e-6}],
   
    "MEASUREMENTS": [
       {"name": "Status",
        "description": "Current state",
-       "address": "0x21000",
-       "default": 0,
-       "suffix": ""},
+       "address": "0x21000"},
                         
       {"name": "FPGA clock counter",
        "description": "FPGA clock counter",
-       "address": "0x30000",
-       "default": 200,
-       "suffix": " MHz"},
+       "address": "0x30000"},
                         
       {"name": "Phase impulse\ncounter",
        "description": "Phase impulse counter",
-       "address": "0x32000",
-       "default": 999,
-       "suffix": ""},
+       "address": "0x32000"},
                        
       {"name": "Phase period",
        "description": "Phase period",
-       "address": "0x31000",
-       "default": 1200,
-       "suffix": " ns"},  
+       "address": "0x31000"},  
        
       {"name": "FastGate impulse\ncounter",
        "description": "Fast gate impulse counter",
-       "address": "0x34000",
-       "default": 999,
-       "suffix": ""},               
+       "address": "0x34000"},               
                        
       {"name": "FastGate period",
        "description": "Fast gate period",
-       "address": "0x33000",
-       "default": 20,
-       "suffix": " ms"}]
+       "address": "0x33000"}]
 }

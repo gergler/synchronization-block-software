@@ -14,13 +14,11 @@
 #define KEY_SCEN_PARAMETERS "scen_parameters"
 
 #define KEY_PARAM "PARAMETERS"
+#define KEY_REG "MEASUREMENTS"
 #define KEY_NAME "name"
 #define KEY_DESCRIPTION "description"
 #define KEY_ADDR "address"
 #define KEY_DEFAULT "default"
-#define KEY_SUFFIX "suffix"
-
-#define KEY_REG "MEASUREMENTS"
 
 Json_config::Json_config() {}
 Firmware::Firmware() {}
@@ -119,7 +117,6 @@ void Parameters::parameters_init(QJsonObject jObj) {
         parameters_struct_array[i].parameter_description = parameter_obj.value(KEY_DESCRIPTION).toString();
         parameters_struct_array[i].parameter_addr = parameter_obj.value(KEY_ADDR).toString();
         parameters_struct_array[i].parameter_default_val = parameter_obj.value(KEY_DEFAULT).toInt();
-        parameters_struct_array[i].parameter_suffix = parameter_obj.value(KEY_SUFFIX).toString();
     }
 }
 
@@ -146,7 +143,6 @@ QJsonObject Parameters::toJsonObject(QJsonObject jObj, Parameters::parameters_st
     jObj.insert(KEY_DESCRIPTION, parameter.parameter_description);
     jObj.insert(KEY_ADDR, parameter.parameter_addr);
     jObj.insert(KEY_DEFAULT, parameter.parameter_default_val);
-    jObj.insert(KEY_SUFFIX, parameter.parameter_suffix);
     return jObj;
 }
 
@@ -160,8 +156,6 @@ void Register::register_init(QJsonObject jObj) {
         register_struct_array[i].register_name = reg_obj.value(KEY_NAME).toString();
         register_struct_array[i].register_description = reg_obj.value(KEY_DESCRIPTION).toString();
         register_struct_array[i].register_addr = reg_obj.value(KEY_ADDR).toString();
-        register_struct_array[i].register_default_val = reg_obj.value(KEY_DEFAULT).toInt();
-        register_struct_array[i].register_suffix = reg_obj.value(KEY_SUFFIX).toString();
     }
 }
 
@@ -187,7 +181,5 @@ QJsonObject Register::toJsonObject(QJsonObject jObj, Register::register_struct r
     jObj.insert(KEY_NAME, reg.register_name);
     jObj.insert(KEY_DESCRIPTION, reg.register_description);
     jObj.insert(KEY_ADDR, reg.register_addr);
-    jObj.insert(KEY_DEFAULT, reg.register_default_val);
-    jObj.insert(KEY_SUFFIX, reg.register_suffix);
     return jObj;
 }
