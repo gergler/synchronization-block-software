@@ -1,7 +1,7 @@
 #ifndef SERVER_PARAMETERS_H
 #define SERVER_PARAMETERS_H
 
-#if 1
+#if 0
   #define IP "192.168.7.1"
 #else
   #define IP "127.1"

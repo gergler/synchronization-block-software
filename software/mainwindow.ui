@@ -142,6 +142,9 @@
    <addaction name="action_configure"/>
    <addaction name="action_start"/>
    <addaction name="action_stop"/>
+   <addaction name="action_set_scenario"/>
+   <addaction name="action_read_parameters"/>
+   <addaction name="action_wtite_parameters"/>
   </widget>
   <action name="action_save_file">
    <property name="icon">

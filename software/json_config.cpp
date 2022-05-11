@@ -20,7 +20,7 @@
 #define KEY_DEFAULT "default"
 #define KEY_SUFFIX "suffix"
 
-#define KEY_REG "REGISTER"
+#define KEY_REG "MEASUREMENTS"
 
 Json_config::Json_config() {}
 Firmware::Firmware() {}

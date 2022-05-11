@@ -78,7 +78,7 @@ public:
 
     QLabel* add_label(QString name, QString description);
     QLineEdit* add_line_edit(QString text, int expert_mode=0);
-    QSpinBox* add_spinbox(int value, QString suffix, int maximum=10000, int arrow=1, int expert_mode=0);
+    QSpinBox* add_spinbox(int value, QString suffix, int expert_mode=0);
     QCheckBox* add_checkbox(QString text);
 
     QJsonObject open_file_JSON(QString file_name);

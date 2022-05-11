@@ -71,18 +71,15 @@ QLineEdit* MainWindow::add_line_edit(QString text, int expert_mode) {
     return line;
 }
 
-QSpinBox* MainWindow::add_spinbox(int value, QString suffix, int maximum, int arrow, int expert_mode) {
+QSpinBox* MainWindow::add_spinbox(int value, QString suffix, int expert_mode) {
     QSpinBox* spinbox = new QSpinBox(this);
-    spinbox->setMaximum(maximum);
+    spinbox->setRange(INT32_MIN, INT32_MAX);
     spinbox->setValue(value);
     spinbox->setSuffix(suffix);
     spinbox->setAlignment(Qt::AlignRight);
     if (expert_mode) {
         spinbox->setReadOnly(true);
         spinbox->setStyleSheet("background: lightGray");
-    }
-    if (!arrow) {
-        spinbox->setButtonSymbols(QAbstractSpinBox::NoButtons);
     }
     return spinbox;
 }
@@ -145,12 +142,11 @@ void MainWindow::generate_reg(QJsonObject jObj)
         QLabel *label = add_label(reg.register_struct_array[i].register_name, reg.register_struct_array[i].register_description);
         ui->gridLayout_reg->addWidget(label, i+1, 0);
 
-        param_struct.reg_spinboxes[i - 1] = add_spinbox(reg.register_struct_array[i].register_default_val, reg.register_struct_array[i].register_suffix, INT_MAX, 0);
+        param_struct.reg_spinboxes[i - 1] = add_spinbox(reg.register_struct_array[i].register_default_val, reg.register_struct_array[i].register_suffix);
         param_struct.reg_spinboxes[i - 1]->setReadOnly(true);
         ui->gridLayout_reg->addWidget(param_struct.reg_spinboxes[i - 1], i+1, 1);
 
-        expert_struct.reg_spinboxes[i - 1] = add_spinbox(0, "", INT_MAX, 0, 1);
-        expert_struct.reg_spinboxes[i - 1]->setMinimum(INT32_MIN);
+        expert_struct.reg_spinboxes[i - 1] = add_spinbox(0, "", 1);
         expert_struct.reg_spinboxes[i - 1]->setDisplayIntegerBase(16);
         ui->gridLayout_reg->addWidget(expert_struct.reg_spinboxes[i - 1], i+1, 2);
     }
@@ -167,8 +163,7 @@ void MainWindow::generate_parameters(QJsonObject jObj)
         param_struct.param_spinboxes[i] = add_spinbox(parameters.parameters_struct_array[i].parameter_default_val, parameters.parameters_struct_array[i].parameter_suffix);
         ui->gridLayout_parameters->addWidget(param_struct.param_spinboxes[i], i+1, 1);
 
-        expert_struct.param_spinboxes[i] = add_spinbox(0, "", 10000, 1, 1);
-        expert_struct.param_spinboxes[i]->setRange(INT32_MIN, INT32_MAX);
+        expert_struct.param_spinboxes[i] = add_spinbox(0, "", 1);
         ui->gridLayout_parameters->addWidget(expert_struct.param_spinboxes[i], i+1, 2);
     }
 }
@@ -223,10 +218,6 @@ void MainWindow::on_action_read_registers_triggered()
     param_struct.status->setText("0x" + QString::number(read_register(SCENARIO_STATUS_ADDR), 16));
 
     read_register_values();
-
-//    for (int i = 0; i < parameters.parameters_array_size; ++i) {
-//        expert_struct.param_spinboxes[i]->setValue(read_register((parameters.parameters_struct_array[i].parameter_addr).toUInt()));
-//    }
 }
 
 void MainWindow::on_action_configure_triggered()
@@ -456,9 +447,6 @@ void MainWindow::reload_checkbox_state_changed(bool checked) {
 
 void MainWindow::expert_checkbox_state_changed(bool checked) {
     if (checked) {
-        ui->statusbar->setStyleSheet("color: green");
-        ui->statusbar->showMessage("Expert Mode ON");
-
         expert_struct.firmware_line->setReadOnly(false);
         expert_struct.firmware_line->setStyleSheet("background: white");
 
@@ -479,9 +467,6 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
         }
 
     } else {
-        ui->statusbar->setStyleSheet("color: red");
-        ui->statusbar->showMessage("Expert Mode OFF");
-
         expert_struct.firmware_line->setReadOnly(true);
         expert_struct.firmware_line->setStyleSheet("background: lightGray");
 
