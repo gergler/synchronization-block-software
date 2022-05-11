@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("Synchronization block application");
     setWindowIcon(QIcon("main.png"));
 
-    _currentJsonObject = open_file_JSON("configure_suffix.json");
+    _currentJsonObject = open_file_JSON("configure.json");
     generate(_currentJsonObject);
 }
 
