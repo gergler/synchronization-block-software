@@ -169,6 +169,9 @@
    <property name="toolTip">
     <string>Experiment start signal</string>
    </property>
+   <property name="visible">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="action_stop">
    <property name="icon">

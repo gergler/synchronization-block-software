@@ -1,6 +1,8 @@
 {
   "FIRMWARE": [
-      {"version": "2022v1.00", "address": "0xAA20220100", "default": {"FPGA clock counter": 2e+6, "Phase period": 1200e-9, "FastGate period": 20e-3}}],
+      {"version": "2022v1.00", "address": "0xAA20220100", "default": [{"name": "FPGA clock counter", "default": "50 MHz"}, 
+      								        {"name": "Phase period", "default": "1200 ns"}, 
+      								        {"name": "FastGate period", "default": "20 ms"}]}],
       
   "SCENARIO": [
       {"name": "SELF TEST", "min_fw_version": "2022v1.00",
@@ -27,27 +29,27 @@
       {"name": "FastGate delay",
        "description": "Fast gate opto to opened delay",
        "address": "0x40000",
-       "default": 9e-3},
+       "default": "9 ms"},
                         
       {"name": "Phase shift",
        "description": "Phase shift length",
        "address": "0x44000",
-       "default": 700e-9},
+       "default": "700 ns"},
                         
       {"name": "Trigger length",
        "description": "Trigger impulse length",
        "address": "0x41000",
-       "default": 1000e-9},
+       "default": "1 mus"},
                        
       {"name": "Trigger count",
        "description": "Amount of triggers emitted",
        "address": "0x43000",
-       "default": 999},                 
+       "default": "999"},                 
                        
       {"name": "Detector timeout",
        "description": "Detector wait timeout",
        "address": "0x42000",
-       "default": 7000e-6}],
+       "default": "7 ms"}],
   
    "MEASUREMENTS": [
       {"name": "Status",

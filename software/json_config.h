@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QJsonDocument>
+#include <QMap>
 
 class Json_config {
 public:
@@ -22,9 +23,9 @@ public:
     int firmware_array_size = 0;
 
     struct firmware_struct {
-        int firmware_id;
-        QString firmware_version;
-        QString firmware_addr;
+        QString version;
+        QString address;
+        QMap<QString, QString> default_values;
     };
     firmware_struct* firmware_struct_array = 0;
     firmware_struct* add_struct(firmware_struct* parameter, const int number);
@@ -46,11 +47,10 @@ public:
     int scenario_array_size = 0;
 
     struct scenario_struct {
-        int scenario_id;
-        QString scenario_name;
+        QString name;
         QString min_firmware_version;
-        QJsonArray scenario_states;
-        QJsonArray scenario_parameters;
+        QJsonArray states;
+        QJsonArray parameters;
     };
     scenario_struct* scenario_struct_array = 0;
     scenario_struct* add_struct(scenario_struct* parameter, const int number);
@@ -74,11 +74,10 @@ public:
     int parameters_array_size = 0;
 
     struct parameters_struct {
-        QString parameter_name;
-        QString parameter_description;
-        QString parameter_addr;
-        int parameter_default_val;
-        QString parameter_suffix;
+        QString name;
+        QString description;
+        QString address;
+        QString default_val;
     };
     parameters_struct* parameters_struct_array = 0;
     parameters_struct* add_struct(parameters_struct* parameter, const int number);
@@ -99,11 +98,9 @@ public:
     int register_array_size = 0;
 
     struct register_struct {
-        QString register_name;
-        QString register_description;
-        QString register_addr;
-        int register_default_val;
-        QString register_suffix;
+        QString name;
+        QString description;
+        QString address;
     };
     register_struct* register_struct_array = 0;
     register_struct* add_struct(register_struct* reg, const int number);

@@ -14,6 +14,10 @@
 
 #include <QThread>
 
+#define CLK_COUNTER "FPGA clock counter"
+#define FG_PERIOD "Phase period"
+#define PHASE_PERIOD "FastGate period"
+
 #define TIMEOUT 1000
 
 CMD_Packet packet { 'z', 0, 0, 0 };
@@ -83,7 +87,35 @@ QCheckBox* MainWindow::add_checkbox(QString text) {
     return checkbox;
 }
 
+static uint32_t qstring2uint(QString &str) {
+    return std::stoul(str.toStdString().c_str(), nullptr, 16);
+}
 
+double suffix2val (QString &str) {
+    double multiplier = 1;
+    if (str.toStdString().find("m") != std::string::npos)
+        multiplier = 1e-3;
+    if (str.toStdString().find("mu") != std::string::npos)
+        multiplier = 1e-6;
+    if (str.toStdString().find("n") != std::string::npos)
+        multiplier = 1e-9;
+    if (str.toStdString().find("M") != std::string::npos)
+        multiplier = 1e6;
+    return multiplier;
+}
+
+QString val2suffix (uint32_t value) {
+    QString suffix;
+    if (value >= 1e6)
+        suffix = "M";
+    else if ((value*1e3) >= 1)
+        suffix = "m";
+    else if ((value*1e6) >= 1)
+        suffix = "mu";
+    else if ((value*1e9) >= 1)
+        suffix = "nu";
+    return suffix;
+}
 
 void MainWindow::generate(QJsonObject jObj) {
     firmware.firmware_init(jObj);
@@ -98,7 +130,7 @@ void MainWindow::generate(QJsonObject jObj) {
     ui->gridLayout->addWidget(firmware_label, 1, 0);
     param_struct.firmware_combobox = new QComboBox(this);
     for (int i = 0; i < firmware.firmware_array_size; ++i) {
-        param_struct.firmware_combobox->addItem(firmware.firmware_struct_array[i].firmware_version);
+        param_struct.firmware_combobox->addItem(firmware.firmware_struct_array[i].version);
     }
     ui->gridLayout->addWidget(param_struct.firmware_combobox, 1, 1);
     expert_struct.firmware_line = add_line_edit("0x0");
@@ -112,7 +144,7 @@ void MainWindow::generate(QJsonObject jObj) {
     ui->gridLayout->addWidget(scenario_label, 3, 0);
     param_struct.scenario_combobox = new QComboBox(this);
     for (int i = 0; i < scenario.scenario_array_size; ++i) {
-        param_struct.scenario_combobox->addItem(scenario.scenario_struct_array[i].scenario_name);
+        param_struct.scenario_combobox->addItem(scenario.scenario_struct_array[i].name);
     }
     ui->gridLayout->addWidget(param_struct.scenario_combobox, 3, 1);
     expert_struct.scenario_line = add_line_edit("0x0");
@@ -131,7 +163,7 @@ void MainWindow::generate_measurements(QJsonObject jObj)
 {
     reg.register_init(jObj);
 
-    status_label = add_label(reg.register_struct_array[0].register_name, reg.register_struct_array[0].register_description);
+    status_label = add_label(reg.register_struct_array[0].name, reg.register_struct_array[0].description);
     ui->gridLayout->addWidget(status_label, 5, 0);
     param_struct.status = add_line_edit("IDLE");
     ui->gridLayout->addWidget(param_struct.status, 5, 1);
@@ -143,7 +175,7 @@ void MainWindow::generate_measurements(QJsonObject jObj)
     QObject::connect(reload_checkbox, SIGNAL(clicked(bool)), this, SLOT(reload_checkbox_state_changed(bool)));
 
     for (int i = 1; i < reg.register_array_size; ++i) {
-        QLabel *label = add_label(reg.register_struct_array[i].register_name, reg.register_struct_array[i].register_description);
+        QLabel *label = add_label(reg.register_struct_array[i].name, reg.register_struct_array[i].description);
         ui->gridLayout_reg->addWidget(label, i+1, 0);
 
         param_struct.measure_lines.push_back(add_line_edit("0"));
@@ -164,15 +196,14 @@ void MainWindow::generate_parameters(QJsonObject jObj)
     parameters.parameters_init(jObj);
 
     for (int i = 0; i < parameters.parameters_array_size; ++i) {
-        QLabel* label = add_label(parameters.parameters_struct_array[i].parameter_name, parameters.parameters_struct_array[i].parameter_description);
+        QLabel* label = add_label(parameters.parameters_struct_array[i].name, parameters.parameters_struct_array[i].description);
         ui->gridLayout_parameters->addWidget(label, i+1, 0);
 
-        param_struct.param_spinboxes.push_back(add_spinbox(parameters.parameters_struct_array[i].parameter_default_val));
+        param_struct.param_spinboxes.push_back(add_spinbox(qstring2uint((parameters.parameters_struct_array[i].default_val).split(" ")[0])));
         ui->gridLayout_parameters->addWidget(param_struct.param_spinboxes[i], i+1, 1);
 
-        expert_struct.param_spinboxes.push_back(add_spinbox(0));
-        expert_struct.param_spinboxes[i]->setPrefix("0x");
-        ui->gridLayout_parameters->addWidget(expert_struct.param_spinboxes[i], i+1, 2);
+        expert_struct.param_lines.push_back(add_line_edit("0x" + QString::number(qstring2uint((parameters.parameters_struct_array[i].default_val).split(" ")[0])*suffix2val((parameters.parameters_struct_array[i].default_val).split(" ")[1]))));
+        ui->gridLayout_parameters->addWidget(expert_struct.param_lines[i], i+1, 2);
     }
 
     param_read_button = new QPushButton("Read parameter registers", this);
@@ -244,54 +275,77 @@ void MainWindow::on_action_configure_triggered()
     expert_struct.firmware_line->setText("0x" + QString::number(data, 16));
 }
 
-static uint32_t qstring2uint(QString &str) {
-    return std::stoul(str.toStdString().c_str(), nullptr, 16);
-}
-
 void MainWindow::read_register_values() {
     uint32_t control_reg_value = read_register(SCENARIO_CONTROL_ADDR);
     uint32_t status_reg_value = read_register(SCENARIO_STATUS_ADDR);
 
-    register_values_snapshot_t new_values; // = {std::chrono::system_clock::now(), {0, expert_struct.reg_spinboxes[0]->value()}};
+    register_values_snapshot_t new_values;
     new_values.timestamp = std::chrono::system_clock::now();
 
-    expert_struct.status->setText("0x"+QString::number( status_reg_value, 16 ));
-    expert_struct.scenario_line->setText("0x"+QString::number( control_reg_value, 16 ));
+    expert_struct.status->setText("0x"+QString::number(status_reg_value, 16));
+    expert_struct.scenario_line->setText("0x"+QString::number(control_reg_value, 16));
 
     int scen_number = (control_reg_value >> 8) & 0xFF;
     int state_number = status_reg_value & 0xFF;
     QString scen_state_str;
     if (scen_number >= 0 && scen_number < scenario.scenario_array_size) {
-        if (state_number >= 0 && state_number < scenario.scenario_struct_array[scen_number].scenario_states.size())
-            scen_state_str = scenario.scenario_struct_array[scen_number].scenario_states[state_number].toString();
+        if (state_number >= 0 && state_number < scenario.scenario_struct_array[scen_number].states.size())
+            scen_state_str = scenario.scenario_struct_array[scen_number].states[state_number].toString();
         else
             scen_state_str = QString::number(state_number);
     }
 
-
     param_struct.status ->setText(scen_state_str);
 
     for (int i = 1; i < reg.register_array_size; ++i) {
-        uint32_t reg_addr  = qstring2uint(reg.register_struct_array[i].register_addr);
+        uint32_t reg_addr  = qstring2uint(reg.register_struct_array[i].address);
         uint32_t reg_value = read_register(reg_addr);
 
         new_values.values[reg_addr] = reg_value;
 
-        param_struct.measure_lines[i - 1]->setText(QString::number(reg_value));
+//        param_struct.measure_lines[i - 1]->setText(QString::number(reg_value));
         expert_struct.measure_lines[i - 1]->setText("0x"+QString::number(reg_value, 16));
     }
 
     /* ui update */
-
     for (int i = 1; i < reg.register_array_size; ++i) {
-        std::string reg_name = reg.register_struct_array[i].register_name.toStdString();
-        if (reg_name.find("counter") == std::string::npos)
-            continue;
+        std::string reg_name = reg.register_struct_array[i].name.toStdString();
+        double multiplier = 0;
+        if (reg_name.find("counter") == std::string::npos) {
+            if (reg_name.find("period") != std::string::npos) {
+                uint32_t reg_addr  = qstring2uint(reg.register_struct_array[i].address);
+                uint32_t reg_value = new_values.values[reg_addr];
+                uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
 
-        uint32_t reg_addr  = qstring2uint(reg.register_struct_array[i].register_addr);
+                if (reg_name.find("Phase") != std::string::npos) {
+                    multiplier = suffix2val(firmware.firmware_struct_array[current_fw].default_values[PHASE_PERIOD]);
+                    uint32_t phase_period = qstring2uint(firmware.firmware_struct_array[current_fw].default_values[PHASE_PERIOD])*multiplier;
+                    reg_value *= phase_period;
+                    if ((reg_value < (reg_value - 50*multiplier)) or (reg_value > (reg_value + 50*multiplier))) {
+                        ui->action_start->setDisabled(true);
+                        ui->statusbar->setStyleSheet("color: red");
+                        ui->statusbar->showMessage("PHASE period don't match the defaults");
+                    }
+                } else if (reg_name.find("FastGate") != std::string::npos) {
+                    multiplier = suffix2val(firmware.firmware_struct_array[current_fw].default_values[FG_PERIOD]);
+                    uint32_t fg_period = qstring2uint(firmware.firmware_struct_array[current_fw].default_values[FG_PERIOD])*multiplier;
+                    reg_value *= fg_period;
+                    if ((reg_value < (reg_value - 10*multiplier)) or (reg_value > (reg_value + 10*multiplier))) {
+                        ui->action_start->setDisabled(true);
+                        ui->statusbar->setStyleSheet("color: red");
+                        ui->statusbar->showMessage("FASTGATE period don't match the defaults");
+                    }
+                } else
+                    ui->action_start->setDisabled(false);
+                param_struct.measure_lines[i - 1]->setText(QString::number(reg_value) + val2suffix(reg_value) + "s");
+            }
+            continue;
+        }
+
+        uint32_t reg_addr  = qstring2uint(reg.register_struct_array[i].address);
         uint32_t reg_value, reg_old_value;
 
-        reg_value     = new_values.values [reg_addr];
+        reg_value     = new_values.values[reg_addr];
         reg_old_value = previous_measurements.values [reg_addr];
         long diff_value = long(reg_value) - long(reg_old_value);
         if (diff_value < 0)
@@ -300,9 +354,19 @@ void MainWindow::read_register_values() {
         double frequency = diff_value * 1000000;
         frequency /= std::chrono::duration_cast<std::chrono::microseconds>( new_values.timestamp - previous_measurements.timestamp  ).count();
 
-        param_struct.measure_lines[i - 1]->setText(QString::number(frequency) + " Hz");
+        param_struct.measure_lines[i - 1]->setText(QString::number(frequency) + val2suffix(frequency) + "Hz");
 
-//        if (frequency )
+        if (reg_name.find("FPGA") != std::string::npos) {
+            uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
+            double multiplier = suffix2val(firmware.firmware_struct_array[current_fw].default_values[CLK_COUNTER]);
+            uint32_t clk = qstring2uint(firmware.firmware_struct_array[current_fw].default_values[CLK_COUNTER])*multiplier;
+            if ((frequency < (clk - 1000)) or (frequency > (clk + 1000))) {
+                ui->action_start->setDisabled(true);
+                ui->statusbar->setStyleSheet("color: red");
+                ui->statusbar->showMessage("FPGA CLK COUNTER don't match the defaults");
+                //param_struct.measure_lines[0]->setText("FPGA CLK COUNTER don't match the defaults");
+            }
+        } else ui->action_start->setDisabled(false);
     }
 
     /* old = new */
@@ -325,24 +389,24 @@ void MainWindow::on_action_set_scenario_triggered()
 void MainWindow::on_action_read_parameters_triggered()
 {
     for (int i = 0; i < parameters.parameters_array_size; ++i) {
-        uint32_t param_addr  = qstring2uint(parameters.parameters_struct_array[i].parameter_addr);
+        uint32_t param_addr  = qstring2uint(parameters.parameters_struct_array[i].address);
         uint32_t param_value = read_register(param_addr);
 
         param_struct.param_spinboxes[i]->setValue(param_value);
-        expert_struct.param_spinboxes[i]->setValue(param_value);
+        expert_struct.param_lines[i]->setText("0x" + QString::number(param_value, 16));
     }
 }
 
 void MainWindow::on_action_wtite_parameters_triggered()
 {
     for (int i = 0; i < parameters.parameters_array_size; ++i) {
-        uint32_t param_addr  = qstring2uint(parameters.parameters_struct_array[i].parameter_addr);
+        uint32_t param_addr  = qstring2uint(parameters.parameters_struct_array[i].address);
         uint32_t param_value;
         if (!expert_checkbox->isChecked()) {
             param_value = param_struct.param_spinboxes[i]->value();
-            expert_struct.param_spinboxes[i]->setValue(param_value*20);
+            expert_struct.param_lines[i]->setText("0x" + QString::number(param_value, 16));
         }
-        param_value = expert_struct.param_spinboxes[i]->value();
+        param_value = std::stoul(expert_struct.param_lines[i]->text().toStdString().c_str(), nullptr, 16);
         param_struct.param_spinboxes[i]->setValue(param_value/20);
         write_register(param_addr, param_value);
     }
@@ -459,9 +523,9 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
             expert_struct.measure_lines[i]->setStyleSheet("background: white");
         }
 
-        for (int i = 0; i < expert_struct.param_spinboxes.size(); i++) {
-            expert_struct.param_spinboxes[i]->setReadOnly(false);
-            expert_struct.param_spinboxes[i]->setStyleSheet("background: white");
+        for (int i = 0; i < expert_struct.param_lines.size(); i++) {
+            expert_struct.param_lines[i]->setReadOnly(false);
+            expert_struct.param_lines[i]->setStyleSheet("background: white");
         }
 
     } else {
@@ -482,9 +546,9 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
             expert_struct.measure_lines[i]->setStyleSheet("background: lightGray");
         }
 
-        for (int i = 0; i < expert_struct.param_spinboxes.size(); i++) {
-            expert_struct.param_spinboxes[i]->setReadOnly(true);
-            expert_struct.param_spinboxes[i]->setStyleSheet("background: lightGray");
+        for (int i = 0; i < expert_struct.param_lines.size(); i++) {
+            expert_struct.param_lines[i]->setReadOnly(true);
+            expert_struct.param_lines[i]->setStyleSheet("background: lightGray");
         }
     }
 }

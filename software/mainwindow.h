@@ -67,7 +67,7 @@ public:
         QLineEdit* scenario_line;
         QLineEdit* status;
         QVector<QLineEdit*> measure_lines;
-        QVector<QSpinBox*> param_spinboxes;
+        QVector<QLineEdit*> param_lines;
     };
 
     exeprt_struct expert_struct;
