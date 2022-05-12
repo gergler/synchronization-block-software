@@ -27,18 +27,18 @@ Parameters::Parameters() {}
 Register::Register() {}
 
 void Firmware::firmware_init(QJsonObject jObj) {
-    firmware_array = jObj.value(KEY_FW).toArray();
-    firmware_array_size = firmware_array.size();
-    for (int i = 0; i < firmware_array_size; i++) {
-        firmware_struct_array = add_struct(firmware_struct_array, i);
-        QJsonObject firmware_obj = firmware_array[i].toObject();
+    array = jObj.value(KEY_FW).toArray();
+    array_size = array.size();
+    for (int i = 0; i < array_size; i++) {
+        struct_array = add_struct(struct_array, i);
+        QJsonObject firmware_obj = array[i].toObject();
 
-        firmware_struct_array[i].version = firmware_obj.value(KEY_FW_VERSION).toString();
-        firmware_struct_array[i].address = firmware_obj.value(KEY_FW_ADDR).toString();
+        struct_array[i].version = firmware_obj.value(KEY_FW_VERSION).toString();
+        struct_array[i].address = firmware_obj.value(KEY_FW_ADDR).toString();
         QJsonArray default_val_js = firmware_obj.value(KEY_DEFAULT).toArray();
         for (int j = 0; j < default_val_js.size(); j++) {
             QJsonObject def_obj = default_val_js[j].toObject();
-            firmware_struct_array[i].default_values[def_obj.value(KEY_NAME).toString()] = def_obj.value(KEY_DEFAULT).toInt();
+            struct_array[i].default_values[def_obj.value(KEY_NAME).toString()] = def_obj.value(KEY_DEFAULT).toInt();
         }
     }
 }
@@ -58,7 +58,7 @@ Firmware::firmware_struct* Firmware::add_struct(Firmware::firmware_struct* param
 }
 
 Firmware::~Firmware() {
-    delete [] firmware_struct_array;
+    delete [] struct_array;
 }
 
 QJsonObject Firmware::toJsonObject(QJsonObject jObj, Firmware::firmware_struct firmware) {
@@ -68,16 +68,16 @@ QJsonObject Firmware::toJsonObject(QJsonObject jObj, Firmware::firmware_struct f
 }
 
 void Scenario::scenario_init(QJsonObject jObj) {
-    scenario_array = jObj.value(KEY_SCEN).toArray();
-    scenario_array_size = scenario_array.size();
-    for (int i = 0; i < scenario_array_size; i++) {
-        scenario_struct_array = add_struct(scenario_struct_array, i);
-        QJsonObject scenario_obj = scenario_array[i].toObject();
+    array = jObj.value(KEY_SCEN).toArray();
+    array_size = array.size();
+    for (int i = 0; i < array_size; i++) {
+        struct_array = add_struct(struct_array, i);
+        QJsonObject scenario_obj = array[i].toObject();
 
-        scenario_struct_array[i].name = scenario_obj.value(KEY_NAME).toString();
-        scenario_struct_array[i].min_firmware_version = scenario_obj.value(KEY_SCEN_MIN_FW).toString();
-        scenario_struct_array[i].states = scenario_obj.value(KEY_SCEN_STATES).toArray();
-        scenario_struct_array[i].parameters = scenario_obj.value(KEY_SCEN_PARAMETERS).toArray();
+        struct_array[i].name = scenario_obj.value(KEY_NAME).toString();
+        struct_array[i].min_firmware_version = scenario_obj.value(KEY_SCEN_MIN_FW).toString();
+        struct_array[i].states = scenario_obj.value(KEY_SCEN_STATES).toArray();
+        struct_array[i].parameters = scenario_obj.value(KEY_SCEN_PARAMETERS).toArray();
     }
 }
 
@@ -104,25 +104,25 @@ QJsonObject Scenario::toJsonObject(QJsonObject jObj, Scenario::scenario_struct s
 }
 
 Scenario::~Scenario() {
-    delete [] scenario_struct_array;
+    delete [] struct_array;
 }
 
 void Parameters::parameters_init(QJsonObject jObj) {
-    parameters_array = jObj.value(KEY_PARAM).toArray();
-    parameters_array_size = parameters_array.size();
-    for (int i = 0; i < parameters_array_size; i++) {
-        parameters_struct_array = add_struct(parameters_struct_array, i);
-        QJsonObject parameter_obj = parameters_array[i].toObject();
+    array = jObj.value(KEY_PARAM).toArray();
+    array_size = array.size();
+    for (int i = 0; i < array_size; i++) {
+        struct_array = add_struct(struct_array, i);
+        QJsonObject parameter_obj = array[i].toObject();
 
-        parameters_struct_array[i].name = parameter_obj.value(KEY_NAME).toString();
-        parameters_struct_array[i].description = parameter_obj.value(KEY_DESCRIPTION).toString();
-        parameters_struct_array[i].address = parameter_obj.value(KEY_ADDR).toString();
-        parameters_struct_array[i].default_val = parameter_obj.value(KEY_DEFAULT).toInt();
+        struct_array[i].name = parameter_obj.value(KEY_NAME).toString();
+        struct_array[i].description = parameter_obj.value(KEY_DESCRIPTION).toString();
+        struct_array[i].address = parameter_obj.value(KEY_ADDR).toString();
+        struct_array[i].default_val = parameter_obj.value(KEY_DEFAULT).toString();
     }
 }
 
 Parameters::~Parameters() {
-    delete [] parameters_struct_array;
+    delete [] struct_array;
 }
 
 Parameters::parameters_struct* Parameters::add_struct(Parameters::parameters_struct* parameter, const int number) {
@@ -148,20 +148,20 @@ QJsonObject Parameters::toJsonObject(QJsonObject jObj, Parameters::parameters_st
 }
 
 void Register::register_init(QJsonObject jObj) {
-    register_array = jObj.value(KEY_REG).toArray();
-    register_array_size = register_array.size();
-    for (int i = 0; i < register_array_size; i++) {
-        register_struct_array = add_struct(register_struct_array, i);
-        QJsonObject reg_obj = register_array[i].toObject();
+    array = jObj.value(KEY_REG).toArray();
+    array_size = array.size();
+    for (int i = 0; i < array_size; i++) {
+        struct_array = add_struct(struct_array, i);
+        QJsonObject reg_obj = array[i].toObject();
 
-        register_struct_array[i].name = reg_obj.value(KEY_NAME).toString();
-        register_struct_array[i].description = reg_obj.value(KEY_DESCRIPTION).toString();
-        register_struct_array[i].address = reg_obj.value(KEY_ADDR).toString();
+        struct_array[i].name = reg_obj.value(KEY_NAME).toString();
+        struct_array[i].description = reg_obj.value(KEY_DESCRIPTION).toString();
+        struct_array[i].address = reg_obj.value(KEY_ADDR).toString();
     }
 }
 
 Register::~Register() {
-    delete [] register_struct_array;
+    delete [] struct_array;
 }
 
 Register::register_struct* Register::add_struct(Register::register_struct* parameter, const int number) {

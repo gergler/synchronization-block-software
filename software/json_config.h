@@ -19,15 +19,15 @@ public:
 
     void firmware_init(QJsonObject jObj);
 
-    QJsonArray firmware_array;
-    int firmware_array_size = 0;
+    QJsonArray array;
+    int array_size = 0;
 
     struct firmware_struct {
         QString version;
         QString address;
         QMap<QString, QString> default_values;
     };
-    firmware_struct* firmware_struct_array = 0;
+    firmware_struct* struct_array = 0;
     firmware_struct* add_struct(firmware_struct* parameter, const int number);
 
     QJsonObject toJsonObject(QJsonObject jObj, firmware_struct firmware);
@@ -43,8 +43,8 @@ public:
 
     void scenario_init(QJsonObject jObj);
 
-    QJsonArray scenario_array;
-    int scenario_array_size = 0;
+    QJsonArray array;
+    int array_size = 0;
 
     struct scenario_struct {
         QString name;
@@ -52,7 +52,7 @@ public:
         QJsonArray states;
         QJsonArray parameters;
     };
-    scenario_struct* scenario_struct_array = 0;
+    scenario_struct* struct_array = 0;
     scenario_struct* add_struct(scenario_struct* parameter, const int number);
 
     QJsonObject toJsonObject(QJsonObject jObj, scenario_struct firmware);
@@ -70,8 +70,8 @@ public:
 
     void parameters_init(QJsonObject jObj);
 
-    QJsonArray parameters_array;
-    int parameters_array_size = 0;
+    QJsonArray array;
+    int array_size = 0;
 
     struct parameters_struct {
         QString name;
@@ -79,7 +79,7 @@ public:
         QString address;
         QString default_val;
     };
-    parameters_struct* parameters_struct_array = 0;
+    parameters_struct* struct_array = 0;
     parameters_struct* add_struct(parameters_struct* parameter, const int number);
 
     QJsonObject toJsonObject(QJsonObject jObj, parameters_struct parameter);
@@ -94,15 +94,15 @@ public:
 
     void register_init(QJsonObject jObj);
 
-    QJsonArray register_array;
-    int register_array_size = 0;
+    QJsonArray array;
+    int array_size = 0;
 
     struct register_struct {
         QString name;
         QString description;
         QString address;
     };
-    register_struct* register_struct_array = 0;
+    register_struct* struct_array = 0;
     register_struct* add_struct(register_struct* reg, const int number);
 
     QJsonObject toJsonObject(QJsonObject jObj, register_struct reg);
