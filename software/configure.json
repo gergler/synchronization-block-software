@@ -44,7 +44,7 @@
       {"name": "Trigger count",
        "description": "Amount of triggers emitted",
        "address": "0x43000",
-       "default": "999"},                 
+       "default": "999 "},                 
                        
       {"name": "Detector timeout",
        "description": "Detector wait timeout",

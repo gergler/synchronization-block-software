@@ -38,7 +38,7 @@ void Firmware::firmware_init(QJsonObject jObj) {
         QJsonArray default_val_js = firmware_obj.value(KEY_DEFAULT).toArray();
         for (int j = 0; j < default_val_js.size(); j++) {
             QJsonObject def_obj = default_val_js[j].toObject();
-            struct_array[i].default_values[def_obj.value(KEY_NAME).toString()] = def_obj.value(KEY_DEFAULT).toInt();
+            struct_array[i].default_values[def_obj.value(KEY_NAME).toString()] = def_obj.value(KEY_DEFAULT).toString();
         }
     }
 }

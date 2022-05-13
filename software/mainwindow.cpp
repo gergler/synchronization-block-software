@@ -15,8 +15,8 @@
 #include <QThread>
 
 #define CLK_COUNTER "FPGA clock counter"
-#define FG_PERIOD "Phase period"
-#define PHASE_PERIOD "FastGate period"
+#define FG_PERIOD "FastGate period"
+#define PHASE_PERIOD "Phase period"
 
 #define TIMEOUT 1000
 
@@ -95,12 +95,14 @@ double suffix2val (QString &str) {
     double multiplier = 1;
     if (str.toStdString().find("m") != std::string::npos)
         multiplier = 1e-3;
-    if (str.toStdString().find("mu") != std::string::npos)
+    if (str.toStdString().find("u") != std::string::npos)
         multiplier = 1e-6;
     if (str.toStdString().find("n") != std::string::npos)
         multiplier = 1e-9;
     if (str.toStdString().find("M") != std::string::npos)
         multiplier = 1e6;
+    if (str.contains("k"))
+        multiplier = 1e3;
     return multiplier;
 }
 
@@ -108,12 +110,14 @@ QString val2suffix (uint32_t value) {
     QString suffix;
     if (value >= 1e6)
         suffix = "M";
-    else if ((value*1e3) >= 1)
-        suffix = "m";
-    else if ((value*1e6) >= 1)
-        suffix = "mu";
-    else if ((value*1e9) >= 1)
-        suffix = "nu";
+    else if (value >= 1e3)
+        suffix = "k";
+//    else if ((value*1e3) >= 1)
+//        suffix = "m";
+//    else if ((value*1e6) >= 1)
+//        suffix = "u";
+//    else if ((value*1e9) >= 1)
+//        suffix = "n";
     return suffix;
 }
 
@@ -327,17 +331,18 @@ void MainWindow::read_register_values() {
 
                 if (reg_name.find("Phase") != std::string::npos) {
                     multiplier = suffix2val(firmware.struct_array[current_fw].default_values[PHASE_PERIOD].split(" ")[1]);
-                    uint32_t phase_period = qstring2uint(firmware.struct_array[current_fw].default_values[PHASE_PERIOD].split(" ")[0])*multiplier;
-                    reg_value *= phase_period;
+                    uint32_t phase_period = qstring2uint(firmware.struct_array[current_fw].default_values[PHASE_PERIOD].split(" ")[0]);//*multiplier;
+                    reg_value *= 20;
                     if ((reg_value < (reg_value - 50*multiplier)) or (reg_value > (reg_value + 50*multiplier))) {
                         ui->action_start->setDisabled(true);
                         ui->statusbar->setStyleSheet("color: red");
                         ui->statusbar->showMessage("PHASE period don't match the defaults");
                     }
+
                 } else if (reg_name.find("FastGate") != std::string::npos) {
                     multiplier = suffix2val(firmware.struct_array[current_fw].default_values[FG_PERIOD].split(" ")[1]);
-                    uint32_t fg_period = qstring2uint(firmware.struct_array[current_fw].default_values[FG_PERIOD].split(" ")[0])*multiplier;
-                    reg_value *= fg_period;
+                    uint32_t fg_period = qstring2uint(firmware.struct_array[current_fw].default_values[FG_PERIOD].split(" ")[0]);//*multiplier;
+                    reg_value *= 20;
                     if ((reg_value < (reg_value - 10*multiplier)) or (reg_value > (reg_value + 10*multiplier))) {
                         ui->action_start->setDisabled(true);
                         ui->statusbar->setStyleSheet("color: red");
@@ -345,7 +350,8 @@ void MainWindow::read_register_values() {
                     }
                 } else
                     ui->action_start->setDisabled(false);
-                param_struct.measure_lines[i - 1]->setText(QString::number(reg_value) + val2suffix(reg_value) + "s");
+
+                param_struct.measure_lines[i - 1]->setText(QString::number(reg_value) + " " + val2suffix(multiplier) + "ns");
             }
             continue;
         }
@@ -362,17 +368,19 @@ void MainWindow::read_register_values() {
         double frequency = diff_value * 1000000;
         frequency /= std::chrono::duration_cast<std::chrono::microseconds>( new_values.timestamp - previous_measurements.timestamp  ).count();
 
-        param_struct.measure_lines[i - 1]->setText(QString::number(frequency) + val2suffix(frequency) + "Hz");
+        QString suffix = val2suffix(frequency);
+        multiplier = suffix2val(suffix);
+        param_struct.measure_lines[i - 1]->setText(QString::number(frequency/multiplier) + " " + suffix + "Hz");
 
         if (reg_name.find("FPGA") != std::string::npos) {
             uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-            double multiplier = suffix2val(firmware.struct_array[current_fw].default_values[CLK_COUNTER]);
-            uint32_t clk = qstring2uint(firmware.struct_array[current_fw].default_values[CLK_COUNTER])*multiplier;
-            if ((frequency < (clk - 1000)) or (frequency > (clk + 1000))) {
+            QString def_val = firmware.struct_array[current_fw].default_values[CLK_COUNTER];
+            multiplier = suffix2val(def_val.split(" ")[1]);
+            uint32_t clk = qstring2uint(def_val.split(" ")[0], 10)*multiplier;
+            if ((frequency < (clk - multiplier/10)) or (frequency > (clk + multiplier/10))) {
                 ui->action_start->setDisabled(true);
                 ui->statusbar->setStyleSheet("color: red");
                 ui->statusbar->showMessage("FPGA CLK COUNTER don't match the defaults");
-                //param_struct.measure_lines[0]->setText("FPGA CLK COUNTER don't match the defaults");
             }
         } else ui->action_start->setDisabled(false);
     }
@@ -400,7 +408,15 @@ void MainWindow::on_action_read_parameters_triggered()
         uint32_t param_addr  = qstring2uint(parameters.struct_array[i].address);
         uint32_t param_value = read_register(param_addr);
 
-        param_struct.param_spinboxes[i]->setValue(param_value);
+        QString suffix = val2suffix(param_value);
+        double multiplier = suffix2val(suffix);
+
+        param_struct.param_spinboxes[i]->setValue(param_value/multiplier);
+        if (parameters.struct_array[i].name.toStdString().find("Trigger count") == std::string::npos)
+            param_struct.param_spinboxes[i]->setSuffix(suffix + "s");
+        else
+            param_struct.param_spinboxes[i]->setSuffix(suffix);
+
         expert_struct.param_lines[i]->setText("0x" + QString::number(param_value, 16));
     }
 }
@@ -415,7 +431,7 @@ void MainWindow::on_action_wtite_parameters_triggered()
             expert_struct.param_lines[i]->setText("0x" + QString::number(param_value, 16));
         }
         param_value = std::stoul(expert_struct.param_lines[i]->text().toStdString().c_str(), nullptr, 16);
-        param_struct.param_spinboxes[i]->setValue(param_value/20);
+//        param_struct.param_spinboxes[i]->setValue(param_value/20);
         write_register(param_addr, param_value);
     }
 }
