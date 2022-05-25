@@ -190,22 +190,24 @@ void MainWindow::generate_measurements(QJsonObject jObj)
         ui->gridLayout_reg->addWidget(expert_struct.measure_lines[i - 1], i+1, 2);
     }
 
-    measure_button = new QPushButton("Read measurement registers", this);
+    measure_button = new QPushButton("Read measurements", this);
     connect(measure_button, SIGNAL(clicked()), SLOT(on_action_read_registers_triggered()));
-    ui->gridLayout_reg->addWidget(measure_button, reg.array_size + 1, 0, 1, -1);
+    ui->gridLayout_reg->addWidget(measure_button, 0, 0, 1, 2);
 }
 
 void MainWindow::generate_parameters(QJsonObject jObj)
 {
     parameters.parameters_init(jObj);
 
+    QGridLayout* gridLayout_parameters = new QGridLayout();
+
     for (int i = 0; i < parameters.array_size; ++i) {
         QLabel* label = add_label(parameters.struct_array[i].name, parameters.struct_array[i].description);
-        ui->gridLayout_parameters->addWidget(label, i+1, 0);
+        gridLayout_parameters->addWidget(label, i+1, 0);
 
         QString def_val = parameters.struct_array[i].default_val;
         param_struct.param_spinboxes.push_back(add_spinbox(qstring2uint(def_val.split(" ")[0], 10)));
-        ui->gridLayout_parameters->addWidget(param_struct.param_spinboxes[i], i+1, 1);
+        gridLayout_parameters->addWidget(param_struct.param_spinboxes[i], i+1, 1);
 
         if (def_val.split(" ").size() == 1)
             expert_struct.param_lines.push_back(add_line_edit("0x" + QString::number(qstring2uint(def_val.split(" ")[0]))));
@@ -215,16 +217,19 @@ void MainWindow::generate_parameters(QJsonObject jObj)
             expert_struct.param_lines.push_back(add_line_edit("0x" + QString::number(value, 16)));
         }
 
-        ui->gridLayout_parameters->addWidget(expert_struct.param_lines[i], i+1, 2);
+        gridLayout_parameters->addWidget(expert_struct.param_lines[i], i+1, 2);
     }
 
-    param_read_button = new QPushButton("Read parameter registers", this);
+    param_read_button = new QPushButton("Read parameters", this);
     connect(param_read_button, SIGNAL(clicked()), SLOT(on_action_read_parameters_triggered()));
-    ui->gridLayout_parameters->addWidget(param_read_button, parameters.array_size + 1, 0, 1, -1);
+    gridLayout_parameters->addWidget(param_read_button, 0, 0, 1, 1);
 
-    param_write_button = new QPushButton("Write parameters in registers", this);
+    param_write_button = new QPushButton("Write parameters", this);
     connect(param_write_button, SIGNAL(clicked()), SLOT(on_action_wtite_parameters_triggered()));
-    ui->gridLayout_parameters->addWidget(param_write_button, parameters.array_size + 2, 0, 1, -1);
+    gridLayout_parameters->addWidget(param_write_button, 0, 1, 1, 1);
+
+    ui->widget_parameters->setLayout(gridLayout_parameters);
+    ui->scroll_parameters->setWidget(ui->widget_parameters);
 }
 
 void MainWindow::exec_reg_command(CMD_Packet request, CMD_Packet &reply) {

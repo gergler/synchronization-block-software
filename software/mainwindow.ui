@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>419</width>
-    <height>574</height>
+    <width>480</width>
+    <height>870</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -72,11 +72,21 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <layout class="QGridLayout" name="gridLayout_parameters">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
+        <widget class="QScrollArea" name="scroll_parameters">
+         <property name="widgetResizable">
+          <bool>true</bool>
          </property>
-        </layout>
+         <widget class="QWidget" name="widget_parameters">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>436</width>
+            <height>284</height>
+           </rect>
+          </property>
+         </widget>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -89,7 +99,7 @@
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>314</height>
+        <height>40</height>
        </size>
       </property>
      </spacer>
@@ -101,7 +111,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>419</width>
+     <width>480</width>
      <height>22</height>
     </rect>
    </property>
