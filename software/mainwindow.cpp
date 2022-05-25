@@ -324,6 +324,9 @@ void MainWindow::read_register_values() {
         expert_struct.measure_lines[i - 1]->setText("0x"+QString::number(reg_value, 16));
     }
 
+    uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
+    QString default_clk = firmware.struct_array[current_fw].default_values[CLK_COUNTER];
+
     /* ui update */
     for (int i = 1; i < reg.array_size; ++i) {
         std::string reg_name = reg.struct_array[i].name.toStdString();
@@ -332,31 +335,18 @@ void MainWindow::read_register_values() {
             if (reg_name.find("period") != std::string::npos) {
                 uint32_t reg_addr  = qstring2uint(reg.struct_array[i].address);
                 uint32_t reg_value = new_values.values[reg_addr];
-                uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
+                multiplier = suffix2val(default_clk.split(" ")[1]);
+                uint32_t clk_period = 1/qstring2uint(default_clk.split(" ")[0], 10);
 
-                if (reg_name.find("Phase") != std::string::npos) {
-                    multiplier = suffix2val(firmware.struct_array[current_fw].default_values[PHASE_PERIOD].split(" ")[1]);
-                    uint32_t phase_period = qstring2uint(firmware.struct_array[current_fw].default_values[PHASE_PERIOD].split(" ")[0]);//*multiplier;
-                    reg_value *= 20;
-                    if ((reg_value < (reg_value - 50*multiplier)) or (reg_value > (reg_value + 50*multiplier))) {
-                        ui->action_start->setDisabled(true);
-                        ui->statusbar->setStyleSheet("color: red");
-                        ui->statusbar->showMessage("PHASE period don't match the defaults");
-                    }
-
-                } else if (reg_name.find("FastGate") != std::string::npos) {
-                    multiplier = suffix2val(firmware.struct_array[current_fw].default_values[FG_PERIOD].split(" ")[1]);
-                    uint32_t fg_period = qstring2uint(firmware.struct_array[current_fw].default_values[FG_PERIOD].split(" ")[0]);//*multiplier;
-                    reg_value *= 20;
-                    if ((reg_value < (reg_value - 10*multiplier)) or (reg_value > (reg_value + 10*multiplier))) {
-                        ui->action_start->setDisabled(true);
-                        ui->statusbar->setStyleSheet("color: red");
-                        ui->statusbar->showMessage("FASTGATE period don't match the defaults");
-                    }
+                reg_value *= clk_period;
+                if ((reg_value < (reg_value - 50)) or (reg_value > (reg_value + 50))) {
+                    ui->action_start->setDisabled(true);
+                    ui->statusbar->setStyleSheet("color: red");
+                    ui->statusbar->showMessage("Period don't match the defaults");
                 } else
                     ui->action_start->setDisabled(false);
 
-                param_struct.measure_lines[i - 1]->setText(QString::number(reg_value) + " " + val2suffix(multiplier) + "ns");
+                param_struct.measure_lines[i - 1]->setText(QString::number(reg_value) + "*" + multiplier + " s"); //  + " " + val2suffix(multiplier)
             }
             continue;
         }
@@ -378,10 +368,8 @@ void MainWindow::read_register_values() {
         param_struct.measure_lines[i - 1]->setText(QString::number(frequency/multiplier) + " " + suffix + "Hz");
 
         if (reg_name.find("FPGA") != std::string::npos) {
-            uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-            QString def_val = firmware.struct_array[current_fw].default_values[CLK_COUNTER];
-            multiplier = suffix2val(def_val.split(" ")[1]);
-            uint32_t clk = qstring2uint(def_val.split(" ")[0], 10)*multiplier;
+            multiplier = suffix2val(default_clk.split(" ")[1]);
+            uint32_t clk = qstring2uint(default_clk.split(" ")[0], 10)*multiplier;
             if ((frequency < (clk - multiplier/10)) or (frequency > (clk + multiplier/10))) {
                 ui->action_start->setDisabled(true);
                 ui->statusbar->setStyleSheet("color: red");
