@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->groupBox_log->hide();
 
     setWindowTitle("Synchronization block application");
     setWindowIcon(QIcon("main.png"));
@@ -199,15 +200,15 @@ void MainWindow::generate_parameters(QJsonObject jObj)
 {
     parameters.parameters_init(jObj);
 
-    QGridLayout* gridLayout_parameters = new QGridLayout();
+//    QGridLayout* gridLayout_parameters = new QGridLayout();
 
     for (int i = 0; i < parameters.array_size; ++i) {
         QLabel* label = add_label(parameters.struct_array[i].name, parameters.struct_array[i].description);
-        gridLayout_parameters->addWidget(label, i+1, 0);
+        ui->gridLayout_parameters->addWidget(label, i+1, 0);
 
         QString def_val = parameters.struct_array[i].default_val;
         param_struct.param_spinboxes.push_back(add_spinbox(qstring2uint(def_val.split(" ")[0], 10)));
-        gridLayout_parameters->addWidget(param_struct.param_spinboxes[i], i+1, 1);
+        ui->gridLayout_parameters->addWidget(param_struct.param_spinboxes[i], i+1, 1);
 
         if (def_val.split(" ").size() == 1)
             expert_struct.param_lines.push_back(add_line_edit("0x" + QString::number(qstring2uint(def_val.split(" ")[0]))));
@@ -217,19 +218,19 @@ void MainWindow::generate_parameters(QJsonObject jObj)
             expert_struct.param_lines.push_back(add_line_edit("0x" + QString::number(value, 16)));
         }
 
-        gridLayout_parameters->addWidget(expert_struct.param_lines[i], i+1, 2);
+        ui->gridLayout_parameters->addWidget(expert_struct.param_lines[i], i+1, 2);
     }
 
     param_read_button = new QPushButton("Read parameters", this);
     connect(param_read_button, SIGNAL(clicked()), SLOT(on_action_read_parameters_triggered()));
-    gridLayout_parameters->addWidget(param_read_button, 0, 0, 1, 1);
+    ui->gridLayout_parameters->addWidget(param_read_button, 0, 0, 1, 1);
 
     param_write_button = new QPushButton("Write parameters", this);
     connect(param_write_button, SIGNAL(clicked()), SLOT(on_action_wtite_parameters_triggered()));
-    gridLayout_parameters->addWidget(param_write_button, 0, 1, 1, 1);
+    ui->gridLayout_parameters->addWidget(param_write_button, 0, 1, 1, 1);
 
-    ui->widget_parameters->setLayout(gridLayout_parameters);
-    ui->scroll_parameters->setWidget(ui->widget_parameters);
+//    ui->widget_parameters->setLayout(gridLayout_parameters);
+//    ui->scroll_parameters->setWidget(ui->widget_parameters);
 }
 
 void MainWindow::exec_reg_command(CMD_Packet request, CMD_Packet &reply) {
@@ -331,51 +332,53 @@ void MainWindow::read_register_values() {
     for (int i = 1; i < reg.array_size; ++i) {
         std::string reg_name = reg.struct_array[i].name.toStdString();
         double multiplier = 0;
-        if (reg_name.find("counter") == std::string::npos) {
-            if (reg_name.find("period") != std::string::npos) {
-                uint32_t reg_addr  = qstring2uint(reg.struct_array[i].address);
-                uint32_t reg_value = new_values.values[reg_addr];
-                multiplier = suffix2val(default_clk.split(" ")[1]);
-                uint32_t clk_period = 1/qstring2uint(default_clk.split(" ")[0], 10);
+        if (reg_name.find("period") != std::string::npos) {
+            uint32_t reg_addr  = qstring2uint(reg.struct_array[i].address);
+            uint32_t reg_value = new_values.values[reg_addr];
+            multiplier = suffix2val(default_clk.split(" ")[1]);
 
-                reg_value *= clk_period;
-                if ((reg_value < (reg_value - 50)) or (reg_value > (reg_value + 50))) {
-                    ui->action_start->setDisabled(true);
-                    ui->statusbar->setStyleSheet("color: red");
-                    ui->statusbar->showMessage("Period don't match the defaults");
-                } else
-                    ui->action_start->setDisabled(false);
+            double clk_period = 1.0/(multiplier * qstring2uint(default_clk.split(" ")[0], 10));
+            printf("FPGA clock period: %e\n", clk_period);
 
-                param_struct.measure_lines[i - 1]->setText(QString::number(reg_value) + "*" + multiplier + " s"); //  + " " + val2suffix(multiplier)
-            }
-            continue;
+            double meter_value = reg_value * clk_period;
+#if 0
+            if ((reg_value < (reg_value - 50)) or (reg_value > (reg_value + 50))) {
+//                    ui->action_start->setDisabled(true);
+                ui->statusbar->setStyleSheet("color: red");
+                ui->statusbar->showMessage("Period don't match the defaults");
+            } else
+                ui->action_start->setDisabled(false);
+#endif
+            param_struct.measure_lines[i - 1]->setText(QString::number(meter_value) + " s"); //  + " " + val2suffix(multiplier)
         }
 
-        uint32_t reg_addr  = qstring2uint(reg.struct_array[i].address);
-        uint32_t reg_value, reg_old_value;
+        if (reg_name.find("counter") != std::string::npos) {
+            uint32_t reg_addr  = qstring2uint(reg.struct_array[i].address);
+            uint32_t reg_value, reg_old_value;
 
-        reg_value     = new_values.values[reg_addr];
-        reg_old_value = previous_measurements.values [reg_addr];
-        long diff_value = long(reg_value) - long(reg_old_value);
-        if (diff_value < 0)
-            diff_value += INT32_MAX;
+            reg_value     = new_values.values[reg_addr];
+            reg_old_value = previous_measurements.values [reg_addr];
+            long diff_value = long(reg_value) - long(reg_old_value);
+            if (diff_value < 0)
+                diff_value += INT32_MAX;
 
-        double frequency = diff_value * 1000000;
-        frequency /= std::chrono::duration_cast<std::chrono::microseconds>( new_values.timestamp - previous_measurements.timestamp  ).count();
+            double frequency = diff_value * 1000000;
+            frequency /= std::chrono::duration_cast<std::chrono::microseconds>( new_values.timestamp - previous_measurements.timestamp  ).count();
 
-        QString suffix = val2suffix(frequency);
-        multiplier = suffix2val(suffix);
-        param_struct.measure_lines[i - 1]->setText(QString::number(frequency/multiplier) + " " + suffix + "Hz");
+            QString suffix = val2suffix(frequency);
+            multiplier = suffix2val(suffix);
+            param_struct.measure_lines[i - 1]->setText(QString::number(frequency/multiplier) + " " + suffix + "Hz");
 
-        if (reg_name.find("FPGA") != std::string::npos) {
-            multiplier = suffix2val(default_clk.split(" ")[1]);
-            uint32_t clk = qstring2uint(default_clk.split(" ")[0], 10)*multiplier;
-            if ((frequency < (clk - multiplier/10)) or (frequency > (clk + multiplier/10))) {
-                ui->action_start->setDisabled(true);
-                ui->statusbar->setStyleSheet("color: red");
-                ui->statusbar->showMessage("FPGA CLK COUNTER don't match the defaults");
-            }
-        } else ui->action_start->setDisabled(false);
+            if (reg_name.find("FPGA") != std::string::npos) {
+                multiplier = suffix2val(default_clk.split(" ")[1]);
+                uint32_t clk = qstring2uint(default_clk.split(" ")[0], 10)*multiplier;
+                if ((frequency < (clk - multiplier/10)) or (frequency > (clk + multiplier/10))) {
+                    ui->action_start->setDisabled(true);
+                    ui->statusbar->setStyleSheet("color: red");
+                    ui->statusbar->showMessage("FPGA CLK COUNTER don't match the defaults");
+                }
+            } else ui->action_start->setDisabled(false);
+        }
     }
 
     /* old = new */

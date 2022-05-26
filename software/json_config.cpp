@@ -5,7 +5,7 @@
 #define KEY_FW "FIRMWARE"
 #define KEY_FW_ID "id"
 #define KEY_FW_VERSION "version"
-#define KEY_FW_ADDR "address"
+#define KEY_FW_SYSID "sysid"
 
 #define KEY_SCEN "SCENARIO"
 #define KEY_SCEN_ID "id"
@@ -34,7 +34,7 @@ void Firmware::firmware_init(QJsonObject jObj) {
         QJsonObject firmware_obj = array[i].toObject();
 
         struct_array[i].version = firmware_obj.value(KEY_FW_VERSION).toString();
-        struct_array[i].address = firmware_obj.value(KEY_FW_ADDR).toString();
+        struct_array[i].sysid = firmware_obj.value(KEY_FW_SYSID).toString();
         QJsonArray default_val_js = firmware_obj.value(KEY_DEFAULT).toArray();
         for (int j = 0; j < default_val_js.size(); j++) {
             QJsonObject def_obj = default_val_js[j].toObject();
@@ -63,7 +63,7 @@ Firmware::~Firmware() {
 
 QJsonObject Firmware::toJsonObject(QJsonObject jObj, Firmware::firmware_struct firmware) {
     jObj.insert(KEY_FW_VERSION, firmware.version);
-    jObj.insert(KEY_FW_ADDR, firmware.address);
+    jObj.insert(KEY_FW_SYSID, firmware.sysid);
     return jObj;
 }
 

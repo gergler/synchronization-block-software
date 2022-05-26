@@ -24,7 +24,7 @@ public:
 
     struct firmware_struct {
         QString version;
-        QString address;
+        QString sysid;
         QMap<QString, QString> default_values;
     };
     firmware_struct* struct_array = 0;

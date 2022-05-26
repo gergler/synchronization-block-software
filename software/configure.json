@@ -1,6 +1,6 @@
 {
   "FIRMWARE": [
-      {"version": "2022v1.00", "address": "0xAA20220100", "default": [{"name": "FPGA clock counter", "default": "50 MHz"}, 
+      {"version": "2022v1.00", "sysid": "0xAA20220100", "default": [{"name": "FPGA clock counter", "default": "50 MHz"},
       								        {"name": "Phase period", "default": "1200 ns"}, 
       								        {"name": "FastGate period", "default": "20 ms"}]}],
       
