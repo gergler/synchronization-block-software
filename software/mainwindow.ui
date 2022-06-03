@@ -181,19 +181,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QDoubleSpinBox" name="doubleSpinBox">
-          <property name="suffix">
-           <string> us</string>
-          </property>
-          <property name="maximum">
-           <double>1000000000000000.000000000000000</double>
-          </property>
-          <property name="value">
-           <double>1.220000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QGroupBox" name="groupBox_log">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -278,7 +265,7 @@
     <addaction name="action_set_scenario"/>
     <addaction name="action_read_registers"/>
     <addaction name="action_read_parameters"/>
-    <addaction name="action_wtite_parameters"/>
+    <addaction name="action_write_parameters"/>
    </widget>
    <addaction name="menuSynchronization_block_software"/>
    <addaction name="menuExperiment"/>
@@ -368,9 +355,12 @@
     <string>Read parameter registers</string>
    </property>
   </action>
-  <action name="action_wtite_parameters">
+  <action name="action_write_parameters">
    <property name="text">
-    <string>Wtite parameters to registers</string>
+    <string>Write parameters to registers</string>
+   </property>
+   <property name="toolTip">
+    <string>Write parameters to registers</string>
    </property>
   </action>
  </widget>

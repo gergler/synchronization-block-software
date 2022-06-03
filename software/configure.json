@@ -1,6 +1,6 @@
 {
   "FIRMWARE": [
-      {"version": "2022v1.00", "sysid": "0xAA20220100", "default": [{"name": "FPGA clock counter", "default": "50 MHz"},
+      {"version": "2022v1.00", "sysid": "0x20220001", "default": [{"name": "FPGA clock counter", "default": "50 MHz"},
       								        {"name": "Phase period", "default": "1200 ns"}, 
       								        {"name": "FastGate period", "default": "20 ms"}]}],
       
@@ -39,7 +39,7 @@
       {"name": "Trigger length",
        "description": "Trigger impulse length",
        "address": "0x41000",
-       "default": "1 mus"},
+       "default": "1 us"},
                        
       {"name": "Trigger count",
        "description": "Amount of triggers emitted",

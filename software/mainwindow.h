@@ -34,7 +34,7 @@ public:
     Firmware firmware;
     Scenario scenario;
     Parameters parameters;
-    Register reg;
+    Measurement measurement;
 
     void closeEvent(QCloseEvent *event);
     void generate(QJsonObject jObj);
@@ -50,6 +50,7 @@ public:
     QPushButton* measure_button;
     QPushButton* param_read_button;
     QPushButton* param_write_button;
+    QPushButton* param_default;
     QPushButton* scen_set_button;
     QPushButton* config_button;
 
@@ -77,7 +78,7 @@ public:
         QComboBox* scenario_combobox;
         QLineEdit* status;
         QVector<QLineEdit*> measure_lines;
-        QVector<QSpinBox*> param_spinboxes;
+        QVector<QLineEdit*> param_lines;
     };
 
     param_struct param_struct;
@@ -95,8 +96,6 @@ public:
     void write_register(uint32_t address, uint32_t value);
     void configure_fpga(uint32_t address, uint32_t firmware_version);
 
-    void read_register_values();
-
 private slots:
     void on_action_open_file_triggered();
     void on_action_save_file_triggered();
@@ -104,7 +103,8 @@ private slots:
     void on_action_read_registers_triggered();
     void on_action_set_scenario_triggered();
     void on_action_read_parameters_triggered();
-    void on_action_wtite_parameters_triggered();
+    void on_action_write_parameters_triggered();
+    void on_action_default_parameters_triggered();
     void on_action_start_triggered();
     void on_action_stop_triggered();
 

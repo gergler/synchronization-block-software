@@ -15,22 +15,17 @@ public:
 class Firmware {
 public:
     Firmware();
-    virtual ~Firmware();
 
     void firmware_init(QJsonObject jObj);
-
-    QJsonArray array;
-    int array_size = 0;
 
     struct firmware_struct {
         QString version;
         QString sysid;
         QMap<QString, QString> default_values;
     };
-    firmware_struct* struct_array = 0;
-    firmware_struct* add_struct(firmware_struct* parameter, const int number);
+    QMap<int, firmware_struct> firmware_map;
 
-    QJsonObject toJsonObject(QJsonObject jObj, firmware_struct firmware);
+    QJsonObject toJsonObject(QJsonObject jObj,  QMap<int, firmware_struct> firmware);
 
 private:
 
@@ -39,12 +34,8 @@ private:
 class Scenario {
 public:
     Scenario();
-    virtual ~Scenario();
 
     void scenario_init(QJsonObject jObj);
-
-    QJsonArray array;
-    int array_size = 0;
 
     struct scenario_struct {
         QString name;
@@ -52,10 +43,9 @@ public:
         QJsonArray states;
         QJsonArray parameters;
     };
-    scenario_struct* struct_array = 0;
-    scenario_struct* add_struct(scenario_struct* parameter, const int number);
+    QMap<int, scenario_struct> scenario_map;
 
-    QJsonObject toJsonObject(QJsonObject jObj, scenario_struct firmware);
+    QJsonObject toJsonObject(QJsonObject jObj,  QMap<int, scenario_struct> scenario);
 
 private:
 
@@ -66,12 +56,8 @@ private:
 
 public:
     Parameters();
-    virtual ~Parameters();
 
     void parameters_init(QJsonObject jObj);
-
-    QJsonArray array;
-    int array_size = 0;
 
     struct parameters_struct {
         QString name;
@@ -79,33 +65,27 @@ public:
         QString address;
         QString default_val;
     };
-    parameters_struct* struct_array = 0;
-    parameters_struct* add_struct(parameters_struct* parameter, const int number);
+    QMap<int, parameters_struct> parameters_map;
 
-    QJsonObject toJsonObject(QJsonObject jObj, parameters_struct parameter);
+    QJsonObject toJsonObject(QJsonObject jObj, QMap<int, parameters_struct> parameter);
 };
 
-class Register {
+class Measurement {
 private:
 
 public:
-    Register();
-    virtual ~Register();
+    Measurement();
 
-    void register_init(QJsonObject jObj);
+    void measurment_init(QJsonObject jObj);
 
-    QJsonArray array;
-    int array_size = 0;
-
-    struct register_struct {
+    struct measurment_struct {
         QString name;
         QString description;
         QString address;
     };
-    register_struct* struct_array = 0;
-    register_struct* add_struct(register_struct* reg, const int number);
+    QMap<int, measurment_struct> measurment_map;
 
-    QJsonObject toJsonObject(QJsonObject jObj, register_struct reg);
+    QJsonObject toJsonObject(QJsonObject jObj, QMap<int, measurment_struct> measurement);
 };
 
 #endif // JSON_CONFIG_H
