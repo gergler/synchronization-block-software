@@ -1,6 +1,6 @@
 {
   "FIRMWARE": [
-      {"version": "2022v1.00", "sysid": "0x20220001", "default": [{"name": "FPGA clock counter", "default": "50 MHz"},
+      {"version": "2022v1.00", "sysid": "0x20220412", "default": [{"name": "FPGA clock counter", "default": "50 MHz"},
       								        {"name": "Phase period", "default": "1200 ns"}, 
       								        {"name": "FastGate period", "default": "20 ms"}]}],
       
@@ -44,7 +44,7 @@
       {"name": "Trigger count",
        "description": "Amount of triggers emitted",
        "address": "0x43000",
-       "default": "999 "},                 
+       "default": "999"},
                        
       {"name": "Detector timeout",
        "description": "Detector wait timeout",

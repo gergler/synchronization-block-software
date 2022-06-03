@@ -36,7 +36,6 @@ public:
     Parameters parameters;
     Measurement measurement;
 
-    void closeEvent(QCloseEvent *event);
     void generate(QJsonObject jObj);
     void generate_measurements(QJsonObject jObj);
     void generate_parameters(QJsonObject jObj);

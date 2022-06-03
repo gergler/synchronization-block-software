@@ -88,22 +88,22 @@ QCheckBox* MainWindow::add_checkbox(QString text) {
     return checkbox;
 }
 
-static uint32_t qstring2uint(QString &str, uint8_t bits=16) {
+static uint32_t qstring2uint(QString &str, uint8_t bits=0) {
     return std::stoul(str.toStdString().c_str(), nullptr, bits);
 }
 
 double suffix2val (QString &str) {
     double multiplier = 1;
     if (str.contains("m"))
-        multiplier = 1e-3;
+        return multiplier = 1e-3;
     if (str.contains("u"))
-        multiplier = 1e-6;
+        return multiplier = 1e-6;
     if (str.contains("n"))
-        multiplier = 1e-9;
+        return multiplier = 1e-9;
     if (str.contains("M"))
-        multiplier = 1e6;
+        return multiplier = 1e6;
     if (str.contains("k"))
-        multiplier = 1e3;
+        return multiplier = 1e3;
     return multiplier;
 }
 
@@ -127,7 +127,7 @@ void MainWindow::generate(QJsonObject jObj) {
     scenario.scenario_init(jObj);
 
     expert_checkbox = add_checkbox("Expert mode");
-    expert_checkbox->setChecked(true);
+    expert_checkbox->setChecked(false);
     ui->gridLayout->addWidget(expert_checkbox, 0, 2);
     QObject::connect(expert_checkbox, SIGNAL(clicked(bool)), this, SLOT(expert_checkbox_state_changed(bool)));
 
@@ -161,7 +161,7 @@ void MainWindow::generate(QJsonObject jObj) {
 
     generate_measurements(jObj);
     generate_parameters(jObj);
-    expert_checkbox_state_changed(true);
+    expert_checkbox_state_changed(false);
 }
 
 void MainWindow::generate_measurements(QJsonObject jObj)
@@ -175,7 +175,7 @@ void MainWindow::generate_measurements(QJsonObject jObj)
     expert_struct.status = add_line_edit("0x0");
     ui->gridLayout->addWidget(expert_struct.status, 5, 2);
 
-    reload_checkbox = add_checkbox("AutoUpload");
+    reload_checkbox = add_checkbox("AutoRefresh");
     ui->gridLayout_reg->addWidget(reload_checkbox, 0, 2);
     QObject::connect(reload_checkbox, SIGNAL(clicked(bool)), this, SLOT(reload_checkbox_state_changed(bool)));
     reload_checkbox->setChecked(true);
@@ -206,14 +206,14 @@ void MainWindow::generate_parameters(QJsonObject jObj)
         QLabel* label = add_label(parameters.parameters_map[i].name, parameters.parameters_map[i].description);
         ui->gridLayout_parameters->addWidget(label, i+1, 0);
 
-        QString def_val = parameters.parameters_map[i].default_val;
-        param_struct.param_lines.push_back(add_line_edit(def_val));
+        param_struct.param_lines.push_back(add_line_edit(""));
         ui->gridLayout_parameters->addWidget(param_struct.param_lines[i], i+1, 1);
         param_struct.param_lines[i]->setReadOnly(false);
 
-        expert_struct.param_lines.push_back(add_line_edit("0x" + QString::number(qstring2uint(def_val.split(" ")[0]))));
+        expert_struct.param_lines.push_back(add_line_edit(""));
         ui->gridLayout_parameters->addWidget(expert_struct.param_lines[i], i+1, 2);
     }
+    on_action_default_parameters_triggered();
 
     param_read_button = new QPushButton("Read parameters", this);
     connect(param_read_button, SIGNAL(clicked()), SLOT(on_action_read_parameters_triggered()));
@@ -242,7 +242,6 @@ void MainWindow::exec_reg_command(CMD_Packet request, CMD_Packet &reply) {
     } else {
         data = "0x"+QString::number(reply.value, 16);
     }
-    ui->statusbar->showMessage(data);
 }
 
 uint32_t MainWindow::read_register(uint32_t address) {
@@ -271,16 +270,30 @@ void MainWindow::configure_fpga(uint32_t address, uint32_t firmware_version) {
     exec_reg_command(request, reply);
 }
 
+#include <iostream>
+
 void MainWindow::on_action_read_registers_triggered()
 {
-    if (firmware.firmware_map[param_struct.firmware_combobox->currentIndex()].sysid != QString::number(read_register(SYSID_ADDR), 16)) {
-        ui->action_start->setDisabled(true);
+    uint32_t sysid = read_register(SYSID_ADDR);
+    int fw_number = param_struct.firmware_combobox->currentIndex();
+    uint32_t expected_sysid = qstring2uint(firmware.firmware_map[fw_number].sysid);
+    expert_struct.firmware_line->setText("0x" + QString::number(sysid, 16));
+    if (expected_sysid != sysid && !expert_checkbox->isChecked()) {
         ui->statusbar->setStyleSheet("color: red");
         ui->statusbar->showMessage("The selected SYSTEM ID doesn't match the one stored in the FPGA");
+        ui->action_start->setDisabled(true);
+        ui->action_stop->setDisabled(true);
+        scen_set_button->setDisabled(true);
+        ui->groupBox_2->setDisabled(true);
+        ui->groupBox_3->setDisabled(true);
         return;
+    } else {
+        ui->action_start->setDisabled(false);
+        ui->action_stop->setDisabled(false);
+        scen_set_button->setDisabled(false);
+        ui->groupBox_2->setDisabled(false);
+        ui->groupBox_3->setDisabled(false);
     }
-
-    expert_struct.firmware_line->setText("0x" + QString::number(read_register(SYSID_ADDR), 16));
 
     uint32_t control_reg_value = read_register(SCENARIO_CONTROL_ADDR);
     uint32_t status_reg_value = read_register(SCENARIO_STATUS_ADDR);
@@ -316,27 +329,26 @@ void MainWindow::on_action_read_registers_triggered()
     uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
     QString default_clk = firmware.firmware_map[current_fw].default_values[CLK_COUNTER];
 
-    /* ui update */
     for (int i = 1; i < measurement.measurment_map.size(); ++i) {
         double multiplier = 0;
         if (measurement.measurment_map[i].name.contains("period")) {
             uint32_t reg_addr  = qstring2uint(measurement.measurment_map[i].address);
             uint32_t reg_value = new_values.values[reg_addr];
             multiplier = suffix2val(default_clk.split(" ")[1]);
-
             double clk_period = 1.0/(multiplier * qstring2uint(default_clk.split(" ")[0], 10));
-            printf("FPGA clock period: %e\n", clk_period);
-
             double meter_value = reg_value * clk_period;
-#if 0
-            if ((reg_value < (reg_value - 50)) or (reg_value > (reg_value + 50))) {
-//                    ui->action_start->setDisabled(true);
-                ui->statusbar->setStyleSheet("color: red");
-                ui->statusbar->showMessage("Period don't match the defaults");
-            } else
-                ui->action_start->setDisabled(false);
-#endif
-            param_struct.measure_lines[i - 1]->setText(QString::number(meter_value) + " s"); //  + " " + val2suffix(multiplier)
+            QString suffix = val2suffix(meter_value);
+            multiplier = suffix2val(suffix);
+            param_struct.measure_lines[i - 1]->setText(QString::number(meter_value/multiplier) + " " + suffix + "s");
+
+//            if ((reg_value < (reg_value - 5)) or (reg_value > (reg_value + 5))) {
+//                ui->action_start->setDisabled(true);
+//                param_struct.measure_lines[i - 1]->setStyleSheet("color: red");
+//            } else {
+//                ui->action_start->setDisabled(false);
+//                param_struct.measure_lines[i - 1]->setStyleSheet("color: green");
+//            }
+
         }
 
         if (measurement.measurment_map[i].name.contains("counter")) {
@@ -347,7 +359,7 @@ void MainWindow::on_action_read_registers_triggered()
             reg_old_value = previous_measurements.values [reg_addr];
             long diff_value = long(reg_value) - long(reg_old_value);
             if (diff_value < 0)
-                diff_value += INT32_MAX;
+                diff_value += 0x100000000L;
 
             double frequency = diff_value * 1000000;
             frequency /= std::chrono::duration_cast<std::chrono::microseconds>( new_values.timestamp - previous_measurements.timestamp  ).count();
@@ -361,8 +373,10 @@ void MainWindow::on_action_read_registers_triggered()
                 uint32_t clk = qstring2uint(default_clk.split(" ")[0], 10)*multiplier;
                 if ((frequency < (clk - multiplier/10)) or (frequency > (clk + multiplier/10))) {
                     ui->action_start->setDisabled(true);
-                    ui->statusbar->setStyleSheet("color: red");
-                    ui->statusbar->showMessage("FPGA CLK COUNTER don't match the defaults");
+                    param_struct.measure_lines[i - 1]->setStyleSheet("color: red");
+                } else {
+                    ui->action_start->setDisabled(false);
+                    param_struct.measure_lines[i - 1]->setStyleSheet("color: green");
                 }
             } else ui->action_start->setDisabled(false);
         }
@@ -405,12 +419,17 @@ void MainWindow::on_action_read_parameters_triggered()
         uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
         QString default_clk = firmware.firmware_map[current_fw].default_values[CLK_COUNTER];
         double clk_multiplier = suffix2val(default_clk.split(" ")[1]);
-        double clk = clk_multiplier * qstring2uint(default_clk.split(" ")[0], 10);
+        double clk = clk_multiplier * qstring2uint(default_clk.split(" ")[0]);
 
-        param_value = param_value/clk;
-        QString suffix = val2suffix(param_value);
-        double multiplier = suffix2val(suffix);
-        param_struct.param_lines[i]->setText(QString::number(param_value/multiplier) + " " + suffix);
+        if (parameters.parameters_map[i].default_val.split(" ").size() > 1) {
+            double value = param_value;
+            value = value/clk;
+            QString suffix = val2suffix(value);
+            double multiplier = suffix2val(suffix);
+            param_struct.param_lines[i]->setText(QString::number(value/multiplier) + " " + suffix + "s");
+        }
+        else
+            param_struct.param_lines[i]->setText(QString::number(param_value));
     }
 }
 
@@ -419,19 +438,35 @@ void MainWindow::on_action_write_parameters_triggered()
     for (int i = 0; i < parameters.parameters_map.size(); ++i) {
         uint32_t param_addr  = qstring2uint(parameters.parameters_map[i].address);
         QString param_value;
+
+        uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
+        QString default_clk = firmware.firmware_map[current_fw].default_values[CLK_COUNTER];
+        double clk_multiplier = suffix2val(default_clk.split(" ")[1]);
+        double clk = clk_multiplier * qstring2uint(default_clk.split(" ")[0], 10);
+
         if (!expert_checkbox->isChecked()) {
             param_value = param_struct.param_lines[i]->text();
-            double value = qstring2uint(param_value.split(" ")[0], 10);
-            double multiplier = suffix2val(param_value.split(" ")[1]);
+            auto value_unit = param_value.split(" ");
+            uint32_t value = qstring2uint(value_unit[0], 10);
+            double multiplier = 1.0;
+            if (value_unit.size() > 1) {
+                multiplier = suffix2val(value_unit[1]);
+                if (value_unit[1].contains('s'))
+                    value *= multiplier*clk;
+            }
+            expert_struct.param_lines[i]->setText("0x" + QString::number(value, 16));
+        } else {
+            param_value = expert_struct.param_lines[i]->text();
+            double value = qstring2uint(param_value);
 
-            uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-            QString default_clk = firmware.firmware_map[current_fw].default_values[CLK_COUNTER];
-            double clk_multiplier = suffix2val(default_clk.split(" ")[1]);
-            double clk = clk_multiplier * qstring2uint(default_clk.split(" ")[0], 10);
-
-            value = value*clk*multiplier;
-
-            expert_struct.param_lines[i]->setText("0x" + QString::number(value));
+            if (parameters.parameters_map[i].default_val.split(" ").size() > 1) {
+                value /= clk;
+                QString suffix = val2suffix(value);
+                double multiplier = suffix2val(suffix);
+                param_struct.param_lines[i]->setText(QString::number(value/multiplier) + " " + suffix + "s");
+            }
+            else
+                param_struct.param_lines[i]->setText(QString::number(value));
         }
         param_value = expert_struct.param_lines[i]->text();
         write_register(param_addr, qstring2uint(param_value));
@@ -447,10 +482,16 @@ void MainWindow::on_action_default_parameters_triggered()
         QString default_clk = firmware.firmware_map[current_fw].default_values[CLK_COUNTER];
         double clk_multiplier = suffix2val(default_clk.split(" ")[1]);
         double clk = clk_multiplier * qstring2uint(default_clk.split(" ")[0], 10);
-        double value = qstring2uint(parameters.parameters_map[i].default_val.split(" ")[0]);
-        double multiplier = suffix2val(parameters.parameters_map[i].default_val.split(" ")[1]);
-        value = value*clk*multiplier;
-        expert_struct.param_lines[i]->setText("0x" + QString::number(value));
+
+        auto value_unit = parameters.parameters_map[i].default_val.split(" ");
+        uint32_t value = qstring2uint(value_unit[0]);
+        QString  unit  = (value_unit.size() > 1 ? value_unit[1] : QString());
+        double multiplier = suffix2val(unit);
+        if (unit.contains("s"))
+            value = value*multiplier*clk;
+        else
+            value = value;
+        expert_struct.param_lines[i]->setText("0x" + QString::number(value, 16));
     }
 }
 
@@ -515,8 +556,10 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
         }
 
         for (int i = 0; i < expert_struct.param_lines.size(); i++) {
+            param_struct.param_lines[i]->setDisabled(true);
+            expert_struct.param_lines[i]->setDisabled(false);
+            param_struct.param_lines[i]->setReadOnly(false);
             expert_struct.param_lines[i]->setReadOnly(false);
-            expert_struct.param_lines[i]->setStyleSheet("background: white");
         }
 
     } else {
@@ -538,8 +581,10 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
         }
 
         for (int i = 0; i < expert_struct.param_lines.size(); i++) {
-            expert_struct.param_lines[i]->setReadOnly(true);
-            expert_struct.param_lines[i]->setStyleSheet("background: lightGray");
+            param_struct.param_lines[i]->setDisabled(false);
+            expert_struct.param_lines[i]->setDisabled(true);
+            param_struct.param_lines[i]->setReadOnly(false);
+            expert_struct.param_lines[i]->setReadOnly(false);
         }
     }
 }
