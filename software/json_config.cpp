@@ -5,6 +5,7 @@
 #define KEY_FW "FIRMWARE"
 #define KEY_FW_VERSION "version"
 #define KEY_FW_SYSID "sysid"
+#define KEY_FW_CLOCK "clock"
 
 #define KEY_SCEN "SCENARIO"
 #define KEY_SCEN_MIN_FW "min_fw_version"
@@ -30,12 +31,7 @@ void Firmware::firmware_init(QJsonObject jObj) {
         QJsonObject firmware_obj = array[i].toObject();
         firmware_map[i].version = firmware_obj.value(KEY_FW_VERSION).toString();
         firmware_map[i].sysid = firmware_obj.value(KEY_FW_SYSID).toString();
-
-        QJsonArray default_val_js = firmware_obj.value(KEY_DEFAULT).toArray();
-        for (int j = 0; j < default_val_js.size(); j++) {
-            QJsonObject def_obj = default_val_js[j].toObject();
-             firmware_map[i].default_values[def_obj.value(KEY_NAME).toString()] = def_obj.value(KEY_DEFAULT).toString();
-        }
+        firmware_map[i].clock = firmware_obj.value(KEY_FW_CLOCK).toString();
     }
 }
 
@@ -44,11 +40,7 @@ QJsonObject Firmware::toJsonObject(QJsonObject jObj, QMap<int, firmware_struct> 
         QJsonObject obj;
         obj.insert(KEY_FW_VERSION, firmware[i].version);
         obj.insert(KEY_FW_SYSID, firmware[i].sysid);
-        for (int j = 0; j < firmware_map[i].default_values.size(); j++) {
-            QJsonObject def_obj;
-//            def_obj.insert(KEY_NAME, firmware_map[j].default_values.value());
-            obj.insert(KEY_DEFAULT, def_obj);
-        }
+        obj.insert(KEY_FW_CLOCK, firmware[i].clock);
         jObj.insert(KEY_FW, obj);
     }
     return jObj;

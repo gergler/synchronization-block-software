@@ -84,7 +84,6 @@ public:
 
     QLabel* add_label(QString name, QString description);
     QLineEdit* add_line_edit(QString text);
-    QSpinBox* add_spinbox(int value);
     QCheckBox* add_checkbox(QString text);
 
     QJsonObject open_file_JSON(QString file_name);
@@ -114,5 +113,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QJsonObject _currentJsonObject;
+
+    double clk_multiplier = 0;
+    double clk = 0;
 };
 #endif // MAINWINDOW_H

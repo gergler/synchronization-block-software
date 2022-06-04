@@ -73,14 +73,6 @@ QLineEdit* MainWindow::add_line_edit(QString text) {
     return line;
 }
 
-QSpinBox* MainWindow::add_spinbox(int value) {
-    QSpinBox* spinbox = new QSpinBox(this);
-    spinbox->setRange(INT32_MIN, INT32_MAX);
-    spinbox->setValue(value);
-    spinbox->setAlignment(Qt::AlignRight);
-    return spinbox;
-}
-
 QCheckBox* MainWindow::add_checkbox(QString text) {
     QCheckBox* checkbox = new QCheckBox(this);
     checkbox->setText(text);
@@ -95,20 +87,20 @@ static uint32_t qstring2uint(QString &str, uint8_t bits=0) {
 double suffix2val (QString &str) {
     double multiplier = 1;
     if (str.contains("m"))
-        return multiplier = 1e-3;
-    if (str.contains("u"))
-        return multiplier = 1e-6;
-    if (str.contains("n"))
-        return multiplier = 1e-9;
-    if (str.contains("M"))
-        return multiplier = 1e6;
-    if (str.contains("k"))
-        return multiplier = 1e3;
+        multiplier = 1e-3;
+    else if (str.contains("u"))
+        multiplier = 1e-6;
+    else if (str.contains("n"))
+        multiplier = 1e-9;
+    else if (str.contains("M"))
+        multiplier = 1e6;
+    else if (str.contains("k"))
+        multiplier = 1e3;
     return multiplier;
 }
 
 QString val2suffix (double value) {
-    QString suffix;
+    QString suffix = "";
     if (value >= 1e6)
         suffix = "M";
     else if (value >= 1e3)
@@ -270,8 +262,6 @@ void MainWindow::configure_fpga(uint32_t address, uint32_t firmware_version) {
     exec_reg_command(request, reply);
 }
 
-#include <iostream>
-
 void MainWindow::on_action_read_registers_triggered()
 {
     uint32_t sysid = read_register(SYSID_ADDR);
@@ -327,17 +317,20 @@ void MainWindow::on_action_read_registers_triggered()
     }
 
     uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-    QString default_clk = firmware.firmware_map[current_fw].default_values[CLK_COUNTER];
+    QStringList default_clk = firmware.firmware_map[current_fw].clock.split(" ");
+    clk_multiplier = suffix2val(default_clk[1]);
+    clk = clk_multiplier * qstring2uint(default_clk[0]);
 
     for (int i = 1; i < measurement.measurment_map.size(); ++i) {
         double multiplier = 0;
+        QString suffix = "";
+        uint32_t reg_addr  = qstring2uint(measurement.measurment_map[i].address);
+
         if (measurement.measurment_map[i].name.contains("period")) {
-            uint32_t reg_addr  = qstring2uint(measurement.measurment_map[i].address);
             uint32_t reg_value = new_values.values[reg_addr];
-            multiplier = suffix2val(default_clk.split(" ")[1]);
-            double clk_period = 1.0/(multiplier * qstring2uint(default_clk.split(" ")[0], 10));
+            double clk_period = 1.0/clk;
             double meter_value = reg_value * clk_period;
-            QString suffix = val2suffix(meter_value);
+            suffix = val2suffix(meter_value);
             multiplier = suffix2val(suffix);
             param_struct.measure_lines[i - 1]->setText(QString::number(meter_value/multiplier) + " " + suffix + "s");
 
@@ -352,7 +345,6 @@ void MainWindow::on_action_read_registers_triggered()
         }
 
         if (measurement.measurment_map[i].name.contains("counter")) {
-            uint32_t reg_addr  = qstring2uint(measurement.measurment_map[i].address);
             uint32_t reg_value, reg_old_value;
 
             reg_value     = new_values.values[reg_addr];
@@ -364,14 +356,12 @@ void MainWindow::on_action_read_registers_triggered()
             double frequency = diff_value * 1000000;
             frequency /= std::chrono::duration_cast<std::chrono::microseconds>( new_values.timestamp - previous_measurements.timestamp  ).count();
 
-            QString suffix = val2suffix(frequency);
+            suffix = val2suffix(frequency);
             multiplier = suffix2val(suffix);
             param_struct.measure_lines[i - 1]->setText(QString::number(frequency/multiplier) + " " + suffix + "Hz");
 
             if (measurement.measurment_map[i].name.contains("FPGA")) {
-                multiplier = suffix2val(default_clk.split(" ")[1]);
-                uint32_t clk = qstring2uint(default_clk.split(" ")[0], 10)*multiplier;
-                if ((frequency < (clk - multiplier/10)) or (frequency > (clk + multiplier/10))) {
+                if ((frequency < (clk - clk_multiplier/10)) or (frequency > (clk + clk_multiplier/10))) {
                     ui->action_start->setDisabled(true);
                     param_struct.measure_lines[i - 1]->setStyleSheet("color: red");
                 } else {
@@ -392,6 +382,11 @@ void MainWindow::on_action_configure_triggered()
     QThread::msleep(100);
     uint32_t data = read_register(SYSID_ADDR);
     expert_struct.firmware_line->setText("0x" + QString::number(data, 16));
+
+    uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
+    QStringList default_clk = firmware.firmware_map[current_fw].clock.split(" ");
+    clk_multiplier = suffix2val(default_clk[1]);
+    clk = clk_multiplier * qstring2uint(default_clk[0]);
 }
 
 void MainWindow::on_action_set_scenario_triggered()
@@ -416,11 +411,6 @@ void MainWindow::on_action_read_parameters_triggered()
 
         expert_struct.param_lines[i]->setText("0x" + QString::number(param_value, 16));
 
-        uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-        QString default_clk = firmware.firmware_map[current_fw].default_values[CLK_COUNTER];
-        double clk_multiplier = suffix2val(default_clk.split(" ")[1]);
-        double clk = clk_multiplier * qstring2uint(default_clk.split(" ")[0]);
-
         if (parameters.parameters_map[i].default_val.split(" ").size() > 1) {
             double value = param_value;
             value = value/clk;
@@ -438,11 +428,6 @@ void MainWindow::on_action_write_parameters_triggered()
     for (int i = 0; i < parameters.parameters_map.size(); ++i) {
         uint32_t param_addr  = qstring2uint(parameters.parameters_map[i].address);
         QString param_value;
-
-        uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-        QString default_clk = firmware.firmware_map[current_fw].default_values[CLK_COUNTER];
-        double clk_multiplier = suffix2val(default_clk.split(" ")[1]);
-        double clk = clk_multiplier * qstring2uint(default_clk.split(" ")[0], 10);
 
         if (!expert_checkbox->isChecked()) {
             param_value = param_struct.param_lines[i]->text();
@@ -477,11 +462,6 @@ void MainWindow::on_action_default_parameters_triggered()
 {
     for (int i = 0; i < parameters.parameters_map.size(); ++i) {
         param_struct.param_lines[i]->setText(parameters.parameters_map[i].default_val);
-
-        uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-        QString default_clk = firmware.firmware_map[current_fw].default_values[CLK_COUNTER];
-        double clk_multiplier = suffix2val(default_clk.split(" ")[1]);
-        double clk = clk_multiplier * qstring2uint(default_clk.split(" ")[0], 10);
 
         auto value_unit = parameters.parameters_map[i].default_val.split(" ");
         uint32_t value = qstring2uint(value_unit[0]);

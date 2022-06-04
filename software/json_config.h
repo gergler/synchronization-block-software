@@ -21,7 +21,7 @@ public:
     struct firmware_struct {
         QString version;
         QString sysid;
-        QMap<QString, QString> default_values;
+        QString clock;
     };
     QMap<int, firmware_struct> firmware_map;
 

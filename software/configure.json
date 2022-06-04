@@ -1,8 +1,6 @@
 {
   "FIRMWARE": [
-      {"version": "2022v1.00", "sysid": "0x20220412", "default": [{"name": "FPGA clock counter", "default": "50 MHz"},
-      								        {"name": "Phase period", "default": "1200 ns"}, 
-      								        {"name": "FastGate period", "default": "20 ms"}]}],
+      {"version": "2022v1.00", "sysid": "0x20220412", "clock": "50 MHz"}],
       
   "SCENARIO": [
       {"name": "SELF TEST", "min_fw_version": "2022v1.00",
