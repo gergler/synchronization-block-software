@@ -204,6 +204,9 @@ void MainWindow::generate_parameters(QJsonObject jObj)
 
         expert_struct.param_lines.push_back(add_line_edit(""));
         ui->gridLayout_parameters->addWidget(expert_struct.param_lines[i], i+1, 2);
+
+        connect(param_struct.param_lines[i], SIGNAL(textEdited(const QString&)), SLOT(text_changed(const QString&)));
+        connect(expert_struct.param_lines[i], SIGNAL(textEdited(const QString&)), SLOT(text_changed(const QString&)));
     }
     on_action_default_parameters_triggered();
 
@@ -316,10 +319,10 @@ void MainWindow::on_action_read_registers_triggered()
         expert_struct.measure_lines[i - 1]->setText("0x"+QString::number(reg_value, 16));
     }
 
-    uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-    QStringList default_clk = firmware.firmware_map[current_fw].clock.split(" ");
-    clk_multiplier = suffix2val(default_clk[1]);
-    clk = clk_multiplier * qstring2uint(default_clk[0]);
+//    uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
+//    QStringList default_clk = firmware.firmware_map[current_fw].clock.split(" ");
+//    clk_multiplier = suffix2val(default_clk[1]);
+//    clk = clk_multiplier * qstring2uint(default_clk[0]);
 
     for (int i = 1; i < measurement.measurment_map.size(); ++i) {
         double multiplier = 0;
@@ -403,6 +406,36 @@ void MainWindow::on_action_set_scenario_triggered()
     write_register(SCENARIO_CONTROL_ADDR, new_value & ~RESET_MSK);
 }
 
+void MainWindow::text_changed(const QString& str) {
+    QString param_value;
+    for (int i = 0; i < parameters.parameters_map.size(); ++i) {
+        if (!expert_checkbox->isChecked()) {
+            param_value = param_struct.param_lines[i]->text();
+            auto value_unit = param_value.split(" ");
+            uint32_t value = qstring2uint(value_unit[0]);
+            double multiplier = 1.0;
+            if (value_unit.size() > 1) {
+                multiplier = suffix2val(value_unit[1]);
+                if (value_unit[1].contains('s'))
+                    value *= multiplier*clk;
+            }
+            expert_struct.param_lines[i]->setText("0x" + QString::number(value, 16));
+        } else {
+            param_value = expert_struct.param_lines[i]->text();
+            double value = qstring2uint(param_value);
+
+            if (parameters.parameters_map[i].default_val.split(" ").size() > 1) {
+                value /= clk;
+                QString suffix = val2suffix(value);
+                double multiplier = suffix2val(suffix);
+                param_struct.param_lines[i]->setText(QString::number(value/multiplier) + " " + suffix + "s");
+            }
+            else
+                param_struct.param_lines[i]->setText(QString::number(value));
+        }
+    }
+}
+
 void MainWindow::on_action_read_parameters_triggered()
 {
     for (int i = 0; i < parameters.parameters_map.size(); ++i) {
@@ -427,39 +460,18 @@ void MainWindow::on_action_write_parameters_triggered()
 {
     for (int i = 0; i < parameters.parameters_map.size(); ++i) {
         uint32_t param_addr  = qstring2uint(parameters.parameters_map[i].address);
-        QString param_value;
-
-        if (!expert_checkbox->isChecked()) {
-            param_value = param_struct.param_lines[i]->text();
-            auto value_unit = param_value.split(" ");
-            uint32_t value = qstring2uint(value_unit[0], 10);
-            double multiplier = 1.0;
-            if (value_unit.size() > 1) {
-                multiplier = suffix2val(value_unit[1]);
-                if (value_unit[1].contains('s'))
-                    value *= multiplier*clk;
-            }
-            expert_struct.param_lines[i]->setText("0x" + QString::number(value, 16));
-        } else {
-            param_value = expert_struct.param_lines[i]->text();
-            double value = qstring2uint(param_value);
-
-            if (parameters.parameters_map[i].default_val.split(" ").size() > 1) {
-                value /= clk;
-                QString suffix = val2suffix(value);
-                double multiplier = suffix2val(suffix);
-                param_struct.param_lines[i]->setText(QString::number(value/multiplier) + " " + suffix + "s");
-            }
-            else
-                param_struct.param_lines[i]->setText(QString::number(value));
-        }
-        param_value = expert_struct.param_lines[i]->text();
+        QString param_value  = expert_struct.param_lines[i]->text();
         write_register(param_addr, qstring2uint(param_value));
     }
 }
 
 void MainWindow::on_action_default_parameters_triggered()
 {
+    uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
+    QStringList default_clk = firmware.firmware_map[current_fw].clock.split(" ");
+    clk_multiplier = suffix2val(default_clk[1]);
+    clk = clk_multiplier * qstring2uint(default_clk[0]);
+
     for (int i = 0; i < parameters.parameters_map.size(); ++i) {
         param_struct.param_lines[i]->setText(parameters.parameters_map[i].default_val);
 
@@ -468,7 +480,7 @@ void MainWindow::on_action_default_parameters_triggered()
         QString  unit  = (value_unit.size() > 1 ? value_unit[1] : QString());
         double multiplier = suffix2val(unit);
         if (unit.contains("s"))
-            value = value*multiplier*clk;
+            value *= multiplier*clk;
         else
             value = value;
         expert_struct.param_lines[i]->setText("0x" + QString::number(value, 16));

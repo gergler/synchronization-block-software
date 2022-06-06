@@ -106,6 +106,7 @@ private slots:
     void on_action_start_triggered();
     void on_action_stop_triggered();
 
+    void text_changed(const QString&);
     void expert_checkbox_state_changed(bool checked);
     void reload_checkbox_state_changed(bool checked);
     void timer_timeout();
