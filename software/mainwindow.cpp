@@ -52,9 +52,6 @@ QJsonObject MainWindow::open_file_JSON(QString file_name) {
     QByteArray saveData = jsonFile.readAll();
     QJsonDocument jsonDocument(QJsonDocument::fromJson(saveData));
 
-    ui->statusbar->setStyleSheet("color: darkBlue");
-    ui->statusbar->showMessage("JSON file is opened");
-
     return jsonDocument.object();
 }
 
@@ -311,23 +308,40 @@ void MainWindow::on_action_read_registers_triggered()
 
     param_struct.status ->setText(scen_state_str);
 
-    for (int i = 1; i < measurement.measurment_map.size(); ++i) {
-        uint32_t reg_addr  = qstring2uint(measurement.measurment_map[i].address);
-        uint32_t reg_value = read_register(reg_addr);
+//    for (int i = 0; i < measurement.measurment_map.size(); ++i) {
+//        if (measurement.measurment_map[i].name.contains("Status"))
+//            continue;
+//        uint32_t reg_addr  = qstring2uint(measurement.measurment_map[i].address);
+//        uint32_t reg_value = read_register(reg_addr);
 
-        new_values.values[reg_addr] = reg_value;
-        expert_struct.measure_lines[i - 1]->setText("0x"+QString::number(reg_value, 16));
-    }
+//        new_values.values[reg_addr] = reg_value;
+//        expert_struct.measure_lines[i]->setText("0x"+QString::number(reg_value, 16));
+//    }
 
 //    uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
 //    QStringList default_clk = firmware.firmware_map[current_fw].clock.split(" ");
 //    clk_multiplier = suffix2val(default_clk[1]);
 //    clk = clk_multiplier * qstring2uint(default_clk[0]);
 
-    for (int i = 1; i < measurement.measurment_map.size(); ++i) {
+    for (int i = 0; i < measurement.measurment_map.size(); ++i) {
+        if (measurement.measurment_map[i].name.contains("Status"))
+            continue;
+
+        uint32_t reg_addr  = qstring2uint(measurement.measurment_map[i].address);
+        uint32_t reg_value = read_register(reg_addr);
+        new_values.values[reg_addr] = reg_value;
+        expert_struct.measure_lines[i - 1]->setText("0x"+QString::number(reg_value, 16));
+
         double multiplier = 0;
         QString suffix = "";
-        uint32_t reg_addr  = qstring2uint(measurement.measurment_map[i].address);
+
+        QStringList interval = measurement.measurment_map[i].interval.split(" ");
+        double min_value = 0;
+        double max_value = 0;
+        if (interval.size() > 3) {
+            min_value = qstring2uint(interval[0])*suffix2val(interval[1]);
+            max_value = qstring2uint(interval[2])*suffix2val(interval[3]);
+        }
 
         if (measurement.measurment_map[i].name.contains("period")) {
             uint32_t reg_value = new_values.values[reg_addr];
@@ -336,15 +350,13 @@ void MainWindow::on_action_read_registers_triggered()
             suffix = val2suffix(meter_value);
             multiplier = suffix2val(suffix);
             param_struct.measure_lines[i - 1]->setText(QString::number(meter_value/multiplier) + " " + suffix + "s");
-
-//            if ((reg_value < (reg_value - 5)) or (reg_value > (reg_value + 5))) {
-//                ui->action_start->setDisabled(true);
-//                param_struct.measure_lines[i - 1]->setStyleSheet("color: red");
-//            } else {
-//                ui->action_start->setDisabled(false);
-//                param_struct.measure_lines[i - 1]->setStyleSheet("color: green");
-//            }
-
+            if ((meter_value < min_value) or (meter_value > max_value)) {
+                ui->action_start->setDisabled(true);
+                param_struct.measure_lines[i - 1]->setStyleSheet("color: red");
+            } else {
+                ui->action_start->setDisabled(false);
+                param_struct.measure_lines[i - 1]->setStyleSheet("color: green");
+            }
         }
 
         if (measurement.measurment_map[i].name.contains("counter")) {
@@ -357,21 +369,21 @@ void MainWindow::on_action_read_registers_triggered()
                 diff_value += 0x100000000L;
 
             double frequency = diff_value * 1000000;
-            frequency /= std::chrono::duration_cast<std::chrono::microseconds>( new_values.timestamp - previous_measurements.timestamp  ).count();
+            frequency /= std::chrono::duration_cast<std::chrono::microseconds>(new_values.timestamp - previous_measurements.timestamp).count();
 
             suffix = val2suffix(frequency);
             multiplier = suffix2val(suffix);
             param_struct.measure_lines[i - 1]->setText(QString::number(frequency/multiplier) + " " + suffix + "Hz");
 
             if (measurement.measurment_map[i].name.contains("FPGA")) {
-                if ((frequency < (clk - clk_multiplier/10)) or (frequency > (clk + clk_multiplier/10))) {
+                if ((frequency < min_value) or (frequency > max_value)) {
                     ui->action_start->setDisabled(true);
                     param_struct.measure_lines[i - 1]->setStyleSheet("color: red");
                 } else {
                     ui->action_start->setDisabled(false);
                     param_struct.measure_lines[i - 1]->setStyleSheet("color: green");
                 }
-            } else ui->action_start->setDisabled(false);
+            }
         }
     }
 

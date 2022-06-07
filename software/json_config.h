@@ -81,6 +81,7 @@ public:
     struct measurment_struct {
         QString name;
         QString description;
+        QString interval;
         QString address;
     };
     QMap<int, measurment_struct> measurment_map;

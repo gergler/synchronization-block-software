@@ -52,25 +52,31 @@
    "MEASUREMENTS": [
       {"name": "Status",
        "description": "Current state",
+       "interval": "",
        "address": "0x21000"},
                         
       {"name": "FPGA clock counter",
        "description": "FPGA clock counter",
+       "interval": "49 MHz 51 MHz",
        "address": "0x30000"},
                         
       {"name": "Phase impulse\ncounter",
        "description": "Phase impulse counter",
+       "interval": "",
        "address": "0x32000"},
                        
       {"name": "Phase period",
        "description": "Phase period",
+       "interval": "1100 ns 1300 ns",
        "address": "0x31000"},  
        
       {"name": "FastGate impulse\ncounter",
        "description": "Fast gate impulse counter",
+       "interval": "",
        "address": "0x34000"},               
                        
       {"name": "FastGate period",
        "description": "Fast gate period",
+       "interval": "15 ms 25 ms",
        "address": "0x33000"}]
 }
