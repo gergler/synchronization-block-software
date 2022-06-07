@@ -33,6 +33,11 @@
        "description": "Phase shift length",
        "address": "0x44000",
        "default": "700 ns"},
+
+     {"name": "Wire sensor timeout",
+       "description": "WireSensor timeout",
+       "address": "0x45000",
+       "default": "20 ns"},
                         
       {"name": "Trigger length",
        "description": "Trigger impulse length",
@@ -47,7 +52,12 @@
       {"name": "Detector timeout",
        "description": "Detector wait timeout",
        "address": "0x42000",
-       "default": "7 ms"}],
+       "default": "7 ms"},
+
+      {"name": "Test GPIO",
+      "description": "GPIO output pins",
+      "address": "0x46000",
+      "default": "0"}],
   
    "MEASUREMENTS": [
       {"name": "Status",

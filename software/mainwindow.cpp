@@ -137,9 +137,8 @@ void MainWindow::generate(QJsonObject jObj) {
     scenario_label = add_label("Scenario", "Experiment scenario");
     ui->gridLayout->addWidget(scenario_label, 3, 0);
     param_struct.scenario_combobox = new QComboBox(this);
-    for (int i = 0; i < scenario.scenario_map.size(); ++i) {
+    for (int i = 0; i < scenario.scenario_map.size(); ++i)
         param_struct.scenario_combobox->addItem(scenario.scenario_map[i].name);
-    }
     ui->gridLayout->addWidget(param_struct.scenario_combobox, 3, 1, 1, -1);
     expert_struct.scenario_line = add_line_edit("0x0");
     ui->gridLayout->addWidget(expert_struct.scenario_line, 4, 2);
@@ -305,7 +304,6 @@ void MainWindow::on_action_read_registers_triggered()
         else
             scen_state_str = QString::number(state_number);
     }
-
     param_struct.status ->setText(scen_state_str);
 
 //    for (int i = 0; i < measurement.measurment_map.size(); ++i) {
