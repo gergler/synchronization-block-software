@@ -1,6 +1,10 @@
 {
+  "CONNECTION": {"IP": "192.168.8.1", "PORT": "2021"},
+
   "FIRMWARE": [
-      {"version": "2022v1.00", "sysid": "0x20220412", "clock": "50 MHz"}],
+      {"version": "zero", "sysid": "0x0", "clock": "50 MHz"},
+      {"version": "2022v1.00", "sysid": "0x20220412", "clock": "50 MHz"},
+      {"version": "2022.06.09", "sysid": "0x20220609", "clock": "50 MHz"}],
       
   "SCENARIO": [
       {"name": "SELF TEST", "min_fw_version": "2022v1.00",
@@ -35,8 +39,8 @@
        "default": "700 ns"},
 
      {"name": "Wire sensor timeout",
-       "description": "WireSensor timeout",
-       "address": "0x45000",
+       "description": "Wire sensor timeout",
+       "address": "0x46000",
        "default": "20 ns"},
                         
       {"name": "Trigger length",
@@ -56,7 +60,17 @@
 
       {"name": "Test GPIO",
       "description": "GPIO output pins",
-      "address": "0x46000",
+      "address": "0x47000",
+      "default": "0"},
+
+      {"name": "Input XOR mask",
+      "description": "Input XOR mask",
+      "address": "0x22000",
+      "default": "0"},
+
+      {"name": "Output XOR mask",
+      "description": "Output XOR mask",
+      "address": "0x23000",
       "default": "0"}],
   
    "MEASUREMENTS": [

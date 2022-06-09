@@ -255,8 +255,8 @@ void MainWindow::write_register(uint32_t address, uint32_t value) {
 }
 
 void MainWindow::configure_fpga(uint32_t address, uint32_t firmware_version) {
-    CMD_Packet reply   {'C', address, firmware_version, 1};
-    CMD_Packet request {'C', address, firmware_version, 1};
+    CMD_Packet reply   {'C', firmware_version, 0, 1};
+    CMD_Packet request {'C', firmware_version, 0, 1};
 
     exec_reg_command(request, reply);
 }
@@ -540,9 +540,6 @@ void MainWindow::reload_checkbox_state_changed(bool checked) {
 
 void MainWindow::expert_checkbox_state_changed(bool checked) {
     if (checked) {
-        ui->statusbar->setStyleSheet("color: green");
-        ui->statusbar->showMessage("Expert Mode ON");
-
         expert_struct.firmware_line->setReadOnly(false);
         expert_struct.firmware_line->setStyleSheet("background: white");
 
@@ -565,9 +562,6 @@ void MainWindow::expert_checkbox_state_changed(bool checked) {
         }
 
     } else {
-        ui->statusbar->setStyleSheet("color: red");
-        ui->statusbar->showMessage("Expert Mode OFF");
-
         expert_struct.firmware_line->setReadOnly(true);
         expert_struct.firmware_line->setStyleSheet("background: lightGray");
 
@@ -619,7 +613,4 @@ void MainWindow::on_action_save_file_triggered()
     }
     jsonFile.write(QJsonDocument(_currentJsonObject).toJson(QJsonDocument::Indented));
     jsonFile.close();
-
-    ui->statusbar->setStyleSheet("color: darkBlue");
-    ui->statusbar->showMessage("Save JSON file");
 }
