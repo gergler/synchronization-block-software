@@ -11,12 +11,7 @@
 #include <QLineEdit>
 #include <QLayout>
 #include <QErrorMessage>
-
 #include <QThread>
-
-#define CLK_COUNTER "FPGA clock counter"
-#define FG_PERIOD "FastGate period"
-#define PHASE_PERIOD "Phase period"
 
 #define TIMEOUT 1000
 
@@ -33,7 +28,12 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(QIcon("main.png"));
 
     _currentJsonObject = open_file_JSON("configure.json");
-    generate(_currentJsonObject);
+    json = Json_config(_currentJsonObject);
+
+    generate();
+    generate_measurements();
+    generate_parameters();
+    expert_checkbox_state_changed(false);
 }
 
 MainWindow::~MainWindow()
@@ -111,10 +111,8 @@ QString val2suffix (double value) {
     return suffix;
 }
 
-void MainWindow::generate(QJsonObject jObj) {
-    firmware.firmware_init(jObj);
-    scenario.scenario_init(jObj);
 
+void MainWindow::generate() {
     expert_checkbox = add_checkbox("Expert mode");
     expert_checkbox->setChecked(false);
     ui->gridLayout->addWidget(expert_checkbox, 0, 2);
@@ -123,8 +121,8 @@ void MainWindow::generate(QJsonObject jObj) {
     firmware_label = add_label("Firmware", "Firmware version");
     ui->gridLayout->addWidget(firmware_label, 1, 0);
     param_struct.firmware_combobox = new QComboBox(this);
-    for (int i = 0; i < firmware.firmware_map.size(); ++i) {
-        param_struct.firmware_combobox->addItem(firmware.firmware_map[i].version);
+    for (int i = 0; i < json.firmware_map.size(); ++i) {
+        param_struct.firmware_combobox->addItem(json.firmware_map[i].version);
     }
     ui->gridLayout->addWidget(param_struct.firmware_combobox, 1, 1);
     expert_struct.firmware_line = add_line_edit("0x0");
@@ -137,8 +135,8 @@ void MainWindow::generate(QJsonObject jObj) {
     scenario_label = add_label("Scenario", "Experiment scenario");
     ui->gridLayout->addWidget(scenario_label, 3, 0);
     param_struct.scenario_combobox = new QComboBox(this);
-    for (int i = 0; i < scenario.scenario_map.size(); ++i)
-        param_struct.scenario_combobox->addItem(scenario.scenario_map[i].name);
+    for (int i = 0; i < json.scenario_map.size(); ++i)
+        param_struct.scenario_combobox->addItem(json.scenario_map[i].name);
     ui->gridLayout->addWidget(param_struct.scenario_combobox, 3, 1, 1, -1);
     expert_struct.scenario_line = add_line_edit("0x0");
     ui->gridLayout->addWidget(expert_struct.scenario_line, 4, 2);
@@ -146,17 +144,11 @@ void MainWindow::generate(QJsonObject jObj) {
     scen_set_button = new QPushButton("Set scenario", this);
     connect(scen_set_button, SIGNAL(clicked()), SLOT(on_action_set_scenario_triggered()));
     ui->gridLayout->addWidget(scen_set_button, 4, 1);
-
-    generate_measurements(jObj);
-    generate_parameters(jObj);
-    expert_checkbox_state_changed(false);
 }
 
-void MainWindow::generate_measurements(QJsonObject jObj)
+void MainWindow::generate_measurements()
 {
-    measurement.measurment_init(jObj);
-
-    status_label = add_label(measurement.measurment_map[0].name, measurement.measurment_map[0].description);
+    status_label = add_label(json.measurment_map[0].name, json.measurment_map[0].description);
     ui->gridLayout->addWidget(status_label, 5, 0);
     param_struct.status = add_line_edit("IDLE");
     ui->gridLayout->addWidget(param_struct.status, 5, 1);
@@ -169,8 +161,8 @@ void MainWindow::generate_measurements(QJsonObject jObj)
     reload_checkbox->setChecked(true);
     reload_checkbox_state_changed(reload_checkbox->checkState());
 
-    for (int i = 1; i < measurement.measurment_map.size(); ++i) {
-        QLabel *label = add_label(measurement.measurment_map[i].name, measurement.measurment_map[i].description);
+    for (int i = 1; i < json.measurment_map.size(); ++i) {
+        QLabel *label = add_label(json.measurment_map[i].name, json.measurment_map[i].description);
         ui->gridLayout_reg->addWidget(label, i+1, 0);
 
         param_struct.measure_lines.push_back(add_line_edit("0"));
@@ -186,12 +178,10 @@ void MainWindow::generate_measurements(QJsonObject jObj)
     ui->gridLayout_reg->addWidget(measure_button, 0, 0, 1, 2);
 }
 
-void MainWindow::generate_parameters(QJsonObject jObj)
+void MainWindow::generate_parameters()
 {
-    parameters.parameters_init(jObj);
-
-    for (int i = 0; i < parameters.parameters_map.size(); ++i) {
-        QLabel* label = add_label(parameters.parameters_map[i].name, parameters.parameters_map[i].description);
+    for (int i = 0; i < json.parameters_map.size(); ++i) {
+        QLabel* label = add_label(json.parameters_map[i].name, json.parameters_map[i].description);
         ui->gridLayout_parameters->addWidget(label, i+1, 0);
 
         param_struct.param_lines.push_back(add_line_edit(""));
@@ -254,7 +244,7 @@ void MainWindow::write_register(uint32_t address, uint32_t value) {
     exec_reg_command(request, reply);
 }
 
-void MainWindow::configure_fpga(uint32_t address, uint32_t firmware_version) {
+void MainWindow::configure_fpga(uint32_t firmware_version) {
     CMD_Packet reply   {'C', firmware_version, 0, 1};
     CMD_Packet request {'C', firmware_version, 0, 1};
 
@@ -265,7 +255,7 @@ void MainWindow::on_action_read_registers_triggered()
 {
     uint32_t sysid = read_register(SYSID_ADDR);
     int fw_number = param_struct.firmware_combobox->currentIndex();
-    uint32_t expected_sysid = qstring2uint(firmware.firmware_map[fw_number].sysid);
+    uint32_t expected_sysid = qstring2uint(json.firmware_map[fw_number].sysid);
     expert_struct.firmware_line->setText("0x" + QString::number(sysid, 16));
     if (expected_sysid != sysid && !expert_checkbox->isChecked()) {
         ui->statusbar->setStyleSheet("color: red");
@@ -296,11 +286,11 @@ void MainWindow::on_action_read_registers_triggered()
     int scen_number = (control_reg_value >> 8) & 0xFF;
     int state_number = status_reg_value & 0xFF;
     QString scen_state_str;
-    if (scen_number >= 0 && scen_number < scenario.scenario_map.size()) {
+    if (scen_number >= 0 && scen_number < json.scenario_map.size()) {
         if (param_struct.scenario_combobox->currentIndex() != scen_number)
-            param_struct.scenario_combobox->setObjectName(scenario.scenario_map[param_struct.scenario_combobox->currentIndex()].name);
-        if (state_number >= 0 && state_number < scenario.scenario_map[scen_number].states.size())
-            scen_state_str = scenario.scenario_map[scen_number].states[state_number].toString();
+            param_struct.scenario_combobox->setObjectName(json.scenario_map[param_struct.scenario_combobox->currentIndex()].name);
+        if (state_number >= 0 && state_number < json.scenario_map[scen_number].states.size())
+            scen_state_str = json.scenario_map[scen_number].states[state_number].toString();
         else
             scen_state_str = QString::number(state_number);
     }
@@ -321,11 +311,11 @@ void MainWindow::on_action_read_registers_triggered()
 //    clk_multiplier = suffix2val(default_clk[1]);
 //    clk = clk_multiplier * qstring2uint(default_clk[0]);
 
-    for (int i = 0; i < measurement.measurment_map.size(); ++i) {
-        if (measurement.measurment_map[i].name.contains("Status"))
+    for (int i = 0; i < json.measurment_map.size(); ++i) {
+        if (json.measurment_map[i].name.contains("Status"))
             continue;
 
-        uint32_t reg_addr  = qstring2uint(measurement.measurment_map[i].address);
+        uint32_t reg_addr  = qstring2uint(json.measurment_map[i].address);
         uint32_t reg_value = read_register(reg_addr);
         new_values.values[reg_addr] = reg_value;
         expert_struct.measure_lines[i - 1]->setText("0x"+QString::number(reg_value, 16));
@@ -333,7 +323,7 @@ void MainWindow::on_action_read_registers_triggered()
         double multiplier = 0;
         QString suffix = "";
 
-        QStringList interval = measurement.measurment_map[i].interval.split(" ");
+        QStringList interval = json.measurment_map[i].interval.split(" ");
         double min_value = 0;
         double max_value = 0;
         if (interval.size() > 3) {
@@ -341,7 +331,7 @@ void MainWindow::on_action_read_registers_triggered()
             max_value = qstring2uint(interval[2])*suffix2val(interval[3]);
         }
 
-        if (measurement.measurment_map[i].name.contains("period")) {
+        if (json.measurment_map[i].name.contains("period")) {
             uint32_t reg_value = new_values.values[reg_addr];
             double clk_period = 1.0/clk;
             double meter_value = reg_value * clk_period;
@@ -357,7 +347,7 @@ void MainWindow::on_action_read_registers_triggered()
             }
         }
 
-        if (measurement.measurment_map[i].name.contains("counter")) {
+        if (json.measurment_map[i].name.contains("counter")) {
             uint32_t reg_value, reg_old_value;
 
             reg_value     = new_values.values[reg_addr];
@@ -373,7 +363,7 @@ void MainWindow::on_action_read_registers_triggered()
             multiplier = suffix2val(suffix);
             param_struct.measure_lines[i - 1]->setText(QString::number(frequency/multiplier) + " " + suffix + "Hz");
 
-            if (measurement.measurment_map[i].name.contains("FPGA")) {
+            if (json.measurment_map[i].name.contains("FPGA")) {
                 if ((frequency < min_value) or (frequency > max_value)) {
                     ui->action_start->setDisabled(true);
                     param_struct.measure_lines[i - 1]->setStyleSheet("color: red");
@@ -391,13 +381,13 @@ void MainWindow::on_action_read_registers_triggered()
 
 void MainWindow::on_action_configure_triggered()
 {
-    configure_fpga(SYSID_ADDR, param_struct.firmware_combobox->currentIndex());
+    configure_fpga(param_struct.firmware_combobox->currentIndex());
     QThread::msleep(100);
     uint32_t data = read_register(SYSID_ADDR);
     expert_struct.firmware_line->setText("0x" + QString::number(data, 16));
 
     uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-    QStringList default_clk = firmware.firmware_map[current_fw].clock.split(" ");
+    QStringList default_clk = json.firmware_map[current_fw].clock.split(" ");
     clk_multiplier = suffix2val(default_clk[1]);
     clk = clk_multiplier * qstring2uint(default_clk[0]);
 }
@@ -405,7 +395,7 @@ void MainWindow::on_action_configure_triggered()
 void MainWindow::on_action_set_scenario_triggered()
 {
     uint32_t selected_scen = param_struct.scenario_combobox->currentIndex();
-    param_struct.scenario_combobox->setObjectName(scenario.scenario_map[selected_scen].name + "(active)");
+    param_struct.scenario_combobox->setObjectName(json.scenario_map[selected_scen].name + "(active)");
 
     uint32_t old_value = read_register(SCENARIO_CONTROL_ADDR);
     write_register(SCENARIO_CONTROL_ADDR, old_value | RESET_MSK);
@@ -418,7 +408,7 @@ void MainWindow::on_action_set_scenario_triggered()
 
 void MainWindow::text_changed(const QString& str) {
     QString param_value;
-    for (int i = 0; i < parameters.parameters_map.size(); ++i) {
+    for (int i = 0; i < json.parameters_map.size(); ++i) {
         if (!expert_checkbox->isChecked()) {
             param_value = param_struct.param_lines[i]->text();
             auto value_unit = param_value.split(" ");
@@ -434,7 +424,7 @@ void MainWindow::text_changed(const QString& str) {
             param_value = expert_struct.param_lines[i]->text();
             double value = qstring2uint(param_value);
 
-            if (parameters.parameters_map[i].default_val.split(" ").size() > 1) {
+            if (json.parameters_map[i].default_val.split(" ").size() > 1) {
                 value /= clk;
                 QString suffix = val2suffix(value);
                 double multiplier = suffix2val(suffix);
@@ -448,13 +438,13 @@ void MainWindow::text_changed(const QString& str) {
 
 void MainWindow::on_action_read_parameters_triggered()
 {
-    for (int i = 0; i < parameters.parameters_map.size(); ++i) {
-        uint32_t param_addr  = qstring2uint(parameters.parameters_map[i].address);
+    for (int i = 0; i < json.parameters_map.size(); ++i) {
+        uint32_t param_addr  = qstring2uint(json.parameters_map[i].address);
         uint32_t param_value = read_register(param_addr);
 
         expert_struct.param_lines[i]->setText("0x" + QString::number(param_value, 16));
 
-        if (parameters.parameters_map[i].default_val.split(" ").size() > 1) {
+        if (json.parameters_map[i].default_val.split(" ").size() > 1) {
             double value = param_value;
             value = value/clk;
             QString suffix = val2suffix(value);
@@ -468,8 +458,8 @@ void MainWindow::on_action_read_parameters_triggered()
 
 void MainWindow::on_action_write_parameters_triggered()
 {
-    for (int i = 0; i < parameters.parameters_map.size(); ++i) {
-        uint32_t param_addr  = qstring2uint(parameters.parameters_map[i].address);
+    for (int i = 0; i < json.parameters_map.size(); ++i) {
+        uint32_t param_addr  = qstring2uint(json.parameters_map[i].address);
         QString param_value  = expert_struct.param_lines[i]->text();
         write_register(param_addr, qstring2uint(param_value));
     }
@@ -478,14 +468,14 @@ void MainWindow::on_action_write_parameters_triggered()
 void MainWindow::on_action_default_parameters_triggered()
 {
     uint32_t current_fw = param_struct.firmware_combobox->currentIndex();
-    QStringList default_clk = firmware.firmware_map[current_fw].clock.split(" ");
+    QStringList default_clk = json.firmware_map[current_fw].clock.split(" ");
     clk_multiplier = suffix2val(default_clk[1]);
     clk = clk_multiplier * qstring2uint(default_clk[0]);
 
-    for (int i = 0; i < parameters.parameters_map.size(); ++i) {
-        param_struct.param_lines[i]->setText(parameters.parameters_map[i].default_val);
+    for (int i = 0; i < json.parameters_map.size(); ++i) {
+        param_struct.param_lines[i]->setText(json.parameters_map[i].default_val);
 
-        auto value_unit = parameters.parameters_map[i].default_val.split(" ");
+        auto value_unit = json.parameters_map[i].default_val.split(" ");
         uint32_t value = qstring2uint(value_unit[0]);
         QString  unit  = (value_unit.size() > 1 ? value_unit[1] : QString());
         double multiplier = suffix2val(unit);
@@ -594,8 +584,8 @@ void MainWindow::on_action_open_file_triggered()
                                                         QString(),
                                                         tr("JSON (*.json)"));
     _currentJsonObject = open_file_JSON(open_file_name);
-
-    generate(_currentJsonObject);
+    json = Json_config(_currentJsonObject);
+    generate();
 }
 
 void MainWindow::on_action_save_file_triggered()

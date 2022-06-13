@@ -30,15 +30,12 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    QJsonObject _currentJsonObject;
+    Json_config json;
 
-    Firmware firmware;
-    Scenario scenario;
-    Parameters parameters;
-    Measurement measurement;
-
-    void generate(QJsonObject jObj);
-    void generate_measurements(QJsonObject jObj);
-    void generate_parameters(QJsonObject jObj);
+    void generate();
+    void generate_measurements();
+    void generate_parameters();
 
     QLabel* firmware_label;
     QLabel* scenario_label;
@@ -92,7 +89,7 @@ public:
 
     uint32_t read_register(uint32_t address);
     void write_register(uint32_t address, uint32_t value);
-    void configure_fpga(uint32_t address, uint32_t firmware_version);
+    void configure_fpga(uint32_t firmware_version);
 
 private slots:
     void on_action_open_file_triggered();
@@ -113,7 +110,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QJsonObject _currentJsonObject;
 
     double clk_multiplier = 0;
     double clk = 0;

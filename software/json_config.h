@@ -8,35 +8,30 @@
 #include <QMap>
 
 class Json_config {
-public:
-    Json_config();
-};
+private:
 
-class Firmware {
 public:
-    Firmware();
+    static QString IP;
+    static int PORT;
+
+    Json_config();
+
+    Json_config(QJsonObject jObj);
+
+    static QString getIP();
+    static int getPORT();
 
     void firmware_init(QJsonObject jObj);
-
     struct firmware_struct {
         QString version;
         QString sysid;
         QString clock;
     };
     QMap<int, firmware_struct> firmware_map;
-
     QJsonObject toJsonObject(QJsonObject jObj,  QMap<int, firmware_struct> firmware);
 
-private:
-
-};
-
-class Scenario {
-public:
-    Scenario();
 
     void scenario_init(QJsonObject jObj);
-
     struct scenario_struct {
         QString name;
         QString min_firmware_version;
@@ -44,21 +39,10 @@ public:
         QJsonArray parameters;
     };
     QMap<int, scenario_struct> scenario_map;
-
     QJsonObject toJsonObject(QJsonObject jObj,  QMap<int, scenario_struct> scenario);
 
-private:
-
-};
-
-class Parameters {
-private:
-
-public:
-    Parameters();
 
     void parameters_init(QJsonObject jObj);
-
     struct parameters_struct {
         QString name;
         QString description;
@@ -66,18 +50,10 @@ public:
         QString default_val;
     };
     QMap<int, parameters_struct> parameters_map;
-
     QJsonObject toJsonObject(QJsonObject jObj, QMap<int, parameters_struct> parameter);
-};
 
-class Measurement {
-private:
-
-public:
-    Measurement();
 
     void measurment_init(QJsonObject jObj);
-
     struct measurment_struct {
         QString name;
         QString description;
@@ -85,7 +61,6 @@ public:
         QString address;
     };
     QMap<int, measurment_struct> measurment_map;
-
     QJsonObject toJsonObject(QJsonObject jObj, QMap<int, measurment_struct> measurement);
 };
 

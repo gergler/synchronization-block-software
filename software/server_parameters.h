@@ -9,12 +9,5 @@
 #endif
 
 #define PORT    2021
-#define MAXLINE 1024
-
-#ifdef USE_IPV6
-    #define AF_PROTOCOL AF_INET6
-#else
-    #define AF_PROTOCOL AF_INET
-#endif
 
 #endif // SERVER_PARAMETERS_H

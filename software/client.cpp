@@ -1,4 +1,5 @@
 #include "client.h"
+#include "json_config.h"
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -11,6 +12,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define MAXLINE 1024
+
 static void set_socket_timeout(int socket, int sec, int usec) {
     struct timeval tv;
     tv.tv_sec = sec;
@@ -22,30 +25,21 @@ static void set_socket_timeout(int socket, int sec, int usec) {
 int exec_UDP_command(CMD_Packet req, CMD_Packet &reply, int timeout_us) {
     int  sockfd;
     char buffer[MAXLINE];
-    //char* buffer = &packet;
-    #ifdef USE_IPV6
-        struct sockaddr_in6 servaddr;
-    #else
-        struct sockaddr_in  servaddr;
-    #endif
 
-    if ( (sockfd = socket(AF_PROTOCOL, SOCK_DGRAM, 0)) < 0 ) {
+    struct sockaddr_in  servaddr;
+
+    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
         perror("socket creation failed");
         exit(EXIT_FAILURE);
     }
 
     memset(&servaddr, 0, sizeof(servaddr));
 
-    #ifdef USE_IPV6
-        servaddr.sin6_family = AF_PROTOCOL;
-        servaddr.sin6_addr   = in6addr_any;
-        servaddr.sin6_port   = htons(PORT);
-    #else
-        servaddr.sin_family  = AF_PROTOCOL;
-        servaddr.sin_addr.s_addr = inet_addr(IP);
-        servaddr.sin_port    = htons(PORT);
-    #endif
-        socklen_t addrlen = sizeof(servaddr);
+    servaddr.sin_family      = AF_INET;
+    servaddr.sin_addr.s_addr = inet_addr(Json_config::getIP().toStdString().c_str());
+    servaddr.sin_port        = htons(Json_config::getPORT());
+
+    socklen_t addrlen = sizeof(servaddr);
 
     set_socket_timeout(sockfd, 0, timeout_us);
 
