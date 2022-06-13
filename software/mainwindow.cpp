@@ -51,7 +51,6 @@ QJsonObject MainWindow::open_file_JSON(QString file_name) {
     }
     QByteArray saveData = jsonFile.readAll();
     QJsonDocument jsonDocument(QJsonDocument::fromJson(saveData));
-
     return jsonDocument.object();
 }
 
@@ -110,7 +109,6 @@ QString val2suffix (double value) {
         suffix = "n";
     return suffix;
 }
-
 
 void MainWindow::generate() {
     expert_checkbox = add_checkbox("Expert mode");
@@ -191,8 +189,8 @@ void MainWindow::generate_parameters()
         expert_struct.param_lines.push_back(add_line_edit(""));
         ui->gridLayout_parameters->addWidget(expert_struct.param_lines[i], i+1, 2);
 
-        connect(param_struct.param_lines[i], SIGNAL(textEdited(const QString&)), SLOT(text_changed(const QString&)));
-        connect(expert_struct.param_lines[i], SIGNAL(textEdited(const QString&)), SLOT(text_changed(const QString&)));
+        connect(param_struct.param_lines[i], SIGNAL(editingFinished()), SLOT(text_changed()));
+        connect(expert_struct.param_lines[i], SIGNAL(editingFinished()), SLOT(text_changed()));
     }
     on_action_default_parameters_triggered();
 
@@ -406,7 +404,7 @@ void MainWindow::on_action_set_scenario_triggered()
     write_register(SCENARIO_CONTROL_ADDR, new_value & ~RESET_MSK);
 }
 
-void MainWindow::text_changed(const QString& str) {
+void MainWindow::text_changed() {
     QString param_value;
     for (int i = 0; i < json.parameters_map.size(); ++i) {
         if (!expert_checkbox->isChecked()) {

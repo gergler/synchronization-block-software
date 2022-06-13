@@ -182,6 +182,9 @@
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox_log">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -211,9 +214,9 @@
             <number>3</number>
            </property>
            <item>
-            <layout class="QGridLayout" name="gridLayout_2">
+            <layout class="QGridLayout" name="gridLayout_log">
              <item row="0" column="0">
-              <widget class="QTextBrowser" name="textBrowser">
+              <widget class="QTextBrowser" name="log">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
                  <horstretch>0</horstretch>
